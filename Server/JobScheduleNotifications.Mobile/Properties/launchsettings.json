@@ -1,0 +1,18 @@
+﻿{
+  "profiles": {
+    "Windows Machine (Debug)": {
+      "commandName": "Project",
+      "targetFramework": "net9.0-windows10.0.19041.0",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    },
+    "Android Emulator (Debug)": {
+      "commandName": "Project",
+      "targetFramework": "net9.0-android",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

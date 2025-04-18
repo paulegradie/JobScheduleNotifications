@@ -1,0 +1,22 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Package Versions -->
+    <MauiVersion>9.0.0-preview.2.10293</MauiVersion>
+    <MicrosoftExtensionsLoggingVersion>9.0.0-preview.1.24080.9</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftIdentityVersion>7.4.0</MicrosoftIdentityVersion>
+    <SwashbuckleVersion>6.5.0</SwashbuckleVersion>
+    <EntityFrameworkVersion>9.0.0-preview.1.24081.2</EntityFrameworkVersion>
+  </PropertyGroup>
+</Project> 
