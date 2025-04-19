@@ -1,5 +1,5 @@
 using System.Net.Http.Json;
-using JobScheduleNotifications.Contracts;
+
 
 namespace JobScheduleNotifications.Mobile.Services;
 

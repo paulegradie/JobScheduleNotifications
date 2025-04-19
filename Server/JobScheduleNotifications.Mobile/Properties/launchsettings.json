@@ -13,6 +13,20 @@
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
       }
+    },
+    "iOS Simulator (Debug)": {
+      "commandName": "Project",
+      "targetFramework": "net9.0-ios",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    },
+    "MacCatalyst (Debug)": {
+      "commandName": "Project",
+      "targetFramework": "net9.0-maccatalyst",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
     }
   }
 }

@@ -2,6 +2,7 @@
 using JobScheduleNotifications.Mobile.Services;
 using JobScheduleNotifications.Mobile.ViewModels;
 using JobScheduleNotifications.Mobile.Views;
+using CommunityToolkit.Maui;
 
 namespace JobScheduleNotifications.Mobile;
 
@@ -12,7 +13,7 @@ public static class MauiProgram
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
-			// .UseMauiCommunityToolkit()
+			 .UseMauiCommunityToolkit()
 			.ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
