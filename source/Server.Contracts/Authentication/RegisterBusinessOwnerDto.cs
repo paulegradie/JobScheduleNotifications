@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace JobScheduleNotifications.Contracts.Authentication
+namespace Server.Contracts.Authentication
 {
     public class RegisterBusinessOwnerDto
     {

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace JobScheduleNotifications.Contracts.Customers;
+namespace Server.Contracts.Customers;
 
 public class UpdateCustomerDto
 {

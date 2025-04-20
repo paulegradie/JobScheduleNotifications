@@ -1,11 +1,13 @@
+using System.Runtime.CompilerServices;
 using Server.Client.Endpoints;
 using Server.Contracts.Client;
 using Server.Contracts.Client.Endpoints.Customers;
 using Server.Contracts.Client.Endpoints.Home;
+[assembly: InternalsVisibleTo("Mobile.Api.Composition")]
 
 namespace Server.Client;
 
-public class ServerClient(HttpClient client) : IServerClient
+internal class ServerClient(HttpClient client) : IServerClient
 {
     public HttpClient Http { get; set; } = client;
 

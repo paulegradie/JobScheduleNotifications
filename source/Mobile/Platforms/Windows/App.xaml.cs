@@ -6,7 +6,7 @@
 namespace Mobile.WinUI
 {
     /// <summary>
-    /// Provides application-specific behavior to supplement the default Application class.
+    /// Provides application-specific behavior to supplement the default Api.Application class.
     /// </summary>
     public partial class App : MauiWinUIApplication
     {

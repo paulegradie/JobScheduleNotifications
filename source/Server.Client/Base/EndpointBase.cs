@@ -5,24 +5,25 @@ using Server.Contracts.Client.Request;
 
 namespace Server.Client.Base;
 
-public abstract class EndpointBase(HttpClient client) : IServerEndpoint
+internal abstract class EndpointBase(HttpClient client) : IServerEndpoint
 {
+    protected readonly HttpClient Client;
     public async Task<TResponse> Post<TRequest, TResponse>(TRequest command, CancellationToken cancellationToken)
         where TRequest : RequestBase
     {
-        var response = await client.PostAsJsonAsync(command.GetActionRoute().ToString(), command, cancellationToken);
+        var response = await Client.PostAsJsonAsync(command.GetApiRoute().ToString(), command, cancellationToken);
         await CatchErrorsAndThrow(response);
         return await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken) ??
-               throw new ResponseEmptyException(command.GetActionRoute().ToString());
+               throw new ResponseEmptyException(command.GetApiRoute().ToString());
     }
 
     public async Task<TResponse> Get<TRequest, TResponse>(TRequest request, CancellationToken cancellationToken)
         where TRequest : RequestBase
     {
-        var response = await client.GetAsync(request.GetActionRoute().ToString(), cancellationToken);
+        var response = await Client.GetAsync(request.GetApiRoute().ToString(), cancellationToken);
         await CatchErrorsAndThrow(response);
         return await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken) ??
-               throw new ResponseEmptyException(request.GetActionRoute().ToString());
+               throw new ResponseEmptyException(request.GetApiRoute().ToString());
     }
 
     private static async Task CatchErrorsAndThrow(HttpResponseMessage response)

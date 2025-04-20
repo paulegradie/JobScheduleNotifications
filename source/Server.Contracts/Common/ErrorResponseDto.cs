@@ -1,4 +1,4 @@
-namespace JobScheduleNotifications.Contracts.Common;
+namespace Server.Contracts.Common;
 
 public class ErrorResponseDto
 {

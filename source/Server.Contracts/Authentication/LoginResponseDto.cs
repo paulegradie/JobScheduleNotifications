@@ -1,4 +1,4 @@
-namespace JobScheduleNotifications.Contracts.Authentication;
+namespace Server.Contracts.Authentication;
 
 public class LoginResponseDto
 {

@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <InternalsVisibleTo>Mobile.Composition</InternalsVisibleTo>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Server.Contracts\Server.Contracts.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Server.Contracts\Server.Contracts.csproj"/>
+    </ItemGroup>
 
 </Project>

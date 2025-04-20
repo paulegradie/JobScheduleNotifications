@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Server.Client.Base;
 
-public class ErrorResponse
+internal class ErrorResponse
 {
     [JsonConstructor]
 #pragma warning disable CS8618

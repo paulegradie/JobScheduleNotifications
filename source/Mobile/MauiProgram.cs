@@ -1,9 +1,9 @@
 ﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Markup;
 using Mobile.Resources.Fonts;
 using Microsoft.Extensions.Logging;
+using Mobile.Composition;
 using Syncfusion.Maui.Toolkit.Hosting;
-using Mobile.PageModels;
-using Mobile.Pages;
 
 namespace Mobile
 {
@@ -15,6 +15,7 @@ namespace Mobile
             builder
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
+                .UseMauiCommunityToolkitMarkup()
                 .ConfigureSyncfusionToolkit()
                 .ConfigureMauiHandlers(handlers =>
                 {
@@ -28,16 +29,9 @@ namespace Mobile
                 });
 
 #if DEBUG
-    		builder.Logging.AddDebug();
-    		builder.Services.AddLogging(configure => configure.AddDebug());
+            builder.Logging.AddDebug();
 #endif
-
-
-            builder.Services.AddSingleton<ModalErrorHandler>();
-
-            builder.Services.AddTransient<MainPageViewModel>();
-
-            builder.Services.AddTransient<MainPage>();
+            builder.Services.ComposeServices();
 
             return builder.Build();
         }

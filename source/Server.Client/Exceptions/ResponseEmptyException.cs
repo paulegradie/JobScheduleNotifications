@@ -1,6 +1,6 @@
 ﻿namespace Server.Client.Exceptions;
 
-public class ResponseEmptyException : Exception
+internal class ResponseEmptyException : Exception
 {
     public ResponseEmptyException(string? message) : base(message)
     {

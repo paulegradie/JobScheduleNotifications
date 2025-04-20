@@ -1,7 +1,7 @@
-using JobScheduleNotifications.Contracts.Authentication;
 using JobScheduleNotifications.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Server.Contracts.Authentication;
 
 namespace JobScheduleNotifications.Api.Controllers
 {

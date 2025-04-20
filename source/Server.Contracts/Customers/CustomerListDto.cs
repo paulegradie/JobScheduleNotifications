@@ -1,4 +1,4 @@
-namespace JobScheduleNotifications.Contracts.Customers;
+namespace Server.Contracts.Customers;
 
 public class CustomerListDto
 {

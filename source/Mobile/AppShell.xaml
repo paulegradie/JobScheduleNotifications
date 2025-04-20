@@ -4,14 +4,14 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:sf="clr-namespace:Syncfusion.Maui.Toolkit.SegmentedControl;assembly=Syncfusion.Maui.Toolkit"
-    xmlns:pages="clr-namespace:Mobile.Pages"
+    xmlns:pages="clr-namespace:Mobile.Core.Pages;assembly=Mobile.Core"
     Shell.FlyoutBehavior="Flyout"
     Title="Mobile">
 
     <ShellContent
         Title="Home-Test-Page"
         Icon="{StaticResource IconDashboard}"
-        ContentTemplate="{DataTemplate pages:MainPage}"
+        ContentTemplate="{DataTemplate pages:HomePage}"
         Route="main" />
 
     <Shell.FlyoutFooter>
