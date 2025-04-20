@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- 
+This UI has been converted to C# markup in CustomerPage.xaml.cs.
+The XAML definition is no longer used.
+-->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:pageModels="clr-namespace:Mobile.PageModels"
+             x:Class="Mobile.Pages.CustomerPage"
+             x:DataType="pageModels:CustomerViewModel"
+             Title="{Binding Title}">
+
+    <ScrollView AutomationId="CustomerScrollView">
+        <VerticalStackLayout Spacing="25" 
+                           Padding="30,20" 
+                           VerticalOptions="Fill">
+
+            <Label Text="Customer Information"
+                   AutomationId="TitleLabel"
+                   SemanticProperties.HeadingLevel="Level1"
+                   FontSize="32"
+                   HorizontalOptions="Center" />
+
+            <Entry AutomationId="FirstNameEntry"
+                   Placeholder="First Name *"
+                   IsEnabled="{Binding IsNotBusy}"
+                   Style="{StaticResource ValidationEntry}"
+                   SemanticProperties.Description="Enter customer's first name">
+                <Entry.Text>
+                    <Binding Path="SelectedCustomer.FirstName" Mode="TwoWay" />
+                </Entry.Text>
+                <Entry.Behaviors>
+                    <toolkit:TextValidationBehavior 
+                        MinimumLength="1"
+                        InvalidStyle="{StaticResource InvalidEntryStyle}"
+                        ValidStyle="{StaticResource ValidEntryStyle}"/>
+                </Entry.Behaviors>
+            </Entry>
+
+            <Entry AutomationId="LastNameEntry"
+                   Placeholder="Last Name *"
+                   Text="{Binding SelectedCustomer.LastName, Mode=TwoWay}"
+                   IsEnabled="{Binding IsNotBusy}"
+                   Style="{StaticResource ValidationEntry}"
+                   SemanticProperties.Description="Enter customer's last name">
+                <Entry.Behaviors>
+                    <toolkit:TextValidationBehavior 
+                        MinimumLength="1"
+                        InvalidStyle="{StaticResource InvalidEntryStyle}"
+                        ValidStyle="{StaticResource ValidEntryStyle}"/>
+                </Entry.Behaviors>
+            </Entry>
+
+            <Entry AutomationId="EmailEntry"
+                   Placeholder="Email *"
+                   Text="{Binding SelectedCustomer.Email, Mode=TwoWay}"
+                   Keyboard="Email"
+                   IsEnabled="{Binding IsNotBusy}"
+                   Style="{StaticResource ValidationEntry}"
+                   SemanticProperties.Description="Enter customer's email address">
+                <Entry.Behaviors>
+                    <toolkit:EmailValidationBehavior 
+                        InvalidStyle="{StaticResource InvalidEntryStyle}"
+                        ValidStyle="{StaticResource ValidEntryStyle}"/>
+                </Entry.Behaviors>
+            </Entry>
+
+            <Entry AutomationId="PhoneEntry"
+                   Placeholder="Phone Number *"
+                   Text="{Binding SelectedCustomer.PhoneNumber, Mode=TwoWay}"
+                   Keyboard="Telephone"
+                   IsEnabled="{Binding IsNotBusy}"
+                   Style="{StaticResource ValidationEntry}"
+                   SemanticProperties.Description="Enter customer's phone number">
+                <Entry.Behaviors>
+                    <toolkit:MaskedBehavior Mask="(XXX) XXX-XXXX"
+                                          UnmaskedCharacter="X"/>
+                </Entry.Behaviors>
+            </Entry>
+
+            <Editor AutomationId="NotesEditor"
+                    Placeholder="Notes"
+                    Text="{Binding SelectedCustomer.Notes, Mode=TwoWay}"
+                    IsEnabled="{Binding IsNotBusy}"
+                    MaxLength="500"
+                    HeightRequest="{OnIdiom Phone=100, Tablet=150}"
+                    Style="{StaticResource ValidationEntry}"
+                    SemanticProperties.Description="Enter any additional notes about the customer"/>
+
+            <Label AutomationId="ValidationMessage"
+                   Text="{Binding ValidationMessage}"
+                   IsVisible="{Binding HasValidationError}"
+                   TextColor="{StaticResource ErrorTextColor}"
+                   HorizontalOptions="Center"/>
+
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="20">
+                <Button AutomationId="SaveButton"
+                        Text="Save"
+                        SemanticProperties.Description="Saves the customer information"
+                        Command="{Binding SaveCustomerCommand}"
+                        IsEnabled="{Binding CanSave}"
+                        Style="{StaticResource PrimaryButton}"/>
+
+                <Button AutomationId="CancelButton"
+                        Text="Cancel"
+                        SemanticProperties.Description="Cancels the operation and returns to the previous page"
+                        Command="{Binding CancelCommand}"
+                        IsEnabled="{Binding IsNotBusy}"
+                        Style="{StaticResource SecondaryButton}"/>
+            </HorizontalStackLayout>
+
+            <ActivityIndicator AutomationId="BusyIndicator"
+                             IsRunning="{Binding IsBusy}"
+                             IsVisible="{Binding IsBusy}"
+                             HorizontalOptions="Center" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

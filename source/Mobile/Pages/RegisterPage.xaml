@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:Mobile.PageModels"
+             x:Class="Mobile.Pages.RegisterPage"
+             x:DataType="viewModels:RegisterViewModel"
+             Shell.NavBarIsVisible="False">
+
+    <ScrollView>
+        <Grid RowDefinitions="Auto,*,Auto" 
+              Padding="20"
+              BackgroundColor="{AppThemeBinding Light=White, Dark=#1C1C1E}">
+
+            <!-- Header -->
+            <VerticalStackLayout Grid.Row="0" 
+                                Spacing="10" 
+                                Margin="0,40,0,20">
+                <Label Text="Create Account"
+                       FontSize="32"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       TextColor="{AppThemeBinding Light=#1C1C1E, Dark=White}"/>
+                <Label Text="Sign up to get started"
+                       FontSize="16"
+                       HorizontalOptions="Center"
+                       TextColor="{AppThemeBinding Light=#666666, Dark=#8E8E93}"/>
+            </VerticalStackLayout>
+
+            <!-- Registration Form -->
+            <VerticalStackLayout Grid.Row="1" 
+                                Spacing="15">
+                
+                <!-- Email Entry -->
+                <Frame BorderColor="{AppThemeBinding Light=#E5E5EA, Dark=#2C2C2E}"
+                       BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                       Padding="15,0"
+                       HasShadow="False"
+                       CornerRadius="10">
+                    <Entry Placeholder="Email"
+                           Text="{Binding Email}"
+                           Keyboard="Email"
+                           ReturnType="Next"
+                           FontSize="16"
+                           TextColor="{AppThemeBinding Light=#1C1C1E, Dark=White}"/>
+                </Frame>
+
+                <!-- Password Entry -->
+                <Frame BorderColor="{AppThemeBinding Light=#E5E5EA, Dark=#2C2C2E}"
+                       BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                       Padding="15,0"
+                       HasShadow="False"
+                       CornerRadius="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Entry Grid.Column="0"
+                               Placeholder="Password"
+                               Text="{Binding Password}"
+                               IsPassword="{Binding IsPasswordVisible, Converter={StaticResource InverseBoolConverter}}"
+                               ReturnType="Next"
+                               FontSize="16"
+                               TextColor="{AppThemeBinding Light=#1C1C1E, Dark=White}"/>
+                        <Button Grid.Column="1"
+                                Text="{Binding IsPasswordVisible, Converter={StaticResource BoolToEyeIconConverter}}"
+                                Command="{Binding TogglePasswordVisibilityCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{AppThemeBinding Light=#666666, Dark=#8E8E93}"
+                                FontSize="16"
+                                Padding="10,0"/>
+                    </Grid>
+                </Frame>
+
+                <!-- Confirm Password Entry -->
+                <Frame BorderColor="{AppThemeBinding Light=#E5E5EA, Dark=#2C2C2E}"
+                       BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                       Padding="15,0"
+                       HasShadow="False"
+                       CornerRadius="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Entry Grid.Column="0"
+                               Placeholder="Confirm Password"
+                               Text="{Binding ConfirmPassword}"
+                               IsPassword="{Binding IsConfirmPasswordVisible, Converter={StaticResource InverseBoolConverter}}"
+                               ReturnType="Next"
+                               FontSize="16"
+                               TextColor="{AppThemeBinding Light=#1C1C1E, Dark=White}"/>
+                        <Button Grid.Column="1"
+                                Text="{Binding IsConfirmPasswordVisible, Converter={StaticResource BoolToEyeIconConverter}}"
+                                Command="{Binding ToggleConfirmPasswordVisibilityCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{AppThemeBinding Light=#666666, Dark=#8E8E93}"
+                                FontSize="16"
+                                Padding="10,0"/>
+                    </Grid>
+                </Frame>
+
+                <!-- Business Name Entry -->
+                <Frame BorderColor="{AppThemeBinding Light=#E5E5EA, Dark=#2C2C2E}"
+                       BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                       Padding="15,0"
+                       HasShadow="False"
+                       CornerRadius="10">
+                    <Entry Placeholder="Business Name"
+                           Text="{Binding BusinessName}"
+                           ReturnType="Next"
+                           FontSize="16"
+                           TextColor="{AppThemeBinding Light=#1C1C1E, Dark=White}"/>
+                </Frame>
+
+                <!-- First Name Entry -->
+                <Frame BorderColor="{AppThemeBinding Light=#E5E5EA, Dark=#2C2C2E}"
+                       BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                       Padding="15,0"
+                       HasShadow="False"
+                       CornerRadius="10">
+                    <Entry Placeholder="First Name"
+                           Text="{Binding FirstName}"
+                           ReturnType="Next"
+                           FontSize="16"
+                           TextColor="{AppThemeBinding Light=#1C1C1E, Dark=White}"/>
+                </Frame>
+
+                <!-- Last Name Entry -->
+                <Frame BorderColor="{AppThemeBinding Light=#E5E5EA, Dark=#2C2C2E}"
+                       BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                       Padding="15,0"
+                       HasShadow="False"
+                       CornerRadius="10">
+                    <Entry Placeholder="Last Name"
+                           Text="{Binding LastName}"
+                           ReturnType="Next"
+                           FontSize="16"
+                           TextColor="{AppThemeBinding Light=#1C1C1E, Dark=White}"/>
+                </Frame>
+
+                <!-- Phone Number Entry -->
+                <Frame BorderColor="{AppThemeBinding Light=#E5E5EA, Dark=#2C2C2E}"
+                       BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                       Padding="15,0"
+                       HasShadow="False"
+                       CornerRadius="10">
+                    <Entry Placeholder="Phone Number"
+                           Text="{Binding PhoneNumber}"
+                           Keyboard="Telephone"
+                           ReturnType="Next"
+                           FontSize="16"
+                           TextColor="{AppThemeBinding Light=#1C1C1E, Dark=White}"/>
+                </Frame>
+
+                <!-- Business Address Entry -->
+                <Frame BorderColor="{AppThemeBinding Light=#E5E5EA, Dark=#2C2C2E}"
+                       BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                       Padding="15,0"
+                       HasShadow="False"
+                       CornerRadius="10">
+                    <Entry Placeholder="Business Address"
+                           Text="{Binding BusinessAddress}"
+                           ReturnType="Next"
+                           FontSize="16"
+                           TextColor="{AppThemeBinding Light=#1C1C1E, Dark=White}"/>
+                </Frame>
+
+                <!-- Business Description Entry -->
+                <Frame BorderColor="{AppThemeBinding Light=#E5E5EA, Dark=#2C2C2E}"
+                       BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                       Padding="15,0"
+                       HasShadow="False"
+                       CornerRadius="10">
+                    <Editor Placeholder="Business Description (Optional)"
+                            Text="{Binding BusinessDescription}"
+                            AutoSize="TextChanges"
+                            MaxLength="500"
+                            FontSize="16"
+                            TextColor="{AppThemeBinding Light=#1C1C1E, Dark=White}"/>
+                </Frame>
+
+                <!-- Error Message -->
+                <Label Text="{Binding ErrorMessage}"
+                       TextColor="Red"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+                       HorizontalOptions="Center"/>
+
+                <!-- Register Button -->
+                <Button Text="Create Account"
+                        Command="{Binding RegisterCommand}"
+                        IsEnabled="{Binding IsNotBusy}"
+                        BackgroundColor="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"
+                        TextColor="White"
+                        FontSize="16"
+                        HeightRequest="50"
+                        CornerRadius="10"
+                        Margin="0,20,0,0"/>
+
+                <!-- Activity Indicator -->
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                 IsVisible="{Binding IsBusy}"
+                                 Color="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"
+                                 HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+
+            <!-- Login Link -->
+            <HorizontalStackLayout Grid.Row="2" 
+                                  Spacing="5" 
+                                  HorizontalOptions="Center"
+                                  Margin="0,0,0,20">
+                <Label Text="Already have an account?"
+                       TextColor="{AppThemeBinding Light=#666666, Dark=#8E8E93}"/>
+                <Label Text="Sign In"
+                       TextColor="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"
+                       TextDecorations="Underline">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding LoginCommand}"/>
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
+        </Grid>
+    </ScrollView>
+</ContentPage> 
