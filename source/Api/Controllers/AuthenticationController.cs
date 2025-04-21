@@ -19,7 +19,7 @@ namespace Api.Controllers
 
         [HttpPost(RegisterNewAdminRequest.Route)]
         [AllowAnonymous]
-        public async Task<ActionResult<RegisterResponse>> Register(RegisterNewAdminRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<RegisterResponse>> Register([FromBody] RegisterNewAdminRequest request, CancellationToken cancellationToken)
         {
             try
             {

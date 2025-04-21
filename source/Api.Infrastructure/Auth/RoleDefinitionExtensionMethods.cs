@@ -16,17 +16,19 @@ public static class RoleDefinitionExtensionMethods
 
     public static async Task EnsureDefaultRoles(this WebApplication app)
     {
-        using var scope = app.Services.CreateScope();
-        await SetDefaultRoles(scope.ServiceProvider);
+        await SetDefaultRoles(app.Services);
     }
 
     public static async Task EnsureDefaultRoles(this IServiceProvider serviceProvider)
-        => await SetDefaultRoles(serviceProvider);
+    {
+        await SetDefaultRoles(serviceProvider);
+    }
 
 
     private static async Task SetDefaultRoles(IServiceProvider serviceProvider)
     {
-        var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        using var scope = serviceProvider.CreateScope();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
         foreach (var role in DefaultRoles)
         {

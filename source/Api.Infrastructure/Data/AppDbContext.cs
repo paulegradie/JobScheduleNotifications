@@ -1,22 +1,42 @@
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection;
 using Api.Infrastructure.DbTables;
+using Api.Infrastructure.EntityFramework;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Infrastructure.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<ApplicationUserRecord>
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    private readonly IEnumerable<IEntityPropertyConvention> _conventions;
+
+    public AppDbContext(IEnumerable<IEntityPropertyConvention> conventions, DbContextOptions<AppDbContext> options) : base(options)
     {
+        _conventions = conventions;
     }
 
-    public DbSet<BusinessOwner> BusinessOwners { get; set; } = null!;
-    public DbSet<Customer> Customers { get; set; } = null!;
-    public DbSet<ScheduledJob> ScheduledJobs { get; set; } = null!;
-    public DbSet<JobReminder> JobReminders { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        var entities = typeof(AppDbContext)
+            .Assembly
+            .GetTypes()
+            .Where(x => x.IsClass && x.GetCustomAttribute<DatabaseModelAttribute>() != null);
+
+        foreach (var entity in entities)
+        {
+            var entityBuilder = modelBuilder.Entity(entity).ToTable(entity.Name);
+            foreach (var entityProperty in entity.GetProperties()
+                         .Where(x => x.GetCustomAttribute<NotMappedAttribute>() is null))
+            {
+                foreach (var convention in _conventions)
+                {
+                    convention.Apply(modelBuilder, entityBuilder, entityProperty);
+                }
+            }
+        }
 
         modelBuilder.Entity<BusinessOwner>(entity =>
         {

@@ -5,7 +5,7 @@ namespace Server.Contracts.Client.Endpoints.Auth
 {
     public record RegisterNewAdminRequest() : RequestBase(Route)
     {
-        public const string Route = "api/user/register";
+        public const string Route = "/api/user/register";
         
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email format")]

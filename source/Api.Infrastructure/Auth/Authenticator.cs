@@ -8,7 +8,7 @@ namespace Api.Infrastructure.Auth;
 
 public class Authenticator : IAuthenticator
 {
-    private readonly IJwt jwt;
+    private readonly IJwt _jwt;
     private readonly UserManager<ApplicationUserRecord> _userManager;
     private readonly SignInManager<ApplicationUserRecord> _signInManager;
 
@@ -17,7 +17,7 @@ public class Authenticator : IAuthenticator
         UserManager<ApplicationUserRecord> userManager,
         SignInManager<ApplicationUserRecord> signInManager)
     {
-        this.jwt = jwt;
+        _jwt = jwt;
         _userManager = userManager;
         _signInManager = signInManager;
     }
@@ -36,8 +36,8 @@ public class Authenticator : IAuthenticator
             if (user?.UserName is null)
                 throw new AuthenticationException("Could not find user after login - this should not happen!");
 
-            var token = jwt.GenerateJwtToken(user.IsAdmin, user.UserName);
-            var refreshToken = jwt.GenerateRefreshToken();
+            var token = _jwt.GenerateJwtToken(user.IsAdmin, user.UserName);
+            var refreshToken = _jwt.GenerateRefreshToken();
 
             // Store refresh token in the database
             user.RefreshToken = refreshToken.Token;
@@ -88,7 +88,7 @@ public class Authenticator : IAuthenticator
     {
         var newAdminUser = new ApplicationUserRecord(true, req.Email);
         var newUserResult = await _userManager.CreateAsync(newAdminUser, req.Password);
-        if (newUserResult is null || !newUserResult.Succeeded || newAdminUser is null)
+        if (newUserResult is null || !newUserResult.Succeeded || newAdminUser?.Email is null)
         {
             var msg = newUserResult?.Errors.Select(x => x.Description);
             throw new AuthenticationException(msg is null ? "Failed to create new user" : string.Join(", ", msg));
@@ -100,7 +100,7 @@ public class Authenticator : IAuthenticator
 
     public async Task<AppSignInResult> RefreshToken(string accessToken, string refreshToken, CancellationToken cancellationToken)
     {
-        var principal = jwt.GetPrincipalFromExpiredToken(accessToken);
+        var principal = _jwt.GetPrincipalFromExpiredToken(accessToken);
         var username = principal.Identity?.Name;
     
         var user = await _userManager.FindByNameAsync(username);
@@ -109,8 +109,8 @@ public class Authenticator : IAuthenticator
             throw new AuthenticationException("Invalid refresh token or token expired");
         }
     
-        var newAccessToken = jwt.GenerateJwtToken(user.IsAdmin, user.UserName);
-        var newRefreshToken = jwt.GenerateRefreshToken();
+        var newAccessToken = _jwt.GenerateJwtToken(user.IsAdmin, user.UserName);
+        var newRefreshToken = _jwt.GenerateRefreshToken();
     
         user.RefreshToken = newRefreshToken.Token;
         user.RefreshTokenExpiryTime = newRefreshToken.Expires;

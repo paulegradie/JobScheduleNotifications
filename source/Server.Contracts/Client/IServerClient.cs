@@ -9,4 +9,6 @@ public interface IServerClient
     public IHomeEndpoint Home { get; init; }
     public ICustomersEndpoint Customers { get; init; }
     public IAuthenticationEndpoint Auth { get; init; }
+    
+    public HttpClient Http { get; set; }
 }

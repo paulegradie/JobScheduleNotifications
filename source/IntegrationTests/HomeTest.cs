@@ -2,7 +2,7 @@
 using Server.Contracts.Client.Endpoints.Home;
 using Shouldly;
 
-public class HomeTest : IntegrationTest
+public class HomeTest : AuthenticatedIntegrationTest
 {
  
     [Fact]

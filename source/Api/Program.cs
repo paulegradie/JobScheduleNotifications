@@ -1,50 +1,24 @@
-using System.Text;
 using Api.Composition;
 using Api.Infrastructure.Auth;
 using Api.Infrastructure.Data;
 using Api.Middleware;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
-using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.ClearProviders(); // Optional: Clears default providers
-builder.Logging.AddConsole();     // Adds basic console logging
-builder.Logging.AddDebug();       // Useful in Visual Studio output window
+builder.Logging.AddConsole(); // Adds basic console logging
+builder.Logging.AddDebug(); // Useful in Visual Studio output window
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
-
-builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings["Issuer"],
-            ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(key)
-        };
-    });
-// Compose application dependencies
+builder.Services.AddOptions<ServiceProviderOptions>().Configure(options => options.ValidateScopes = true);
 builder.Services.ComposeApplication(builder.Configuration);
-builder.Services.ConfigureAuthentication();
+builder.Services.ConfigureAuthentication(builder.Configuration);
 
 var app = builder.Build();
-app.Services.EnsureAndMigrateDatabase();
-await app.EnsureDefaultRoles();
+
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
@@ -78,6 +52,12 @@ app.Lifetime.ApplicationStarted.Register(() =>
         logger.LogWarning("Could not retrieve server addresses. This might happen when using Kestrel directly without addresses specified.");
     }
 });
+
+if (!app.Environment.IsEnvironment("Test"))
+{
+    await app.Services.EnsureAndMigrateDatabase(preDelete: false);
+    await app.Services.EnsureDefaultRoles();
+}
 
 app.Run();
 

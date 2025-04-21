@@ -2,6 +2,7 @@ using Api.Infrastructure.Auth;
 using Api.Infrastructure.Auth.AccessPolicies;
 using Api.Infrastructure.Data;
 using Api.Infrastructure.DbTables;
+using Api.Infrastructure.EntityFramework;
 using JobScheduleNotifications.Core.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +15,23 @@ public static class CompositionRoot
 {
     public static void ComposeApplication(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<IdentityOptions>(options => { options.User.RequireUniqueEmail = true; });
+        services.RegisterEfConventions(); // Your extension to register IEntityPropertyConvention[]
 
-        // Register DbContext
-        services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
+        services.AddDbContext<AppDbContext>((sp, options) => { options.UseSqlite("Data Source=DevDatabase.db"); });
+
+        services.AddScoped<AppDbContext>(sp =>
+        {
+            var options = sp.GetRequiredService<DbContextOptions<AppDbContext>>();
+            var conventions = sp.GetRequiredService<IEnumerable<IEntityPropertyConvention>>();
+            return new AppDbContext(conventions, options);
+        });
+
+        services
+            .AddIdentity<ApplicationUserRecord, IdentityRole>()
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddDefaultTokenProviders();
+
+        services.RegisterEfConventions();
 
         // Register Repositories
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

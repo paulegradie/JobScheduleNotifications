@@ -9,16 +9,16 @@ namespace Api.Infrastructure.Auth.AccessPolicies;
 
 public class Jwt : IJwt
 {
-    private readonly string jwtKey;
+    private readonly string _jwtKey;
 
     public Jwt(IOptions<AuthenticationOptions> authOptions)
     {
-        jwtKey = authOptions.Value.JwtKey;
+        _jwtKey = authOptions.Value.Key;
     }
 
     public string GenerateJwtToken(bool isAdmin, string userName)
     {
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>

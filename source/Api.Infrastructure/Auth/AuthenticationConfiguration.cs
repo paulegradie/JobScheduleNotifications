@@ -11,10 +11,9 @@ namespace Api.Infrastructure.Auth;
 
 public static class AuthenticationConfiguration
 {
-    public static void ConfigureAuthentication(this IServiceCollection serviceCollection)
+    public static void ConfigureAuthentication(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
-        var serviceProvider = serviceCollection.BuildServiceProvider();
-        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+        serviceCollection.Configure<AuthenticationOptions>(configuration.GetSection(AuthenticationOptions.Node));
 
         serviceCollection.RegisterAuthenticationOptions(configuration);
         serviceCollection.AddAuthentication(opts =>
@@ -30,7 +29,7 @@ public static class AuthenticationConfiguration
                 opts.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = configuration.GetValue<string>("Environment") == "Production",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authSettings.Value.JwtKey)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authSettings.Value.Key)),
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     RoleClaimType = ClaimTypes.Role

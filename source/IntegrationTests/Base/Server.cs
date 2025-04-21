@@ -1,11 +1,12 @@
-using System.Data.Common;
 using Api;
 using Api.Infrastructure.Data;
+using Api.Infrastructure.EntityFramework;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace IntegrationTests.Base;
 
@@ -13,19 +14,24 @@ public class Server : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder
-            .ConfigureTestServices(services =>
+        builder.UseEnvironment("Test");
+
+        builder.ConfigureTestServices(services =>
+        {
+            var uniqueId = Guid.NewGuid(); // or pass this in
+
+            services.RemoveAll<AppDbContext>();
+            services.RemoveAll<DbContextOptions<AppDbContext>>();
+
+            services.AddDbContext<AppDbContext>((sp, options) => { options.UseSqlite($"Data Source=TestDatabase-{uniqueId}.db"); });
+
+            services.AddScoped<AppDbContext>(sp =>
             {
-                var dbContextDescriptor =
-                    services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
-                if (dbContextDescriptor is not null) services.Remove(dbContextDescriptor);
-
-                var dbConnDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbConnection));
-                if (dbConnDescriptor is not null) services.Remove(dbConnDescriptor);
-
-                services.AddDbContext<AppDbContext>(opts =>
-                    opts.UseSqlite("Data Source=:memory:")); // TODO: Replace with real db
+                var options = sp.GetRequiredService<DbContextOptions<AppDbContext>>();
+                var conventions = sp.GetRequiredService<IEnumerable<IEntityPropertyConvention>>();
+                return new AppDbContext(conventions, options);
             });
+        });
 
         base.ConfigureWebHost(builder);
     }

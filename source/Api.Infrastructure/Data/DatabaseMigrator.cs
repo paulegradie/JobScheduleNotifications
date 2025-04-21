@@ -4,19 +4,15 @@ namespace Api.Infrastructure.Data;
 
 public static class DatabaseMigrator
 {
-    public static void EnsureAndMigrateDatabase(
+    public static async Task EnsureAndMigrateDatabase(
         this IServiceProvider provider,
+        bool preDelete = false,
         CancellationToken cancellationToken = default)
     {
         using var scope = provider.CreateScope();
 
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        dbContext.Database.EnsureCreated();
-
-        // var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-        // if (app.Environment.IsDevelopment())
-        // {
-        // }
-        // dbContext.Persistence.Migrate();
+        if (preDelete) await dbContext.Database.EnsureDeletedAsync(cancellationToken);
+        await dbContext.Database.EnsureCreatedAsync(cancellationToken);
     }
 }

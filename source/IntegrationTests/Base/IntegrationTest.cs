@@ -19,8 +19,7 @@ public class IntegrationTest : IAsyncLifetime
 
     protected IServerClient Client { get; private set; }
 
-    protected CancellationToken CancellationToken { get; set; } =
-        new CancellationTokenSource(TimeSpan.FromMinutes(5)).Token;
+    protected CancellationToken CancellationToken { get; set; } = new CancellationTokenSource(TimeSpan.FromMinutes(5)).Token;
 
     public virtual async Task InitializeAsync()
     {
@@ -31,15 +30,10 @@ public class IntegrationTest : IAsyncLifetime
         Client = new ServerClient(client);
         CancellationToken = new CancellationTokenSource(TimeSpan.FromMinutes(5)).Token;
 
-        // Create a service scope to resolve scoped services
         scope = Server.Services.CreateScope();
-
-        // Get the DbContext from the scope
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        await db.Database.EnsureCreatedAsync(CancellationToken);
-
-        // Use the scoped provider for this operation
-        await scope.ServiceProvider.EnsureDefaultRoles();
+        // await db.Database.EnsureCreatedAsync(CancellationToken);
+        // await scope.ServiceProvider.EnsureDefaultRoles();
 
         transaction = await db.Database.BeginTransactionAsync(CancellationToken);
     }
