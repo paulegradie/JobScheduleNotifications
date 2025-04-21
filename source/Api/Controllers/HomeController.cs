@@ -1,17 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Server.Contracts.Client.Endpoints.Home;
 
 namespace JobScheduleNotifications.Api.Controllers;
 
+[Authorize]
 public class HomeController : BaseApiController
 {
-    // [HttpGet(HomeRequest.ActionRoute)]
-    // public Task<HomeResponse> Get() => Task.FromResult(new HomeResponse("Hello from the API!"));
-    
-    [HttpGet(HomeRequest.Route)]  // Use the same route constant
+    [HttpGet(HomeRequest.Route)]
     public async Task<ActionResult<HomeResponse>> Get([FromQuery] HomeRequest request)
     {
+        await Task.Yield();
         return new HomeResponse("Hello");
     }
-
 }

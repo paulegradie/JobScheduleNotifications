@@ -1,61 +1,52 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Mobile.Core.Domain;
+using Mobile.Core.Repositories;
 using Mobile.Core.Services;
-using Server.Contracts;
 using Server.Contracts.Customers;
-using ICustomerService = Mobile.Core.Interfaces.ICustomerService;
+using Server.Contracts.Dtos;
 
 namespace Mobile.UI.PageModels;
 
 public partial class ScheduleJobViewModel : ObservableObject
 {
-    private readonly IJobService _jobService;
-    private readonly ICustomerService _customerService;
-    private readonly INavigationService _navigationService;
+    private readonly IJobRepository _jobRepository;
+    private readonly ICustomerRepository _customerRepository;
+    private readonly INavigationUtility _navigationUtility;
 
-    [ObservableProperty]
-    private ObservableCollection<CustomerDto> _customers = new();
+    [ObservableProperty] private ObservableCollection<ServiceRecipient> _customers = new();
 
-    [ObservableProperty]
-    private CustomerDto _selectedCustomer;
+    [ObservableProperty] private CustomerDto _selectedCustomer;
 
-    [ObservableProperty]
-    private DateTime _scheduledDate = DateTime.Now;
+    [ObservableProperty] private DateTime _scheduledDate = DateTime.Now;
 
-    [ObservableProperty]
-    private TimeSpan _scheduledTime = DateTime.Now.TimeOfDay;
+    [ObservableProperty] private TimeSpan _scheduledTime = DateTime.Now.TimeOfDay;
 
-    [ObservableProperty]
-    private TimeSpan _minimumTime = DateTime.Now.TimeOfDay;
+    [ObservableProperty] private TimeSpan _minimumTime = DateTime.Now.TimeOfDay;
 
-    [ObservableProperty]
-    private string _jobDescription = string.Empty;
+    [ObservableProperty] private string _jobDescription = string.Empty;
 
-    [ObservableProperty]
-    private string _errorMessage = string.Empty;
+    [ObservableProperty] private string _errorMessage = string.Empty;
 
-    [ObservableProperty]
-    private string _title = "Schedule Job";
+    [ObservableProperty] private string _title = "Schedule Job";
 
-    [ObservableProperty]
-    private bool _isBusy;
+    [ObservableProperty] private bool _isBusy;
 
     public ScheduleJobViewModel(
-        IJobService jobService, 
-        ICustomerService customerService, 
-        INavigationService navigationService, 
+        IJobRepository jobRepository,
+        ICustomerRepository customerRepository,
+        INavigationUtility navigationUtility,
         CustomerDto selectedCustomer)
     {
-        _jobService = jobService;
-        _customerService = customerService;
-        _navigationService = navigationService;
+        _jobRepository = jobRepository;
+        _customerRepository = customerRepository;
+        _navigationUtility = navigationUtility;
         SelectedCustomer = selectedCustomer;
     }
 
     partial void OnScheduledDateChanged(DateTime value)
     {
-        var thing = SelectedCustomer;
         if (value.Date == DateTime.Now.Date)
         {
             MinimumTime = DateTime.Now.TimeOfDay;
@@ -74,7 +65,7 @@ public partial class ScheduleJobViewModel : ObservableObject
         try
         {
             IsBusy = true;
-            var customerList = await _customerService.GetCustomersAsync();
+            var customerList = await _customerRepository.GetServiceRecipients();
             Customers.Clear();
             foreach (var customer in customerList)
             {
@@ -128,9 +119,9 @@ public partial class ScheduleJobViewModel : ObservableObject
                 Description = JobDescription
             };
 
-            await _jobService.CreateJobAsync(job);
+            await _jobRepository.CreateJobAsync(job);
             await Shell.Current.DisplayAlert("Success", "Job scheduled successfully", "OK");
-            await _navigationService.GoBackAsync();
+            await _navigationUtility.GoBackAsync();
         }
         catch (Exception ex)
         {

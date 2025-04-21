@@ -3,20 +3,20 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.Core.Services;
 using Mobile.UI.Pages;
-using Server.Contracts.Authentication;
-using IAuthService = Mobile.Core.Interfaces.IAuthService;
+using Server.Contracts.Client;
+using Server.Contracts.Client.Endpoints.Auth;
 
 namespace Mobile.UI.PageModels;
 
 public partial class RegisterViewModel : ObservableValidator
 {
-    private readonly IAuthService _authService;
-    private readonly INavigationService _navigationService;
+    private readonly IServerClient _serverClient;
+    private readonly INavigationUtility _navigationUtility;
 
-    public RegisterViewModel(IAuthService authService, INavigationService navigationService)
+    public RegisterViewModel(IServerClient serverClient, INavigationUtility navigationUtility)
     {
-        _authService = authService;
-        _navigationService = navigationService;
+        _serverClient = serverClient;
+        _navigationUtility = navigationUtility;
         Title = "Register";
     }
 
@@ -125,25 +125,23 @@ public partial class RegisterViewModel : ObservableValidator
                 return;
             }
 
-            var registration = new RegisterBusinessOwnerDto
-            {
-                Email = Email,
-                Password = Password,
-                BusinessName = BusinessName,
-                FirstName = FirstName,
-                LastName = LastName,
-                PhoneNumber = PhoneNumber,
-                BusinessAddress = BusinessAddress,
-                BusinessDescription = BusinessDescription
-            };
+            var registration = new RegisterRequest(
+                Email,
+                Password,
+                BusinessName,
+                FirstName,
+                LastName,
+                PhoneNumber,
+                BusinessAddress,
+                BusinessDescription);
 
-            var success = await _authService.RegisterAsync(registration);
+            var success = await _serverClient.Auth.RegisterAsync(registration);
             if (success)
             {
-                success = await _authService.LoginAsync(Email, Password);
-                if (success)
+                var suc = await _serverClient.Auth.LoginAsync(new LoginRequest(Email, Password));
+                if (true)
                 {
-                    await _navigationService.NavigateToAsync(nameof(HomePage));
+                    await _navigationUtility.NavigateToAsync(nameof(HomePage));
                 }
                 else
                 {
@@ -168,6 +166,6 @@ public partial class RegisterViewModel : ObservableValidator
 
     private async Task NavigateToLoginAsync()
     {
-        await _navigationService.GoBackAsync();
+        await _navigationUtility.GoBackAsync();
     }
 }

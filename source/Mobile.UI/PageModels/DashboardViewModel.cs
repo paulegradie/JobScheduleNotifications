@@ -2,43 +2,35 @@
 using CommunityToolkit.Mvvm.Input;
 using Mobile.Core.Services;
 using Mobile.UI.Pages;
-using IAuthService = Mobile.Core.Interfaces.IAuthService;
+using Server.Contracts.Client;
 
 namespace Mobile.UI.PageModels;
 
 public partial class DashboardViewModel : ObservableObject
 {
-    private readonly IAuthService _authService;
-    private readonly INavigationService _navigationService;
+    private readonly IServerClient _serverClient;
+    private readonly INavigationUtility _navigationUtility;
 
-    [ObservableProperty]
-    private string _title = "Dashboard";
+    [ObservableProperty] private string _title = "Dashboard";
 
-    [ObservableProperty]
-    private int _totalCustomers;
+    [ObservableProperty] private int _totalCustomers;
 
-    [ObservableProperty]
-    private int _totalJobs;
+    [ObservableProperty] private int _totalJobs;
 
-    [ObservableProperty]
-    private int _pendingJobs;
+    [ObservableProperty] private int _pendingJobs;
 
-    [ObservableProperty]
-    private int _completedJobs;
+    [ObservableProperty] private int _completedJobs;
 
-    [ObservableProperty]
-    private string _businessName = string.Empty;
+    [ObservableProperty] private string _businessName = string.Empty;
 
-    [ObservableProperty]
-    private string _welcomeMessage = string.Empty;
+    [ObservableProperty] private string _welcomeMessage = string.Empty;
 
-    [ObservableProperty]
-    private bool _isBusy;
+    [ObservableProperty] private bool _isBusy;
 
-    public DashboardViewModel(IAuthService authService, INavigationService navigationService)
+    public DashboardViewModel(IServerClient serverClient, INavigationUtility navigationUtility)
     {
-        _authService = authService;
-        _navigationService = navigationService;
+        _serverClient = serverClient;
+        _navigationUtility = navigationUtility;
     }
 
     [RelayCommand]
@@ -60,7 +52,7 @@ public partial class DashboardViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await _navigationService.ShowAlertAsync("Error", "Failed to load dashboard data");
+            await _navigationUtility.ShowAlertAsync("Error", "Failed to load dashboard data");
             System.Diagnostics.Debug.WriteLine($"Dashboard Error: {ex.Message}");
         }
         finally
@@ -72,13 +64,13 @@ public partial class DashboardViewModel : ObservableObject
     [RelayCommand]
     private async Task NavigateToCustomers()
     {
-        await _navigationService.NavigateToAsync(nameof(CustomersPage));
+        await _navigationUtility.NavigateToAsync(nameof(CustomersPage));
     }
 
     [RelayCommand]
     private async Task NavigateToScheduleJob()
     {
-        await _navigationService.NavigateToAsync(nameof(ScheduleJobPage));
+        await _navigationUtility.NavigateToAsync(nameof(ScheduleJobPage));
     }
 
     [RelayCommand]
@@ -89,12 +81,12 @@ public partial class DashboardViewModel : ObservableObject
         try
         {
             IsBusy = true;
-            await _authService.LogoutAsync();
-            await _navigationService.NavigateToAsync(nameof(LoginPage));
+            await _serverClient.Auth.LogoutAsync();
+            await _navigationUtility.NavigateToAsync(nameof(LoginPage));
         }
         catch (Exception ex)
         {
-            await _navigationService.ShowAlertAsync("Error", "Failed to logout");
+            await _navigationUtility.ShowAlertAsync("Error", "Failed to logout");
             System.Diagnostics.Debug.WriteLine($"Logout Error: {ex.Message}");
         }
         finally

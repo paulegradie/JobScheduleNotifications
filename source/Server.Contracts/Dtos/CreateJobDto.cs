@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Server.Contracts;
+namespace Server.Contracts.Dtos;
 
 public class CreateJobDto
 {

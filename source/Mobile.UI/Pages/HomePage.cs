@@ -59,19 +59,19 @@ public sealed class HomePage : BasePage<HomePageViewModel>
                         {
                             new Button()
                                 .Text("Sign In")
-                                .BindCommand(nameof(Core.PageModels.HomePageViewModel.NavigateToLoginCommand))
+                                .BindCommand(nameof(vm.NavigateToLoginCommand))
                                 .BackgroundColor(Colors.CadetBlue)
                                 .TextColor(Colors.White)
                                 .Height(50),
                             new Button()
                                 .Text("Create Account")
-                                .BindCommand(nameof(Core.PageModels.HomePageViewModel.NavigateToRegisterCommand))
+                                .BindCommand(nameof(vm.NavigateToRegisterCommand))
                                 .BackgroundColor(Colors.ForestGreen)
                                 .TextColor(Colors.CadetBlue)
                                 .Height(50),
                             new Button()
                                 .Text("View Customers")
-                                .BindCommand(nameof(Core.PageModels.HomePageViewModel.NavigateToCustomersCommand))
+                                .BindCommand(nameof(vm.NavigateToCustomersCommand))
                                 .BackgroundColor(Colors.SteelBlue)
                                 .TextColor(Colors.White)
                                 .Height(50)

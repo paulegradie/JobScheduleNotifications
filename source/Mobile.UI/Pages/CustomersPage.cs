@@ -50,12 +50,12 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
             {
                 new SearchBar()
                     .Placeholder("Search customers…")
-                    .Bind(SearchBar.TextProperty, nameof(Core.PageModels.CustomersViewModel.SearchText), BindingMode.TwoWay)
-                    .Bind(SearchBar.SearchCommandProperty, nameof(Core.PageModels.CustomersViewModel.LoadCustomersCommand))
+                    .Bind(SearchBar.TextProperty, nameof(vm.SearchText), BindingMode.TwoWay)
+                    .Bind(SearchBar.SearchCommandProperty, nameof(vm.LoadCustomersCommand))
                     .Column(Col.Search), // ← no generic type
                 new Button()
                     .Text("Add")
-                    .Bind(Button.CommandProperty, nameof(Core.PageModels.CustomersViewModel.AddCustomerCommand))
+                    .Bind(Button.CommandProperty, nameof(vm.AddCustomerCommand))
                     .BackgroundColor(Colors.CadetBlue)
                     .TextColor(Colors.White)
                     .Size(80, 40)
@@ -73,17 +73,17 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
                         EmptyView = "No customers found",
                         ItemTemplate = new DataTemplate(() => BuildSwipeTemplate(vm))
                     }
-                    .Bind(CollectionView.ItemsSourceProperty, nameof(Core.PageModels.CustomersViewModel.Customers))
+                    .Bind(CollectionView.ItemsSourceProperty, nameof(vm.Customers))
             }
-            .Bind(RefreshView.IsRefreshingProperty, nameof(Core.PageModels.CustomersViewModel.IsLoading))
-            .Bind(RefreshView.CommandProperty, nameof(Core.PageModels.CustomersViewModel.RefreshCommand));
+            .Bind(RefreshView.IsRefreshingProperty, nameof(vm.IsLoading))
+            .Bind(RefreshView.CommandProperty, nameof(vm.RefreshCommand));
 
     /* busy overlay */
     private static ActivityIndicator BuildBusyIndicator(CustomersViewModel vm) =>
         new ActivityIndicator()
             .Center()
-            .Bind(ActivityIndicator.IsRunningProperty, nameof(Core.PageModels.CustomersViewModel.IsLoading))
-            .Bind(IsVisibleProperty, nameof(Core.PageModels.CustomersViewModel.IsLoading));
+            .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsLoading))
+            .Bind(IsVisibleProperty, nameof(vm.IsLoading));
 
     /* swipe template */
     private static SwipeView BuildSwipeTemplate(CustomersViewModel vm)
@@ -95,14 +95,14 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
                     Text = "Edit",
                     BackgroundColor = Colors.CadetBlue
                 }
-                .Bind(SwipeItem.CommandProperty, nameof(Core.PageModels.CustomersViewModel.EditCustomerCommand), source: vm)
+                .Bind(SwipeItem.CommandProperty, nameof(vm.EditCustomerCommand), source: vm)
                 .Bind(SwipeItem.CommandParameterProperty, "."),
             new SwipeItem
                 {
                     Text = "Delete",
                     BackgroundColor = Colors.IndianRed
                 }
-                .Bind(SwipeItem.CommandProperty, nameof(Core.PageModels.CustomersViewModel.DeleteCustomerCommand), source: vm)
+                .Bind(SwipeItem.CommandProperty, nameof(vm.DeleteCustomerCommand), source: vm)
                 .Bind(SwipeItem.CommandParameterProperty, ".")
         };
 

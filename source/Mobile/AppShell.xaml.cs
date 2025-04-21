@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
-using Mobile.Core.Pages;
+using Mobile.UI.Pages;
 using Font = Microsoft.Maui.Font;
 
 namespace Mobile

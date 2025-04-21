@@ -1,4 +1,4 @@
-﻿namespace Mobile.Core.Models;
+﻿namespace Server.Contracts.Client.Endpoints.Auth;
 
 public record RegisterRequest(
     string Email,

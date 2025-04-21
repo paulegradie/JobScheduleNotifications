@@ -1,10 +1,11 @@
+using Mobile.Core.Domain;
 using Server.Contracts.Customers;
 
-namespace Mobile.Core.Services;
+namespace Mobile.Core.Repositories;
 
-public interface ICustomerService
+public interface ICustomerRepository
 {
-    Task<IEnumerable<CustomerDto>> GetCustomersAsync();
+    Task<IEnumerable<ServiceRecipient>> GetServiceRecipients();
     Task<CustomerDto> GetCustomerByIdAsync(Guid id);
     Task<CustomerDto> CreateCustomerAsync(CreateCustomerDto customer);
     Task<CustomerDto> UpdateCustomerAsync(Guid id, UpdateCustomerDto customer);

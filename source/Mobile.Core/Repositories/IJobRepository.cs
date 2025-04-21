@@ -1,8 +1,9 @@
 using Server.Contracts;
+using Server.Contracts.Dtos;
 
-namespace Mobile.Core.Services;
+namespace Mobile.Core.Repositories;
 
-public interface IJobService
+public interface IJobRepository
 {
     Task<IEnumerable<JobDto>> GetJobsAsync();
     Task<JobDto> GetJobByIdAsync(Guid id);

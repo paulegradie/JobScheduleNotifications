@@ -2,6 +2,7 @@ using JobScheduleNotifications.Core.Entities;
 using JobScheduleNotifications.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Server.Contracts;
+using Server.Contracts.Dtos;
 
 namespace JobScheduleNotifications.Api.Controllers;
 

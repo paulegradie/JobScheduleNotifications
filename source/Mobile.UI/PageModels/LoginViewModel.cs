@@ -1,45 +1,36 @@
 using System.ComponentModel.DataAnnotations;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.Core.Models;
 using Mobile.Core.Services;
 using Mobile.UI.Pages;
-using IAuthService = Mobile.Core.Interfaces.IAuthService;
+using Server.Contracts.Client;
+using Server.Contracts.Client.Endpoints.Auth;
 
 namespace Mobile.UI.PageModels;
 
 public partial class LoginViewModel : ObservableValidator
 {
-    private readonly IAuthService _authService;
-    private readonly INavigationService _navigationService;
+    private readonly IServerClient _serverClient;
+    private readonly INavigationUtility _navigationUtility;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ErrorMessage))]
-    [Required(ErrorMessage = "Email is required")]
-    [EmailAddress(ErrorMessage = "Invalid email format")]
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(ErrorMessage))] [Required(ErrorMessage = "Email is required")] [EmailAddress(ErrorMessage = "Invalid email format")]
     private string _email = string.Empty;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(LoginViewModel.ErrorMessage))]
-    [Required(ErrorMessage = "Password is required")]
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(ErrorMessage))] [Required(ErrorMessage = "Password is required")]
     private string _password = string.Empty;
 
-    [ObservableProperty]
-    private string _errorMessage = string.Empty;
+    [ObservableProperty] private string _errorMessage = string.Empty;
 
-    [ObservableProperty]
-    private bool _isPasswordVisible;
+    [ObservableProperty] private bool _isPasswordVisible;
 
-    [ObservableProperty]
-    private bool _isBusy;
+    [ObservableProperty] private bool _isBusy;
 
-    [ObservableProperty]
-    private string _title = "Login";
+    [ObservableProperty] private string _title = "Login";
 
-    public LoginViewModel(IAuthService authService, INavigationService navigationService)
+    public LoginViewModel(IServerClient serverClient, INavigationUtility navigationUtility)
     {
-        _authService = authService;
-        _navigationService = navigationService;
+        _serverClient = serverClient;
+        _navigationUtility = navigationUtility;
     }
 
     [RelayCommand]
@@ -58,13 +49,11 @@ public partial class LoginViewModel : ObservableValidator
                 return;
             }
 
-            await _authService.LoginAsync(new LoginRequest(Email, Password));
-            
-            if _token
-            
-            if (success)
+            var success = await _serverClient.Auth.LoginAsync(new LoginRequest(Email, Password));
+            if (true)
             {
-                await _navigationService.NavigateToAsync(nameof(HomePage));
+                // The IServerClient will internally handle storing the TokenInfo and managing refreshes
+                await _navigationUtility.NavigateToAsync(nameof(HomePage));
             }
             else
             {
@@ -85,7 +74,7 @@ public partial class LoginViewModel : ObservableValidator
     [RelayCommand]
     private async Task NavigateToRegister()
     {
-        await _navigationService.NavigateToAsync(nameof(RegisterPage));
+        await _navigationUtility.NavigateToAsync(nameof(RegisterPage));
     }
 
     [RelayCommand]

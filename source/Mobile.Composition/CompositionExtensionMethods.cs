@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
-using Mobile.Core.Interfaces;
+using Mobile.Core.Repositories;
 using Mobile.Core.Services;
-using Mobile.Infrastructure.Http;
+using Mobile.Core.Utilities;
 using Mobile.Infrastructure.Persistence;
 using Mobile.UI.PageModels;
 using Mobile.UI.Pages;
-using IAuthService = Mobile.Core.Services.IAuthService;
-using ICustomerService = Mobile.Core.Services.ICustomerService;
+using Server.Contracts.Client;
+using Server.Contracts.Client.Endpoints.Auth;
 
 namespace Mobile.Composition;
 
@@ -32,14 +32,14 @@ public static class CompositionExtensionMethods
         services.AddSingleton<CustomersPage>();
         services.AddSingleton<CustomersViewModel>();
 
-        services.AddTransient<INavigationService, NavigationService>();
-        services.AddTransient<ICustomerService, CustomerService>();
+        services.AddTransient<INavigationUtility, NavigationUtility>();
+        services.AddTransient<ICustomerRepository, CustomerRepository>();
 
         // HTTP + token storage + services
+        services.AddTransient<AuthenticationHandler>();
+
         services.AddSingleton<ITokenStore, InMemoryTokenStore>();
-        services.AddScoped<IApiClient, ApiClient>();
-        services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<ICustomerService, CustomerService>();
-        services.AddHttpClient<ApiClient>();
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
+        services.AddHttpClient<IServerClient>().AddHttpMessageHandler<AuthenticationHandler>();
     }
 }

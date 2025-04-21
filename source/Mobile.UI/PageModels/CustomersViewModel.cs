@@ -1,17 +1,18 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Mobile.Core.Domain;
+using Mobile.Core.Repositories;
 using Mobile.Core.Services;
 using Server.Contracts.Customers;
-using ICustomerService = Mobile.Core.Interfaces.ICustomerService;
 
 namespace Mobile.UI.PageModels;
 
 public partial class CustomersViewModel : ObservableObject
 {
     public const string Title = "OMG TODO";
-    private readonly ICustomerService _customerService;
-    private readonly INavigationService _navigationService;
+    private readonly ICustomerRepository _customerService;
+    private readonly INavigationUtility _navigationUtility;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsNotLoading))]
@@ -26,12 +27,12 @@ public partial class CustomersViewModel : ObservableObject
     public bool IsNotLoading => !IsLoading;
 
     [ObservableProperty]
-    private ObservableCollection<CustomerDto> _customers = new();
+    private ObservableCollection<ServiceRecipient> _customers = new();
 
-    public CustomersViewModel(ICustomerService customerService, INavigationService navigationService)
+    public CustomersViewModel(ICustomerRepository customerService, INavigationUtility navigationUtility)
     {
         _customerService = customerService;
-        _navigationService = navigationService;
+        _navigationUtility = navigationUtility;
     }
 
     [RelayCommand]
@@ -42,7 +43,7 @@ public partial class CustomersViewModel : ObservableObject
         try
         {
             IsLoading = true;
-            var customers = await _customerService.GetCustomersAsync();
+            var customers = await _customerService.GetServiceRecipients();
             Customers.Clear();
             foreach (var customer in customers)
             {
@@ -51,7 +52,7 @@ public partial class CustomersViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await _navigationService.ShowAlertAsync("Error", $"Failed to load customers: {ex.Message}");
+            await _navigationUtility.ShowAlertAsync("Error", $"Failed to load customers: {ex.Message}");
         }
         finally
         {
@@ -62,23 +63,23 @@ public partial class CustomersViewModel : ObservableObject
     [RelayCommand]
     private async Task AddCustomer()
     {
-        await _navigationService.NavigateToAsync("AddCustomerPage");
+        await _navigationUtility.NavigateToAsync("AddCustomerPage");
     }
 
     [RelayCommand]
-    private async Task EditCustomer(CustomerDto? customer)
+    private async Task EditCustomer(ServiceRecipient? customer)
     {
         if (customer == null) return;
         var parameters = new Dictionary<string, object> { { "CustomerId", customer.Id } };
-        await _navigationService.NavigateToAsync("EditCustomerPage", parameters);
+        await _navigationUtility.NavigateToAsync("EditCustomerPage", parameters);
     }
 
     [RelayCommand]
-    private async Task DeleteCustomer(CustomerDto? customer)
+    private async Task DeleteCustomer(ServiceRecipient? customer)
     {
         if (customer == null) return;
         
-        var result = await _navigationService.ShowConfirmationAsync(
+        var result = await _navigationUtility.ShowConfirmationAsync(
             "Delete Customer",
             $"Are you sure you want to delete {customer.FirstName} {customer.LastName}?");
             
@@ -89,11 +90,11 @@ public partial class CustomersViewModel : ObservableObject
                 IsLoading = true;
                 await _customerService.DeleteCustomerAsync(customer.Id);
                 Customers.Remove(customer);
-                await _navigationService.ShowAlertAsync("Success", "Customer deleted successfully");
+                await _navigationUtility.ShowAlertAsync("Success", "Customer deleted successfully");
             }
             catch (Exception ex)
             {
-                await _navigationService.ShowAlertAsync("Error", $"Failed to delete customer: {ex.Message}");
+                await _navigationUtility.ShowAlertAsync("Error", $"Failed to delete customer: {ex.Message}");
             }
             finally
             {

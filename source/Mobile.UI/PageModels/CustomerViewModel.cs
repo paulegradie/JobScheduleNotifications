@@ -1,16 +1,16 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Mobile.Core.Repositories;
 using Mobile.Core.Services;
 using Server.Contracts.Customers;
-using ICustomerService = Mobile.Core.Interfaces.ICustomerService;
 
 namespace Mobile.UI.PageModels;
 
 public partial class CustomerViewModel : ObservableValidator
 {
-    private readonly ICustomerService _customerService;
-    private readonly INavigationService _navigationService;
+    private readonly ICustomerRepository _customerRepository;
+    private readonly INavigationUtility _navigationUtility;
 
     [ObservableProperty] private ObservableCollection<CustomerDto> _customers = new();
 
@@ -36,10 +36,10 @@ public partial class CustomerViewModel : ObservableValidator
 
     public bool CanSave => !IsBusy && SelectedCustomer != null && !HasValidationError;
 
-    public CustomerViewModel(ICustomerService customerService, INavigationService navigationService)
+    public CustomerViewModel(ICustomerRepository customerRepository, INavigationUtility navigationUtility)
     {
-        _customerService = customerService;
-        _navigationService = navigationService;
+        _customerRepository = customerRepository;
+        _navigationUtility = navigationUtility;
     }
 
 
@@ -68,8 +68,8 @@ public partial class CustomerViewModel : ObservableValidator
                     PhoneNumber = SelectedCustomer.PhoneNumber,
                     Notes = SelectedCustomer.Notes
                 };
-                await _customerService.UpdateCustomerAsync(SelectedCustomer.Id, updateDto);
-                var existingCustomer = Enumerable.FirstOrDefault<CustomerDto>(Customers, c => c.Id == SelectedCustomer.Id);
+                await _customerRepository.UpdateCustomerAsync(SelectedCustomer.Id, updateDto);
+                var existingCustomer = Customers.FirstOrDefault<CustomerDto>(c => c.Id == SelectedCustomer.Id);
                 if (existingCustomer != null)
                 {
                     var index = Customers.IndexOf(existingCustomer);
@@ -86,7 +86,7 @@ public partial class CustomerViewModel : ObservableValidator
                     PhoneNumber = SelectedCustomer.PhoneNumber,
                     Notes = SelectedCustomer.Notes
                 };
-                var newCustomer = await _customerService.CreateCustomerAsync(createDto);
+                var newCustomer = await _customerRepository.CreateCustomerAsync(createDto);
                 Customers.Add(newCustomer);
             }
 
@@ -94,11 +94,11 @@ public partial class CustomerViewModel : ObservableValidator
             ValidationMessage = string.Empty;
             IsEditing = false;
             SelectedCustomer = null;
-            await _navigationService.GoBackAsync();
+            await _navigationUtility.GoBackAsync();
         }
         catch (Exception ex)
         {
-            await _navigationService.ShowAlertAsync("Error", "Failed to save customer");
+            await _navigationUtility.ShowAlertAsync("Error", "Failed to save customer");
             System.Diagnostics.Debug.WriteLine($"Save Customer Error: {ex.Message}");
         }
         finally
@@ -137,7 +137,7 @@ public partial class CustomerViewModel : ObservableValidator
     {
         IsEditing = false;
         SelectedCustomer = null;
-        await _navigationService.GoBackAsync();
+        await _navigationUtility.GoBackAsync();
     }
 
     [RelayCommand]
@@ -146,7 +146,7 @@ public partial class CustomerViewModel : ObservableValidator
         try
         {
             IsBusy = true;
-            var customer = await _customerService.GetCustomerByIdAsync(customerId);
+            var customer = await _customerRepository.GetCustomerByIdAsync(customerId);
             if (customer != null)
             {
                 SelectedCustomer = customer;
@@ -156,7 +156,7 @@ public partial class CustomerViewModel : ObservableValidator
         }
         catch (Exception ex)
         {
-            await _navigationService.ShowAlertAsync("Error", "Failed to load customer");
+            await _navigationUtility.ShowAlertAsync("Error", "Failed to load customer");
             System.Diagnostics.Debug.WriteLine($"Load Customer Error: {ex.Message}");
         }
         finally

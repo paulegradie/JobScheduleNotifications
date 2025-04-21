@@ -1,6 +1,8 @@
-namespace Mobile.Core.Services;
+using Mobile.Core.Services;
 
-public class NavigationService : INavigationService
+namespace Mobile.Core.Utilities;
+
+public class NavigationUtility : INavigationUtility
 {
     public async Task NavigateToAsync(string route, IDictionary<string, object>? parameters = null)
     {

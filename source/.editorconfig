@@ -3,7 +3,7 @@ root = true
 
 # C# files
 [*.cs]
-
+max_line_length = 200
 #### Code Analysis Rules ####
 
 # CA2007: Consider calling ConfigureAwait on the awaited task

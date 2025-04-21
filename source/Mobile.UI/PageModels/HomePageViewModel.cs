@@ -7,9 +7,9 @@ namespace Mobile.UI.PageModels
 {
     public partial class HomePageViewModel : ObservableObject
     {
-        private readonly INavigationService _navigation;
+        private readonly INavigationUtility _navigation;
 
-        public HomePageViewModel(INavigationService navigation)
+        public HomePageViewModel(INavigationUtility navigation)
         {
             _navigation = navigation;
         }

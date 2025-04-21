@@ -50,7 +50,7 @@ public sealed class DashboardPage : BasePage<DashboardViewModel>
             Children =
             {
                 new Label()
-                    .Bind(Label.TextProperty, nameof(Core.PageModels.DashboardViewModel.WelcomeMessage))
+                    .Bind(Label.TextProperty, nameof(vm.WelcomeMessage))
                     .Font(size: 24, bold: true),
 
                 new Label()
@@ -83,16 +83,16 @@ public sealed class DashboardPage : BasePage<DashboardViewModel>
 
             Children =
             {
-                StatFrame("Total Customers", nameof(Core.PageModels.DashboardViewModel.TotalCustomers), custText, custBg)
+                StatFrame("Total Customers", nameof(vm.TotalCustomers), custText, custBg)
                     .Column(Col.Left).Row(StatRow.Top),
 
-                StatFrame("Total Jobs", nameof(Core.PageModels.DashboardViewModel.TotalJobs), jobsText, jobsBg)
+                StatFrame("Total Jobs", nameof(vm.TotalJobs), jobsText, jobsBg)
                     .Column(Col.Right).Row(StatRow.Top),
 
-                StatFrame("Pending Jobs", nameof(Core.PageModels.DashboardViewModel.PendingJobs), pendText, pendBg)
+                StatFrame("Pending Jobs", nameof(vm.PendingJobs), pendText, pendBg)
                     .Column(Col.Left).Row(StatRow.Bottom),
 
-                StatFrame("Completed Jobs", nameof(Core.PageModels.DashboardViewModel.CompletedJobs), compText, compBg)
+                StatFrame("Completed Jobs", nameof(vm.CompletedJobs), compText, compBg)
                     .Column(Col.Right).Row(StatRow.Bottom)
             }
         };
@@ -123,9 +123,9 @@ public sealed class DashboardPage : BasePage<DashboardViewModel>
             Spacing = 10,
             Children =
             {
-                SolidButton("Manage Customers", nameof(Core.PageModels.DashboardViewModel.NavigateToCustomersCommand), blue),
-                SolidButton("Schedule New Job", nameof(Core.PageModels.DashboardViewModel.NavigateToScheduleJobCommand), green),
-                SolidButton("Logout", nameof(Core.PageModels.DashboardViewModel.LogoutCommand), red)
+                SolidButton("Manage Customers", nameof(vm.NavigateToCustomersCommand), blue),
+                SolidButton("Schedule New Job", nameof(vm.NavigateToScheduleJobCommand), green),
+                SolidButton("Logout", nameof(vm.LogoutCommand), red)
             }
         };
 
@@ -142,8 +142,8 @@ public sealed class DashboardPage : BasePage<DashboardViewModel>
     static ActivityIndicator BuildBusyOverlay(DashboardViewModel vm, Color accent) =>
         new ActivityIndicator()
             .Center()
-            .Bind(ActivityIndicator.IsRunningProperty, nameof(Core.PageModels.DashboardViewModel.IsBusy))
-            .Bind(ActivityIndicator.IsVisibleProperty, nameof(Core.PageModels.DashboardViewModel.IsBusy));
+            .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
+            .Bind(ActivityIndicator.IsVisibleProperty, nameof(vm.IsBusy));
 
     /* enum helpers */
     enum Row
