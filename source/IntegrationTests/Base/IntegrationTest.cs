@@ -12,8 +12,6 @@ namespace IntegrationTests.Base;
 
 public class IntegrationTest : IAsyncLifetime
 {
-    // private IDbContextTransaction transaction = null!;
-
     private IServiceScope scope = null!;
     private Server Server { get; set; }
 
@@ -37,8 +35,6 @@ public class IntegrationTest : IAsyncLifetime
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await db.Database.EnsureCreatedAsync(CancellationToken);
         await Server.Services.EnsureDefaultRoles();
-
-        // transaction = await db.Database.BeginTransactionAsync(CancellationToken);
     }
 
     public AppDbContext TestDb { get; set; }
@@ -46,15 +42,8 @@ public class IntegrationTest : IAsyncLifetime
 
     public virtual async Task DisposeAsync()
     {
-        // if (transaction is not null)
-        // {
-        //     await transaction.RollbackAsync(CancellationToken);
-        //     await transaction.DisposeAsync();
-        // }
-
         scope?.Dispose();
         await TestDb.DisposeAsync();
-        // Uncomment if you need to dispose the server
-        // await Server.DisposeAsync();
+        await Server.DisposeAsync();
     }
 }
