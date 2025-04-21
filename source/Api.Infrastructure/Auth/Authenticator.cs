@@ -86,7 +86,10 @@ public class Authenticator : IAuthenticator
         RegisterNewAdminRequest req,
         CancellationToken cancellationToken)
     {
-        var newAdminUser = new ApplicationUserRecord(true, req.Email);
+        var newAdminUser = new ApplicationUserRecord(true, req.Email)
+        {
+            
+        };
         var newUserResult = await _userManager.CreateAsync(newAdminUser, req.Password);
         if (newUserResult is null || !newUserResult.Succeeded || newAdminUser?.Email is null)
         {

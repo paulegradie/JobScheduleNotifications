@@ -6,11 +6,13 @@ using Microsoft.Extensions.Logging;
 using Server.Client;
 using Server.Contracts.Client;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+
 namespace IntegrationTests.Base;
 
 public class IntegrationTest : IAsyncLifetime
 {
-    private IDbContextTransaction transaction = null!;
+    // private IDbContextTransaction transaction = null!;
 
     private IServiceScope scope = null!;
     private Server Server { get; set; }
@@ -25,30 +27,33 @@ public class IntegrationTest : IAsyncLifetime
     {
         Server = new Server();
         Logger = Server.Services.GetRequiredService<ILogger<IntegrationTest>>();
-
+        TestDb = Server.Services.GetRequiredService<AppDbContext>();
+        
         var client = Server.CreateClient();
         Client = new ServerClient(client);
         CancellationToken = new CancellationTokenSource(TimeSpan.FromMinutes(5)).Token;
 
         scope = Server.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        // await db.Database.EnsureCreatedAsync(CancellationToken);
-        // await scope.ServiceProvider.EnsureDefaultRoles();
+        await db.Database.EnsureCreatedAsync(CancellationToken);
+        await Server.Services.EnsureDefaultRoles();
 
-        transaction = await db.Database.BeginTransactionAsync(CancellationToken);
+        // transaction = await db.Database.BeginTransactionAsync(CancellationToken);
     }
+
+    public AppDbContext TestDb { get; set; }
 
 
     public virtual async Task DisposeAsync()
     {
-        if (transaction is not null)
-        {
-            await transaction.RollbackAsync(CancellationToken);
-            await transaction.DisposeAsync();
-        }
+        // if (transaction is not null)
+        // {
+        //     await transaction.RollbackAsync(CancellationToken);
+        //     await transaction.DisposeAsync();
+        // }
 
         scope?.Dispose();
-
+        await TestDb.DisposeAsync();
         // Uncomment if you need to dispose the server
         // await Server.DisposeAsync();
     }

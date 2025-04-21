@@ -11,46 +11,43 @@ namespace Api.Infrastructure.Auth;
 
 public static class AuthenticationConfiguration
 {
-    public static void ConfigureAuthentication(this IServiceCollection serviceCollection, IConfiguration configuration)
+    public static void ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        serviceCollection.Configure<AuthenticationOptions>(configuration.GetSection(AuthenticationOptions.Node));
+        services.Configure<AuthenticationOptions>(configuration.GetSection(AuthenticationOptions.Node));
 
-        serviceCollection.RegisterAuthenticationOptions(configuration);
-        serviceCollection.AddAuthentication(opts =>
+        var authSection = configuration.GetSection(AuthenticationOptions.Node);
+        var authOptions = authSection.Get<AuthenticationOptions>() ?? throw new Exception("Missing auth configuration");
+
+        var key = Encoding.UTF8.GetBytes(authOptions.Key);
+
+        services.AddAuthentication(options =>
             {
-                opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer(opts =>
+            .AddJwtBearer(options =>
             {
-                var serviceProvider = serviceCollection.BuildServiceProvider();
-                var authSettings = serviceProvider.GetRequiredService<IOptions<AuthenticationOptions>>();
-
-                opts.TokenValidationParameters = new TokenValidationParameters
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuerSigningKey = configuration.GetValue<string>("Environment") == "Production",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authSettings.Value.Key)),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    RoleClaimType = ClaimTypes.Role
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidIssuer = authOptions.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = authOptions.Audience,
+                    RoleClaimType = ClaimTypes.Role,
+                    ClockSkew = TimeSpan.FromMinutes(2) // optional: prevents minor clock drift causing early expiry
                 };
             });
 
-        serviceCollection.ConfigureRolePolicies();
+        services.ConfigureRolePolicies();
     }
 
-    private static void ConfigureRolePolicies(this IServiceCollection serviceCollection)
+    private static void ConfigureRolePolicies(this IServiceCollection services)
     {
-        serviceCollection
+        services
             .AddAuthorizationBuilder()
-            .AddPolicy(UserPolicies.AdminPolicy,
-                policy => { policy.RequireClaim(ClaimTypes.Role, UserRoles.AdminRole); });
-    }
-
-    private static void RegisterAuthenticationOptions(
-        this IServiceCollection serviceCollection,
-        IConfiguration configuration)
-    {
-        serviceCollection.Configure<AuthenticationOptions>(configuration.GetSection("Auth"));
+            .AddPolicy(UserPolicies.AdminPolicy, policy =>
+                policy.RequireClaim(ClaimTypes.Role, UserRoles.AdminRole));
     }
 }

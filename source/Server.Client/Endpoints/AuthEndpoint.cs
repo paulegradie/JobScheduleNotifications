@@ -25,7 +25,12 @@ internal class AuthEndpoint : EndpointBase, IAuthenticationEndpoint
         try
         {
             var response = await Client.PostAsJsonAsync(req.ApiRoute, req);
-            return response.IsSuccessStatusCode;
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+
+            return false;
         }
         catch
         {

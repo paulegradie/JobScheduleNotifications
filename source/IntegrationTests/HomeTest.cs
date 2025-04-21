@@ -4,7 +4,6 @@ using Shouldly;
 
 public class HomeTest : AuthenticatedIntegrationTest
 {
- 
     [Fact]
     public async Task PingHome()
     {

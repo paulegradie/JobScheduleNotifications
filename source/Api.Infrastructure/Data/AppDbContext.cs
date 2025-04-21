@@ -11,11 +11,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord>
 {
     private readonly IEnumerable<IEntityPropertyConvention> _conventions;
 
-    public AppDbContext(IEnumerable<IEntityPropertyConvention> conventions, DbContextOptions<AppDbContext> options) : base(options)
+    public AppDbContext(DbContextOptions<AppDbContext> options, IEnumerable<IEntityPropertyConvention> conventions) : base(options)
     {
         _conventions = conventions;
     }
-
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

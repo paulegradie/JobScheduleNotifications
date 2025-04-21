@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Server.Contracts.Client.Endpoints.Home;
 
 namespace Api.Controllers;
 
-[Authorize]
 public class HomeController : BaseApiController
 {
     [HttpGet(HomeRequest.Route)]

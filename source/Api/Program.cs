@@ -15,6 +15,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOptions<ServiceProviderOptions>().Configure(options => options.ValidateScopes = true);
 builder.Services.ComposeApplication(builder.Configuration);
+builder.Services.AddConfiguredDbContext(builder.Configuration, builder.Environment);
 builder.Services.ConfigureAuthentication(builder.Configuration);
 
 var app = builder.Build();
