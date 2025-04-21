@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Server.Contracts.Client.Endpoints.Home;
 
-namespace JobScheduleNotifications.Api.Controllers;
+namespace Api.Controllers;
 
 [Authorize]
 public class HomeController : BaseApiController

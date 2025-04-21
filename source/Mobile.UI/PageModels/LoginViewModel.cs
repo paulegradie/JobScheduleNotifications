@@ -49,7 +49,7 @@ public partial class LoginViewModel : ObservableValidator
                 return;
             }
 
-            var success = await _serverClient.Auth.LoginAsync(new LoginRequest(Email, Password));
+            var success = await _serverClient.Auth.LoginAsync(new SignInRequest(Email, Password));
             if (true)
             {
                 // The IServerClient will internally handle storing the TokenInfo and managing refreshes

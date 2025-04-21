@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Mobile.Core.Services;
 using Mobile.UI.Pages;
 using Server.Contracts.Client;
+using Server.Contracts.Client.Endpoints.Auth;
 
 namespace Mobile.UI.PageModels;
 
@@ -81,7 +82,8 @@ public partial class DashboardViewModel : ObservableObject
         try
         {
             IsBusy = true;
-            await _serverClient.Auth.LogoutAsync();
+            var currentUser = await _serverClient.Auth.GetCurrentUserEmailAsync();
+            await _serverClient.Auth.LogoutAsync(new SignOutRequest(currentUser.Email));
             await _navigationUtility.NavigateToAsync(nameof(LoginPage));
         }
         catch (Exception ex)

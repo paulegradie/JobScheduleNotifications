@@ -1,5 +1,8 @@
 using System.Text;
-using JobScheduleNotifications.Composition;
+using Api.Composition;
+using Api.Infrastructure.Auth;
+using Api.Infrastructure.Data;
+using Api.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
@@ -7,12 +10,9 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🔹 Quick & decent logging setup
 builder.Logging.ClearProviders(); // Optional: Clears default providers
 builder.Logging.AddConsole();     // Adds basic console logging
 builder.Logging.AddDebug();       // Useful in Visual Studio output window
-
-// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -40,8 +40,13 @@ builder.Services.AddAuthentication(options =>
     });
 // Compose application dependencies
 builder.Services.ComposeApplication(builder.Configuration);
+builder.Services.ConfigureAuthentication();
 
 var app = builder.Build();
+app.Services.EnsureAndMigrateDatabase();
+await app.EnsureDefaultRoles();
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -57,7 +62,7 @@ app.MapControllers();
 // 🔹 Log the addresses after the app starts
 app.Lifetime.ApplicationStarted.Register(() =>
 {
-    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    var logger = app.Services.GetRequiredService<ILogger<Api.Program>>();
     var serverAddresses = app.Services.GetService<IServer>()?
         .Features.Get<IServerAddressesFeature>();
 
@@ -75,3 +80,11 @@ app.Lifetime.ApplicationStarted.Register(() =>
 });
 
 app.Run();
+
+
+namespace Api
+{
+    public partial class Program
+    {
+    }
+}

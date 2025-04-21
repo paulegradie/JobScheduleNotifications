@@ -2,12 +2,12 @@
 
 public interface IAuthenticationEndpoint
 {
-    Task<TokenInfo> LoginAsync(LoginRequest req);
-    Task<TokenInfo> RefreshTokenAsync(string refreshToken);
-    Task<bool> LogoutAsync();
-    Task<bool> RegisterAsync(RegisterRequest req);
-    
-    // Get the current valid token or automatically refresh if needed
-    Task<string> GetValidTokenAsync();
-
+    Task<TokenInfo> LoginAsync(SignInRequest req);
+    Task<bool> LogoutAsync(SignOutRequest request);
+    Task<bool> RegisterAsync(RegisterNewAdminRequest request);
+    Task<string?> GetValidTokenAsync(); // for refresh
+    Task<TokenInfo?> RefreshTokenAsync(TokenRefreshRequest refreshToken);
+    Task<UserEmail> GetCurrentUserEmailAsync();
 }
+
+public record UserEmail(string Email);

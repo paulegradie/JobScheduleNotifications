@@ -125,20 +125,22 @@ public partial class RegisterViewModel : ObservableValidator
                 return;
             }
 
-            var registration = new RegisterRequest(
-                Email,
-                Password,
-                BusinessName,
-                FirstName,
-                LastName,
-                PhoneNumber,
-                BusinessAddress,
-                BusinessDescription);
+            var registration = new RegisterNewAdminRequest
+            {
+                Email = Email,
+                Password = Password,
+                BusinessName = BusinessName,
+                FirstName = FirstName,
+                LastName = LastName,
+                PhoneNumber = PhoneNumber,
+                BusinessAddress = BusinessAddress,
+                BusinessDescription = BusinessDescription
+            };
 
             var success = await _serverClient.Auth.RegisterAsync(registration);
             if (success)
             {
-                var suc = await _serverClient.Auth.LoginAsync(new LoginRequest(Email, Password));
+                var suc = await _serverClient.Auth.LoginAsync(new SignInRequest(Email, Password));
                 if (true)
                 {
                     await _navigationUtility.NavigateToAsync(nameof(HomePage));
@@ -146,6 +148,7 @@ public partial class RegisterViewModel : ObservableValidator
                 else
                 {
                     ErrorMessage = "Registration successful but login failed. Please try logging in manually.";
+                    Login();
                 }
             }
             else

@@ -1,18 +1,23 @@
-using JobScheduleNotifications.Core.Entities;
+using Api.Infrastructure.Auth;
+using Api.Infrastructure.Auth.AccessPolicies;
+using Api.Infrastructure.Data;
+using Api.Infrastructure.DbTables;
 using JobScheduleNotifications.Core.Interfaces;
-using JobScheduleNotifications.Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace JobScheduleNotifications.Composition;
+namespace Api.Composition;
 
 public static class CompositionRoot
 {
     public static void ComposeApplication(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<IdentityOptions>(options => { options.User.RequireUniqueEmail = true; });
+
         // Register DbContext
-        services.AddDbContext<JobScheduleDbContext>(options =>
+        services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
 
         // Register Repositories
@@ -22,9 +27,7 @@ public static class CompositionRoot
         services.AddScoped<IRepository<ScheduledJob>, Repository<ScheduledJob>>();
         services.AddScoped<IRepository<JobReminder>, Repository<JobReminder>>();
 
-        // Register Api.Application Services (to be added later)
-        // services.AddScoped<IBusinessOwnerService, BusinessOwnerService>();
-        // services.AddScoped<ICustomerService, CustomerService>();
-        // services.AddScoped<IScheduledJobService, ScheduledJobService>();
+        services.AddSingleton<IJwt, Jwt>();
+        services.AddTransient<IAuthenticator, Authenticator>();
     }
 }

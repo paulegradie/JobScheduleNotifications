@@ -1,14 +1,14 @@
 using JobScheduleNotifications.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace JobScheduleNotifications.Infrastructure.Data;
+namespace Api.Infrastructure.Data;
 
 public class Repository<T> : IRepository<T> where T : class
 {
-    protected readonly JobScheduleDbContext Context;
+    protected readonly AppDbContext Context;
     protected readonly DbSet<T> DbSet;
 
-    public Repository(JobScheduleDbContext context)
+    public Repository(AppDbContext context)
     {
         Context = context;
         DbSet = context.Set<T>();

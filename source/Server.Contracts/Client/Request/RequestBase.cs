@@ -12,6 +12,7 @@ public abstract record RequestBase(string RouteInternal, string? Filter = null)
 
         return route;
     }
-    
-    
+
+    public string ApiRoute => GetApiRoute().ToString();
+
 }

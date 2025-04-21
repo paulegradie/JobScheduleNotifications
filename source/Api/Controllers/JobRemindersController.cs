@@ -1,10 +1,9 @@
-using JobScheduleNotifications.Core.Entities;
+using Api.Infrastructure.DbTables;
 using JobScheduleNotifications.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Server.Contracts;
 using Server.Contracts.Dtos;
 
-namespace JobScheduleNotifications.Api.Controllers;
+namespace Api.Controllers;
 
 [Route("job-reminders")]
 public class JobRemindersController : BaseAuthenticatedApiController

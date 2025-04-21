@@ -6,88 +6,98 @@ namespace Server.Client.Endpoints;
 
 internal class AuthEndpoint : EndpointBase, IAuthenticationEndpoint
 {
-    private TokenInfo _currentToken;
-    private readonly SemaphoreSlim _refreshLock = new SemaphoreSlim(1, 1);
+    private readonly AsyncLocal<TokenInfo?> _currentToken = new();
+    private readonly SemaphoreSlim _refreshLock = new(1, 1);
 
     public AuthEndpoint(HttpClient client) : base(client)
     {
     }
 
-    public async Task<TokenInfo> LoginAsync(LoginRequest req)
+    public async Task<UserEmail> GetCurrentUserEmailAsync()
     {
-        var response = await Client.PostAsJsonAsync("auth/login", req);
+        await Task.CompletedTask;
+        if (CurrentToken is null) throw new InvalidOperationException("Not authenticated");
+        return new UserEmail(CurrentToken.Email);
+    }
+
+    public async Task<bool> RegisterAsync(RegisterNewAdminRequest req)
+    {
+        try
+        {
+            var response = await Client.PostAsJsonAsync(req.ApiRoute, req);
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task<TokenInfo> LoginAsync(SignInRequest req)
+    {
+        var response = await Client.PostAsJsonAsync(req.ApiRoute, req);
         response.EnsureSuccessStatusCode();
-        
+
         var tokenInfo = await response.Content.ReadFromJsonAsync<TokenInfo>();
 
-        _currentToken = tokenInfo ?? throw new InvalidOperationException("Failed to parse token response");
+        CurrentToken = tokenInfo ?? throw new InvalidOperationException("Failed to parse token response");
         return tokenInfo;
     }
 
-    public async Task<TokenInfo> RefreshTokenAsync(string refreshToken)
+    public async Task<bool> LogoutAsync(SignOutRequest request)
     {
-        // Implementation for refresh token API call
-        // Example:
-        // var response = await Client.PostAsJsonAsync("auth/refresh", new { RefreshToken = refreshToken });
-        // response.EnsureSuccessStatusCode();
-        // var tokenInfo = await response.Content.ReadFromJsonAsync<TokenInfo>();
-
-        // For now, using placeholder:
-        var tokenInfo = new TokenInfo
+        try
         {
-            // Populate with real values from API response
-        };
+            // Clear the token regardless of server response
+            var currentToken = CurrentToken;
+            CurrentToken = null;
 
-        // Update the stored token info
-        _currentToken = tokenInfo;
-        
+            // Only notify server if we had a token to invalidate
+            if (currentToken != null)
+            {
+                // Optional: Send the refresh token to be invalidated
+                var response = await Client.PostAsync(SignOutRequest.Route, null);
+                return response.IsSuccessStatusCode;
+            }
+
+            return true;
+        }
+        catch
+        {
+            // We've already cleared the token locally, so the user is effectively logged out
+            return true;
+        }
+    }
+
+    public async Task<TokenInfo?> RefreshTokenAsync(TokenRefreshRequest request)
+    {
+        var response = await Client.PostAsJsonAsync(request.ApiRoute, new { request.RefreshToken });
+        response.EnsureSuccessStatusCode();
+
+        var tokenInfo = await response.Content.ReadFromJsonAsync<TokenInfo>();
+
+        CurrentToken = tokenInfo ?? throw new InvalidOperationException("Failed to parse refresh token response");
         return tokenInfo;
     }
 
-    public async Task<bool> LogoutAsync()
-    {
-        // Implementation for logout API call
-        // Example:
-        // var response = await Client.PostAsync("auth/logout", null);
-        // var success = response.IsSuccessStatusCode;
-
-        // Clear the token on successful logout
-        _currentToken = null;
-        
-        // Return success flag
-        return true; // Replace with actual API call result
-    }
-
-    public Task<bool> RegisterAsync(RegisterRequest req)
-    {
-        // Implementation for registration API call
-        // Example:
-        // var response = await Client.PostAsJsonAsync("auth/register", req);
-        // return response.IsSuccessStatusCode;
-        
-        return Task.FromResult(true); // Replace with actual API call
-    }
-
-    public async Task<string> GetValidTokenAsync()
+    public async Task<string?> GetValidTokenAsync()
     {
         // If we don't have a token yet, return null or throw as appropriate
-        if (_currentToken == null)
+        if (CurrentToken == null)
         {
             return null;
         }
 
         // Check if the current token is close to expiring (e.g., within 5 minutes)
-        if (_currentToken.ExpiresAt <= DateTime.UtcNow.AddMinutes(5))
+        if (CurrentToken.ExpiresAt <= DateTime.UtcNow.AddMinutes(5))
         {
-            // Use a semaphore to prevent multiple simultaneous refresh attempts
             await _refreshLock.WaitAsync();
             try
             {
                 // Double-check that the token still needs refreshing after acquiring the lock
-                if (_currentToken.ExpiresAt <= DateTime.UtcNow.AddMinutes(5))
+                if (CurrentToken.ExpiresAt <= DateTime.UtcNow.AddMinutes(5))
                 {
-                    // Refresh the token
-                    _currentToken = await RefreshTokenAsync(_currentToken.RefreshToken);
+                    CurrentToken = await RefreshTokenAsync(new TokenRefreshRequest(CurrentToken.AccessToken, CurrentToken.RefreshToken));
                 }
             }
             finally
@@ -96,8 +106,14 @@ internal class AuthEndpoint : EndpointBase, IAuthenticationEndpoint
             }
         }
 
-        return _currentToken.AccessToken;
+        return CurrentToken?.AccessToken;
     }
-    
-    public bool IsAuthenticated => _currentToken != null && _currentToken.ExpiresAt > DateTime.UtcNow;
+
+    public bool IsAuthenticated => CurrentToken != null;
+
+    private TokenInfo? CurrentToken
+    {
+        get => _currentToken.Value;
+        set => _currentToken.Value = value;
+    }
 }

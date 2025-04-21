@@ -1,49 +1,30 @@
-using JobScheduleNotifications.Core.Interfaces;
+using System.Security.Authentication;
+using Api.Infrastructure.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Server.Contracts.Authentication;
+using Server.Contracts.Client.Endpoints.Auth;
 
-namespace JobScheduleNotifications.Api.Controllers
+namespace Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
     public class AuthenticationController : BaseApiController
     {
-        private readonly IAuthenticationService _authenticationService;
+        private readonly IAuthenticator _authenticator;
 
-        public AuthenticationController(IAuthenticationService authenticationService)
+        public AuthenticationController(IAuthenticator authenticator)
         {
-            _authenticationService = authenticationService;
+            _authenticator = authenticator;
         }
 
-        [HttpPost("register")]
+        [HttpPost(RegisterNewAdminRequest.Route)]
         [AllowAnonymous]
-        public async Task<ActionResult<AuthenticationResponseDto>> Register(RegisterBusinessOwnerDto request)
+        public async Task<ActionResult<RegisterResponse>> Register(RegisterNewAdminRequest request, CancellationToken cancellationToken)
         {
             try
             {
-                var (owner, token) = await _authenticationService.RegisterBusinessOwnerAsync(
-                    request.Email,
-                    request.Password,
-                    request.BusinessName,
-                    request.FirstName,
-                    request.LastName,
-                    request.PhoneNumber,
-                    request.BusinessAddress,
-                    request.BusinessDescription);
-
-                var response = new AuthenticationResponseDto
-                {
-                    Id = owner.Id,
-                    Email = owner.Email,
-                    BusinessName = owner.BusinessName,
-                    FirstName = owner.FirstName,
-                    LastName = owner.LastName,
-                    Token = token,
-                    TokenExpiration = DateTime.UtcNow.AddDays(7)
-                };
-
-                return Ok(response);
+                var result = await _authenticator.Register(request, cancellationToken);
+                return Ok(new RegisterResponse(result.Email));
             }
             catch (InvalidOperationException ex)
             {
@@ -51,28 +32,22 @@ namespace JobScheduleNotifications.Api.Controllers
             }
         }
 
-        [HttpPost("login")]
+        [HttpPost(SignInRequest.Route)]
         [AllowAnonymous]
-        public async Task<ActionResult<AuthenticationResponseDto>> Login(LoginRequestDto request)
+        public async Task<ActionResult<TokenInfo>> Login([FromBody] SignInRequest request)
         {
             try
             {
-                var (owner, token) = await _authenticationService.LoginAsync(
-                    request.Email,
-                    request.Password);
+                var (email, authToken, refreshToken) = await _authenticator.SignIn(request.Email, request.Password, CancellationToken.None);
 
-                var response = new AuthenticationResponseDto
+                var tokenInfo = new TokenInfo
                 {
-                    Id = owner.Id,
-                    Email = owner.Email,
-                    BusinessName = owner.BusinessName,
-                    FirstName = owner.FirstName,
-                    LastName = owner.LastName,
-                    Token = token,
-                    TokenExpiration = DateTime.UtcNow.AddDays(7)
+                    AccessToken = authToken,
+                    RefreshToken = refreshToken,
+                    Email = email
                 };
 
-                return Ok(response);
+                return Ok(tokenInfo);
             }
             catch (InvalidOperationException ex)
             {
@@ -80,11 +55,39 @@ namespace JobScheduleNotifications.Api.Controllers
             }
         }
 
-        [HttpPost("validate-token")]
-        public async Task<ActionResult<bool>> ValidateToken([FromBody] string token)
+        [HttpPost(TokenRefreshRequest.Route)]
+        [AllowAnonymous]
+        public async Task<ActionResult<AppSignInResult>> RefreshToken([FromBody] TokenRefreshRequest request)
         {
-            var isValid = await _authenticationService.ValidateTokenAsync(token);
-            return Ok(isValid);
+            if (request is null || string.IsNullOrEmpty(request.AccessToken) || string.IsNullOrEmpty(request.RefreshToken))
+            {
+                return BadRequest("Invalid client request");
+            }
+
+            try
+            {
+                var result = await _authenticator.RefreshToken(request.AccessToken, request.RefreshToken, HttpContext.RequestAborted);
+                return Ok(result);
+            }
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+        }
+
+        [HttpPost(SignOutRequest.Route)]
+        [Authorize]
+        public async Task<ActionResult> SignOut(SignOutRequest request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _authenticator.SignOut(request, cancellationToken);
+                return Ok("Signed Out");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Couldn't sign you out");
+            }
         }
     }
-} 
+}

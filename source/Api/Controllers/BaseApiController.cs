@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace JobScheduleNotifications.Api.Controllers;
+namespace Api.Controllers;
 
 [ApiController]
 [Route("api")]

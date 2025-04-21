@@ -6,30 +6,24 @@ using Server.Contracts.Client.Endpoints.Customers;
 using Server.Contracts.Client.Endpoints.Home;
 
 [assembly: InternalsVisibleTo("Mobile.Api.Composition")]
+[assembly: InternalsVisibleTo("IntegrationTests")]
 
 namespace Server.Client;
 
 internal class ServerClient : IServerClient
 {
-    public ServerClient(HttpClient client, IAuthenticationEndpoint authEndpoint)
+    public ServerClient(HttpClient client)
     {
-        var handler = new AuthenticationHandler(authEndpoint);
-        Http = new HttpClient(handler) 
-        {
-            BaseAddress = client.BaseAddress
-        };
-
-        Home = new HomeEndpoint(Http);
-        Customers = new CustomersEndpoint(Http);
-        Auth = authEndpoint;
+        Http = client;
+        Home = new HomeEndpoint(client);
+        Customers = new CustomersEndpoint(client);
+        Auth = new AuthEndpoint(client);
     }
-
 
 
     public HttpClient Http { get; set; }
 
     public IHomeEndpoint Home { get; init; }
     public ICustomersEndpoint Customers { get; init; }
-
     public IAuthenticationEndpoint Auth { get; init; }
 }

@@ -2,20 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <RootNamespace>JobScheduleNotifications.Api</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-<!--    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />-->
-<!--    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />-->
-<!--    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />-->
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Api.Business\Api.Business.csproj" />
     <ProjectReference Include="..\Api.Composition\Api.Composition.csproj" />
-    <ProjectReference Include="..\Api.Application\Api.Application.csproj" />
     <ProjectReference Include="..\Api.Infrastructure\Api.Infrastructure.csproj" />
     <ProjectReference Include="..\Server.Contracts\Server.Contracts.csproj" />
   </ItemGroup>

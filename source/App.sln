@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{FD7D23B0-2A3D-4133-A0E7-C6178073A0C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api.Application", "Api.Application\Api.Application.csproj", "{60BE6BE3-EE1B-479D-AD73-1C94838F44DF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api.Business", "Api.Business\Api.Business.csproj", "{60BE6BE3-EE1B-479D-AD73-1C94838F44DF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api.Infrastructure", "Api.Infrastructure\Api.Infrastructure.csproj", "{2CF48CED-F690-43F7-B935-643D49E174C6}"
 EndProject
@@ -28,6 +28,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mobile.Infrastructure", "Mobile.Infrastructure\Mobile.Infrastructure.csproj", "{D2E0EAA3-3904-41D9-A734-EF17516C168B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mobile.UI", "Mobile.UI\Mobile.UI.csproj", "{F0612791-3D24-4302-8FDE-B92078C80072}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{16183F2A-0B90-4E44-99C3-68AEE45BCAC5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "IntegrationTests\IntegrationTests.csproj", "{6CBD2704-514A-4992-9016-A83F440C2AC6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -79,6 +83,10 @@ Global
 		{F0612791-3D24-4302-8FDE-B92078C80072}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F0612791-3D24-4302-8FDE-B92078C80072}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F0612791-3D24-4302-8FDE-B92078C80072}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CBD2704-514A-4992-9016-A83F440C2AC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CBD2704-514A-4992-9016-A83F440C2AC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CBD2704-514A-4992-9016-A83F440C2AC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CBD2704-514A-4992-9016-A83F440C2AC6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -96,5 +104,6 @@ Global
 		{407F3D37-3194-436F-93E4-858EB6AF087D} = {F346785D-1263-42D9-B585-6F1FA371CCB8}
 		{D2E0EAA3-3904-41D9-A734-EF17516C168B} = {F346785D-1263-42D9-B585-6F1FA371CCB8}
 		{F0612791-3D24-4302-8FDE-B92078C80072} = {F346785D-1263-42D9-B585-6F1FA371CCB8}
+		{6CBD2704-514A-4992-9016-A83F440C2AC6} = {16183F2A-0B90-4E44-99C3-68AEE45BCAC5}
 	EndGlobalSection
 EndGlobal

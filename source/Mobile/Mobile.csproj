@@ -61,8 +61,14 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 
 	</ItemGroup>
-	
-	
+
+	<ItemGroup>
+		<ProjectReference Include="..\Mobile.Composition\Mobile.Composition.csproj" />
+		<ProjectReference Include="..\Mobile.Core\Mobile.Core.csproj" />
+		<ProjectReference Include="..\Server.Contracts\Server.Contracts.csproj" />
+	</ItemGroup>
+
+
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
@@ -165,10 +171,4 @@
 	  </Compile>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\Mobile.Composition\Mobile.Composition.csproj" />
-	  <ProjectReference Include="..\Mobile.Core\Mobile.Core.csproj" />
-	  <ProjectReference Include="..\Server.Contracts\Server.Contracts.csproj" />
-	</ItemGroup>
-	
 </Project>

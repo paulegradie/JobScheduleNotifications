@@ -1,8 +1,8 @@
-using JobScheduleNotifications.Core.Entities;
+using Api.Infrastructure.DbTables;
 using JobScheduleNotifications.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace JobScheduleNotifications.Api.Controllers;
+namespace Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

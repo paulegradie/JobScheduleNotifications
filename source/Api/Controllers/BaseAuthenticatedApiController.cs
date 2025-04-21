@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 
-namespace JobScheduleNotifications.Api.Controllers;
+namespace Api.Controllers;
 
 [Authorize]
 public abstract class BaseAuthenticatedApiController : BaseApiController

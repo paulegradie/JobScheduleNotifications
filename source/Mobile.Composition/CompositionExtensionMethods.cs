@@ -5,8 +5,8 @@ using Mobile.Core.Utilities;
 using Mobile.Infrastructure.Persistence;
 using Mobile.UI.PageModels;
 using Mobile.UI.Pages;
+using Server.Client.Base;
 using Server.Contracts.Client;
-using Server.Contracts.Client.Endpoints.Auth;
 
 namespace Mobile.Composition;
 
@@ -33,13 +33,11 @@ public static class CompositionExtensionMethods
         services.AddSingleton<CustomersViewModel>();
 
         services.AddTransient<INavigationUtility, NavigationUtility>();
+
         services.AddTransient<ICustomerRepository, CustomerRepository>();
-
-        // HTTP + token storage + services
-        services.AddTransient<AuthenticationHandler>();
-
         services.AddSingleton<ITokenStore, InMemoryTokenStore>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
+        services.AddTransient<AuthenticationHandler>();
         services.AddHttpClient<IServerClient>().AddHttpMessageHandler<AuthenticationHandler>();
     }
 }
