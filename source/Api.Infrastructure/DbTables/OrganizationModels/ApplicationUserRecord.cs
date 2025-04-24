@@ -5,27 +5,37 @@ using Microsoft.AspNetCore.Identity;
 namespace Api.Infrastructure.DbTables.OrganizationModels;
 
 [DatabaseModel]
-public class ApplicationUserRecord : IdentityUser<UserId>
+public class ApplicationUserRecord : IdentityUser<IdentityUserId>
 {
-    public ApplicationUserRecord(bool isAdmin, string email)
+    // Create a new user with a generated Id and initialized username/email
+    public ApplicationUserRecord(string email)
     {
-        IsAdmin = isAdmin;
+        Id = IdentityUserId.New();
+        UserName = email;
+        NormalizedUserName = email.ToUpperInvariant();
         Email = email;
+        NormalizedEmail = email.ToUpperInvariant();
     }
 
-    // “platform” admins (if you have super-user)
-    public bool IsAdmin { get; protected set; }
-
-    // our organization memberships
-    // ← *all* the orgs this user belongs to
-    public virtual ICollection<OrganizationUser> OrganizationUsers { get; }
+    /// <summary>
+    /// All the organizations this user belongs to.
+    /// </summary>
+    public virtual ICollection<OrganizationUser> OrganizationUsers { get; private set; }
         = new List<OrganizationUser>();
 
-    // ← *all* the customers this user (as a customer) is linked to
-    public virtual ICollection<CustomerUser> CustomerUsers { get; }
+    /// <summary>
+    /// All the customers this user (as a customer) is linked to.
+    /// </summary>
+    public virtual ICollection<CustomerUser> CustomerUsers { get; private set; }
         = new List<CustomerUser>();
 
-    // refresh tokens, etc…
-    public string RefreshToken { get; set; } = "";
-    public DateTime RefreshTokenExpiryTime { get; set; }
+    /// <summary>
+    /// Used for refresh-token flow; nullable until first sign-in.
+    /// </summary>
+    public string? RefreshToken { get; set; }
+
+    public DateTime? RefreshTokenExpiryTime { get; set; }
+
+    // Optional: if you want a "current" customer on the user entity
+    // public Guid? CurrentCustomerId { get; set; }
 }

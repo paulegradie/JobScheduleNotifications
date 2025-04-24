@@ -1,18 +1,15 @@
-﻿using Api.Infrastructure.DbTables.OrganizationModels;
-using Api.Infrastructure.EntityFramework;
-using Api.ValueTypes;
+﻿using Api.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Api.Infrastructure.Data;
+namespace Api.Infrastructure.EntityFramework;
 
 public static class DbContextRegistration
 {
-    public static IServiceCollection AddConfiguredDbContext(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
+    public static IServiceCollection AddConfiguredDbContextAndConventions(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
     {
         if (!env.IsEnvironment("Test"))
         {
@@ -24,16 +21,7 @@ public static class DbContextRegistration
             });
         }
 
-        services
-            .AddIdentity<ApplicationUserRecord, IdentityRole<UserId>>(opts =>
-            {
-                // configure your password, lockout, etc. options here
-            })
-            .AddEntityFrameworkStores<AppDbContext>()
-            .AddDefaultTokenProviders();
-
         services.RegisterEfConventions();
-
         return services;
     }
 }

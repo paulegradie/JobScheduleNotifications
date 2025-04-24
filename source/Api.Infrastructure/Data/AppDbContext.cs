@@ -11,10 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Api.Infrastructure.Data;
 
-public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRole<UserId>, UserId>
+public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRole<IdentityUserId>, IdentityUserId>
 {
     private readonly IEnumerable<IEntityPropertyConvention> _conventions;
-    private readonly UserId? _currentUserId;
+    private readonly IdentityUserId? _currentUserId;
 
     public DbSet<Organization> Organizations { get; set; }
     public DbSet<Customer> Customers => Set<Customer>();
@@ -66,11 +66,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<OrganizationUser>(b =>
         {
-            b.HasKey(x => new { x.UserId, x.OrganizationId });
+            b.HasKey(x => new { UserId = x.IdentityUserId, x.OrganizationId });
 
             b.HasOne(x => x.User)
                 .WithMany(u => u.OrganizationUsers)
-                .HasForeignKey(x => x.UserId);
+                .HasForeignKey(x => x.IdentityUserId);
 
             b.HasOne(x => x.Organization)
                 .WithMany(o => o.OrganizationUsers)
@@ -79,11 +79,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
 
         modelBuilder.Entity<CustomerUser>(b =>
         {
-            b.HasKey(x => new { x.UserId, x.CustomerId });
+            b.HasKey(x => new { UserId = x.IdentityUserId, x.CustomerId });
 
             b.HasOne(x => x.User)
                 .WithMany(u => u.CustomerUsers)
-                .HasForeignKey(x => x.UserId);
+                .HasForeignKey(x => x.IdentityUserId);
 
             b.HasOne(x => x.Customer)
                 .WithMany(c => c.CustomerUsers)

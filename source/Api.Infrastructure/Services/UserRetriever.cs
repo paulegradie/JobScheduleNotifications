@@ -1,8 +1,9 @@
 ﻿using System.Security.Claims;
 using Api.Infrastructure.DbTables.OrganizationModels;
-using Api.Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+
+namespace Api.Infrastructure.Services;
 
 public class UserRetriever : IUserRetriever
 {

@@ -1,6 +1,8 @@
 using Api.Composition;
 using Api.Infrastructure.Auth;
 using Api.Infrastructure.Data;
+using Api.Infrastructure.EntityFramework;
+using Api.Infrastructure.Identity;
 using Api.Middleware;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
@@ -13,9 +15,11 @@ builder.Logging.AddDebug(); // Useful in Visual Studio output window
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddOptions<ServiceProviderOptions>().Configure(options => options.ValidateScopes = true);
+builder.Host.UseDefaultServiceProvider(sp => { sp.ValidateScopes = true; });
 builder.Services.ComposeApplication(builder.Configuration);
-builder.Services.AddConfiguredDbContext(builder.Configuration, builder.Environment);
+builder.Services.AddConfiguredDbContextAndConventions(builder.Configuration, builder.Environment);
+builder.Services.AddIdentityServices();
+builder.Services.AddRolePolicies();
 builder.Services.ConfigureAuthentication(builder.Configuration);
 
 var app = builder.Build();
@@ -36,7 +40,7 @@ app.UseMiddleware<CurrentUserMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 
-// 🔹 Log the addresses after the app starts
+// Log the addresses after the app starts
 app.Lifetime.ApplicationStarted.Register(() =>
 {
     var logger = app.Services.GetRequiredService<ILogger<Api.Program>>();
@@ -59,8 +63,9 @@ app.Lifetime.ApplicationStarted.Register(() =>
 if (!app.Environment.IsEnvironment("Test"))
 {
     await app.Services.EnsureAndMigrateDatabase(preDelete: false);
-    await app.Services.EnsureDefaultRoles();
 }
+
+await app.Services.SeedRolesAsync();
 
 app.Run();
 

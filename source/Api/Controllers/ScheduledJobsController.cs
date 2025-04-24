@@ -1,6 +1,7 @@
 using Api.Business.Interfaces;
 using Api.Infrastructure.DbTables;
 using Api.Infrastructure.DbTables.OrganizationModels;
+using Api.ValueTypes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -72,7 +73,8 @@ public class ScheduledJobsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, ScheduledJob job)
     {
-        if (id != job.Id)
+        var jobId = new ScheduledJobId(id);
+        if (jobId != job.Id)
         {
             return BadRequest();
         }

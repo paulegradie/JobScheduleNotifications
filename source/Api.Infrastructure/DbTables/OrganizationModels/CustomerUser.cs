@@ -4,9 +4,9 @@ namespace Api.Infrastructure.DbTables.OrganizationModels;
 
 public class CustomerUser
 {
-    public UserId UserId           { get; set; }
+    public IdentityUserId IdentityUserId { get; set; }
     public virtual ApplicationUserRecord User { get; set; } = null!;
 
-    public Guid CustomerId         { get; set; }
+    public CustomerId CustomerId { get; set; }
     public virtual Customer Customer { get; set; } = null!;
 }

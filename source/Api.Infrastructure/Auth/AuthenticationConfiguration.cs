@@ -1,54 +1,69 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.Security.Claims;
 using System.Text;
-using Api.Infrastructure.Auth.AccessPolicies;
+using Api.Infrastructure.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Api.Infrastructure.Auth;
-
-public static class AuthenticationConfiguration
+namespace Api.Infrastructure.Auth
 {
-    public static void ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
+    public static class AuthenticationConfiguration
     {
-        services.Configure<AuthenticationOptions>(configuration.GetSection(AuthenticationOptions.Node));
-        services.AddSingleton<IJwt, Jwt>();
-        services.AddTransient<IAuthenticator, Authenticator>();
-        var authSection = configuration.GetSection(AuthenticationOptions.Node);
-        var authOptions = authSection.Get<AuthenticationOptions>() ?? throw new Exception("Missing auth configuration");
+        /// <summary>
+        /// Configures JWT-based authentication and authorization.
+        /// </summary>
+        public static IServiceCollection ConfigureAuthentication(
+            this IServiceCollection services,
+            IConfiguration configuration)
+        {
+            // bind options
+            services.Configure<AuthenticationOptions>(
+                configuration.GetSection(AuthenticationOptions.Node));
 
-        var key = Encoding.UTF8.GetBytes(authOptions.Key);
+            services.AddSingleton<IJwt, Jwt>();
+            services.AddTransient<IAuthenticator, Authenticator>();
 
-        services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
+            // read settings
+            var authOptions = configuration
+                                  .GetSection(AuthenticationOptions.Node)
+                                  .Get<AuthenticationOptions>()
+                              ?? throw new InvalidOperationException("Missing authentication configuration");
+
+            var keyBytes = Encoding.UTF8.GetBytes(authOptions.Key);
+
+            // configure JWT bearer
+            services.AddAuthentication(options =>
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidIssuer = authOptions.Issuer,
-                    ValidateAudience = false,
-                    ValidAudience = authOptions.Audience,
-                    RoleClaimType = ClaimTypes.Role,
-                    ValidateLifetime = true, // token expiration should be validated
-                    ClockSkew = TimeSpan.FromMinutes(2) // optional: prevents minor clock drift causing early expiry
-                };
-            });
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
 
-        services.ConfigureRolePolicies();
-    }
+                        ValidateIssuer = true,
+                        ValidIssuer = authOptions.Issuer,
 
-    private static void ConfigureRolePolicies(this IServiceCollection services)
-    {
-        services
-            .AddAuthorizationBuilder()
-            .AddPolicy(UserPolicies.AdminPolicy, policy =>
-                policy.RequireClaim(ClaimTypes.Role, UserRoles.AdminRole));
+                        ValidateAudience = true,
+                        ValidAudience = authOptions.Audience,
+
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.FromMinutes(2),
+
+                        RoleClaimType = ClaimTypes.Role,
+                        NameClaimType = ClaimTypes.NameIdentifier
+                    };
+                });
+
+            // register policies
+            services.AddRolePolicies();
+
+            return services;
+        }
     }
 }

@@ -16,20 +16,13 @@ public class Server : WebApplicationFactory<Program>
         builder.UseEnvironment("Test");
         builder.ConfigureTestServices(services =>
         {
-            var uniqueId = Guid.NewGuid(); // or pass this in
+            var uniqueId = Guid.NewGuid();
 
-            services.RemoveAll<AppDbContext>();
-            services.RemoveAll<DbContextOptions<AppDbContext>>();
-            services.RemoveAll<DbContextOptions>();
+            // services.RemoveAll<AppDbContext>();
+            // services.RemoveAll<DbContextOptions<AppDbContext>>();
+            // services.RemoveAll<DbContextOptions>();
 
-            services.AddDbContext<AppDbContext>((sp, options) =>
-            {
-                options.UseInMemoryDatabase($"Data Source=IntegrationTesting{uniqueId}.db");
-
-                // services.AddDbContext<AppDbContext>((sp, options) => { options.UseSqlite($"Database-{uniqueId}"); });
-                // services.AddDbContext<AppDbContext>(options =>
-                //     options.UseInMemoryDatabase("TestDb"));
-            });
+            services.AddDbContext<AppDbContext>((sp, options) => { options.UseInMemoryDatabase($"Data Source=IntegrationTesting{uniqueId}.db"); });
         });
 
         base.ConfigureWebHost(builder);

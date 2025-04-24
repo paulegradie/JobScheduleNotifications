@@ -1,5 +1,5 @@
-﻿using Api.Infrastructure.Auth;
-using Api.Infrastructure.Data;
+﻿using Api.Infrastructure.Data;
+using Api.Infrastructure.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Server.Client;
@@ -11,37 +11,36 @@ namespace IntegrationTests.Base;
 
 public class IntegrationTest : IAsyncLifetime
 {
-    private IServiceScope scope = null!;
-    private Server Server { get; set; }
+    protected IServiceProvider ServiceProvider = null!;
+    protected Server Server = null!;
+    protected ILogger Logger = null!;
+    protected IServerClient Client = null!;
+    private IServiceScope _scope = null!;
+    protected AppDbContext TestDb = null!;
 
-    protected ILogger Logger { get; set; }
-
-    protected IServerClient Client { get; private set; }
-
-    protected CancellationToken CancellationToken { get; set; } = new CancellationTokenSource(TimeSpan.FromMinutes(5)).Token;
+    protected readonly CancellationToken CancellationToken = new CancellationTokenSource(TimeSpan.FromMinutes(5)).Token;
 
     public virtual async Task InitializeAsync()
     {
         Server = new Server();
-        Logger = Server.Services.GetRequiredService<ILogger<IntegrationTest>>();
-        TestDb = Server.Services.GetRequiredService<AppDbContext>();
-        
+        _scope = Server.Services.CreateScope();
+        ServiceProvider = _scope.ServiceProvider;
+
+        Logger = ServiceProvider.GetRequiredService<ILogger<IntegrationTest>>();
+        TestDb = ServiceProvider.GetRequiredService<AppDbContext>();
+
         var client = Server.CreateClient();
         Client = new ServerClient(client);
-        CancellationToken = new CancellationTokenSource(TimeSpan.FromMinutes(5)).Token;
 
-        scope = Server.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var db = ServiceProvider.GetRequiredService<AppDbContext>();
         await db.Database.EnsureCreatedAsync(CancellationToken);
-        await Server.Services.EnsureDefaultRoles();
+        await ServiceProvider.SeedRolesAsync();
     }
-
-    public AppDbContext TestDb { get; set; }
 
 
     public virtual async Task DisposeAsync()
     {
-        scope?.Dispose();
+        _scope.Dispose();
         await TestDb.DisposeAsync();
         await Server.DisposeAsync();
     }

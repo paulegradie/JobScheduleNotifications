@@ -1,6 +1,18 @@
-﻿namespace Api.Infrastructure.Services;
+﻿using Api.ValueTypes;
 
-public class CurrentUserService : ICurrentUserService
+namespace Api.Infrastructure.Services;
+
+/// <summary>
+/// Holds information about the current authenticated user.
+/// </summary>
+public interface ICurrentUserService
 {
-    public Guid? UserId { get; set; }
+    IdentityUserId? UserId { get; set; }
+    CustomerId? CustomerId { get; set; }
+}
+
+public record CurrentUserService : ICurrentUserService
+{
+    public IdentityUserId? UserId { get; set; }
+    public CustomerId? CustomerId { get; set; }
 }

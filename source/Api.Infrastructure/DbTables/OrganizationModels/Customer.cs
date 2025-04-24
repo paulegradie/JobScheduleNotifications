@@ -1,3 +1,4 @@
+using Api.ValueTypes;
 using Server.Contracts.Client.Endpoints.Customers.Contracts;
 
 namespace Api.Infrastructure.DbTables.OrganizationModels;
@@ -9,7 +10,7 @@ public class Customer
         ScheduledJobs = new List<ScheduledJob>();
     }
 
-    public Guid Id { get; set; }
+    public CustomerId Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;

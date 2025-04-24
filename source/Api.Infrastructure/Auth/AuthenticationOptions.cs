@@ -1,4 +1,4 @@
-﻿namespace Api.Infrastructure.Auth.AccessPolicies;
+﻿namespace Api.Infrastructure.Auth;
 
 public class AuthenticationOptions
 {

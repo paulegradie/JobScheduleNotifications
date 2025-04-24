@@ -9,10 +9,8 @@ public static class EntityConventionRegistrationExtensionMethods
     {
         services.AddSingleton<IEntityConventionApplier, EntityConventionApplier>();
 
-        // Register all types in the current assembly that implement IEntityPropertyConvention
-        var assembly = Assembly.GetExecutingAssembly(); // or typeof(DomainServiceCollectionExtensions).Assembly
-
-        var conventionTypes = assembly
+        var conventionTypes = Assembly
+            .GetExecutingAssembly()
             .GetTypes()
             .Where(t => t is { IsAbstract: false, IsInterface: false } && typeof(IEntityPropertyConvention).IsAssignableFrom(t));
 
