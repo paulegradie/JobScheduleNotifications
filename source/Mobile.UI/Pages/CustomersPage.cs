@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using Mobile.UI.PageModels;
 using Mobile.UI.Pages.Base;
-using Server.Contracts.Customers;
+using Server.Contracts.Client.Endpoints.Customers.Contracts;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace Mobile.UI.Pages;

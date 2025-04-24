@@ -1,18 +1,13 @@
-﻿using Server.Contracts.Client.Endpoints.Home;
+﻿using Server.Contracts.Client.Endpoints;
 
 namespace Server.Contracts.Client.Request;
 
-public abstract record RequestBase(string RouteInternal, string? Filter = null)
+public abstract record RequestBase(string RouteInternal)
 {
     public virtual ApiRoute GetApiRoute()
     {
-        var route = new ApiRoute(RouteInternal);
-        if (Filter != null)
-            route.AddQueryParam("filter", Filter);
-
-        return route;
+        return new ApiRoute(RouteInternal);
     }
 
     public string ApiRoute => GetApiRoute().ToString();
-
 }

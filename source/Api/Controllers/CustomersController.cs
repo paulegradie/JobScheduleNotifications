@@ -1,98 +1,94 @@
+using Api.Business.Interfaces;
 using Api.Infrastructure.DbTables;
-using JobScheduleNotifications.Core.Interfaces;
+using Api.Infrastructure.DbTables.OrganizationModels;
+using Api.Infrastructure.Repositories;
+using Api.Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Server.Contracts.Client.Endpoints.Customers.Contracts;
 
 namespace Api.Controllers;
 
+[Authorize]
 [ApiController]
-[Route("api/[controller]")]
 public class CustomersController : ControllerBase
 {
-    private readonly IRepository<Customer> _customerRepository;
-    private readonly IRepository<BusinessOwner> _businessOwnerRepository;
+    private readonly ICrudRepository<Customer> _customerCrudRepository;
+    private readonly ICurrentUserService _currentUserService;
+    private readonly IMapperFactory _mapper;
 
-    public CustomersController(IRepository<Customer> customerRepository, IRepository<BusinessOwner> businessOwnerRepository)
+    public CustomersController(
+        ICrudRepository<Customer> customerCrudRepository,
+        ICurrentUserService currentUserService,
+        IMapperFactory mapper)
     {
-        _customerRepository = customerRepository;
-        _businessOwnerRepository = businessOwnerRepository;
+        _customerCrudRepository = customerCrudRepository;
+        _currentUserService = currentUserService;
+        _mapper = mapper;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Customer>>> GetAll()
+    [HttpGet(GetCustomersRequest.Route)]
+    public async Task<ActionResult<List<GetCustomersResponse>>> GetAll()
     {
-        var customers = await _customerRepository.GetAllAsync();
-        return Ok(customers);
+        var customers = await _customerCrudRepository.GetAllAsync();
+        var response = customers.Select(x => x.ToDto());
+        return Ok(new GetCustomersResponse(response));
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Customer>> GetById(Guid id)
+    [HttpGet(GetCustomerByIdRequest.Route)]
+    public async Task<ActionResult<Customer>> GetById([FromRoute] Guid id)
     {
-        var customer = await _customerRepository.GetByIdAsync(id);
+        var customer = await _customerCrudRepository.GetByIdAsync(id);
         if (customer == null)
         {
             return NotFound();
         }
+
         return Ok(customer);
     }
 
-    [HttpGet("business/{businessOwnerId}")]
-    public async Task<ActionResult<IEnumerable<Customer>>> GetByBusinessOwner(Guid businessOwnerId)
+    [HttpPost(CreateCustomerRequest.Route)]
+    public async Task<ActionResult<Customer>> Create(CreateCustomerRequest customer)
     {
-        var businessOwner = await _businessOwnerRepository.GetByIdAsync(businessOwnerId);
-        if (businessOwner == null)
+        var currentUser = _currentUserService.UserId ?? throw new InvalidOperationException("User not logged in");
+        var newCustomer = new Customer
         {
-            return NotFound("Business owner not found");
-        }
-
-        var customers = businessOwner.Customers;
-        return Ok(customers);
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<Customer>> Create(Customer customer)
-    {
-        // Verify business owner exists
-        var businessOwner = await _businessOwnerRepository.GetByIdAsync(customer.BusinessOwnerId);
-        if (businessOwner == null)
-        {
-            return BadRequest("Business owner not found");
-        }
-
-        var createdCustomer = await _customerRepository.AddAsync(customer);
-        await _customerRepository.SaveChangesAsync();
+            Email = customer.Email,
+            Name = $"{customer.FirstName} {customer.LastName}",
+            PhoneNumber = customer.PhoneNumber,
+            ScheduledJobs = { }
+        };
+        var createdCustomer = await _customerCrudRepository.AddAsync(newCustomer);
+        await _customerCrudRepository.SaveChangesAsync();
         return CreatedAtAction(nameof(GetById), new { id = createdCustomer.Id }, createdCustomer);
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, Customer customer)
+    [HttpPut(UpdateCustomerRequest.Route)]
+    public async Task<ActionResult<UpdateCustomerResponse>> Update(UpdateCustomerRequest request)
     {
-        if (id != customer.Id)
-        {
-            return BadRequest();
-        }
-
-        var existingCustomer = await _customerRepository.GetByIdAsync(id);
+        var existingCustomer = await _customerCrudRepository.GetByIdAsync(request.Id);
         if (existingCustomer == null)
         {
             return NotFound();
         }
 
-        await _customerRepository.UpdateAsync(customer);
-        await _customerRepository.SaveChangesAsync();
-        return NoContent();
+        var updatedCustomer = await _mapper.MapAsync<Customer, Customer>(existingCustomer);
+        await _customerCrudRepository.UpdateAsync(updatedCustomer);
+        await _customerCrudRepository.SaveChangesAsync();
+        return new UpdateCustomerResponse(updatedCustomer.ToDto());
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var customer = await _customerRepository.GetByIdAsync(id);
+        var customer = await _customerCrudRepository.GetByIdAsync(id);
         if (customer == null)
         {
             return NotFound();
         }
 
-        await _customerRepository.DeleteAsync(customer);
-        await _customerRepository.SaveChangesAsync();
+        await _customerCrudRepository.DeleteAsync(customer);
+        await _customerCrudRepository.SaveChangesAsync();
         return NoContent();
     }
-} 
+}

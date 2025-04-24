@@ -12,6 +12,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="9.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.8.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.8.0" />
@@ -21,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Api.Business\Api.Business.csproj" />
+    <ProjectReference Include="..\Api.ValueTypes\Api.ValueTypes.csproj" />
     <ProjectReference Include="..\Server.Client\Server.Client.csproj" />
   </ItemGroup>
 

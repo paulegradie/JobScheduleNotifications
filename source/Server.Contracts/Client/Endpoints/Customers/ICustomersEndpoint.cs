@@ -1,12 +1,12 @@
-﻿using Server.Contracts.Customers;
+﻿using Server.Contracts.Client.Endpoints.Customers.Contracts;
 
 namespace Server.Contracts.Client.Endpoints.Customers;
 
 public interface ICustomersEndpoint
 {
-    Task<CustomersResponse> GetCustomersAsync(GetCustomersRequest request, CancellationToken cancellationToken);
-    Task<CustomerDto?> GetCustomerByIdAsync(Guid id, CancellationToken cancellationToken);
-    Task<CustomerDto?> CreateCustomerAsync(CreateCustomerDto customer, CancellationToken cancellationToken);
-    Task<CustomerDto?> UpdateCustomerAsync(Guid id, UpdateCustomerDto customer, CancellationToken cancellationToken);
-    Task DeleteCustomerAsync(Guid id, CancellationToken cancellationToken);
+    Task<OperationResult<GetCustomersResponse>> GetCustomersAsync(GetCustomersRequest request, CancellationToken ct);
+    Task<OperationResult<GetCustomerByIdResponse>> GetCustomerByIdAsync(GetCustomerByIdRequest request, CancellationToken ct);
+    Task<OperationResult<CreateCustomerResponse>> CreateCustomerAsync(CreateCustomerRequest request, CancellationToken ct);
+    Task<OperationResult<UpdateCustomerResponse>> UpdateCustomerAsync(UpdateCustomerRequest request, CancellationToken ct);
+    Task<OperationResult<DeleteCustomerResponse>> DeleteCustomerAsync(DeleteCustomerRequest request, CancellationToken ct);
 }

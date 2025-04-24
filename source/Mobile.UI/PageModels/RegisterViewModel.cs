@@ -133,12 +133,11 @@ public partial class RegisterViewModel : ObservableValidator
                 FirstName = FirstName,
                 LastName = LastName,
                 PhoneNumber = PhoneNumber,
-                BusinessAddress = BusinessAddress,
                 BusinessDescription = BusinessDescription
             };
 
             var success = await _serverClient.Auth.RegisterAsync(registration);
-            if (success)
+            if (success.IsSuccess)
             {
                 var suc = await _serverClient.Auth.LoginAsync(new SignInRequest(Email, Password));
                 if (true)

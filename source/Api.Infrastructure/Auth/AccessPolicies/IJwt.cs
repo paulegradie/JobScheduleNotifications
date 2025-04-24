@@ -1,10 +1,11 @@
 ﻿using System.Security.Claims;
+using Api.ValueTypes;
 
 namespace Api.Infrastructure.Auth.AccessPolicies;
 
 public interface IJwt
 {
-    string GenerateJwtToken(bool isAdmin, string userName);
+    string GenerateJwtToken(bool isAdmin, UserId userId, string userName);
     RefreshToken GenerateRefreshToken();
     ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
 }

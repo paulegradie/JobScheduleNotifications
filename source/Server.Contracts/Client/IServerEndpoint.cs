@@ -1,5 +1,4 @@
-﻿using Server.Contracts.Client.Endpoints;
-using Server.Contracts.Client.Request;
+﻿using Server.Contracts.Client.Request;
 
 namespace Server.Contracts.Client;
 

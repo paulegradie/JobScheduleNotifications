@@ -1,5 +1,10 @@
 using System.Security.Authentication;
+using Api.Business.Entities;
+using Api.Business.Interfaces;
 using Api.Infrastructure.Auth;
+using Api.Infrastructure.Data;
+using Api.Infrastructure.DbTables.OrganizationModels;
+using Api.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Server.Contracts.Authentication;
@@ -19,7 +24,7 @@ namespace Api.Controllers
 
         [HttpPost(RegisterNewAdminRequest.Route)]
         [AllowAnonymous]
-        public async Task<ActionResult<RegisterResponse>> Register([FromBody] RegisterNewAdminRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<RegisterResponse>> Register(RegisterNewAdminRequest request, CancellationToken cancellationToken)
         {
             try
             {
@@ -89,5 +94,39 @@ namespace Api.Controllers
                 return BadRequest("Couldn't sign you out");
             }
         }
+        
+        // [Authorize] ensures the caller is authenticated
+        // [HttpPost("{orgId}/invite")]
+        // public async Task<IActionResult> Invite(
+        //     Guid orgId,
+        //     InviteDto dto,
+        //     [FromServices] AppDbContext db,
+        //     [FromServices] ICurrentUserService curUser,
+        //     [FromServices] ICrudRepository<>)
+        // {
+        //     // 1) verify caller is an Owner of orgId
+        //     
+        //     var membership = curUser.OrganizationUsers
+        //         .SingleOrDefault(x => x.OrganizationId == orgId);
+        //     if (membership?.Role != OrganizationRole.Owner)
+        //         return Forbid();
+        //
+        //     // 2) ensure the invitee user exists (or create)
+        //     var invitee = await _userManager.FindByEmailAsync(dto.Email) ?? new ApplicationUserRecord(false, dto.Email);
+        //     if (invitee.Id == default)
+        //         await _userManager.CreateAsync(invitee, dto.TempPassword);
+        //
+        //     // 3) add them as an Admin (or Employee)
+        //     db.OrganizationUsers.Add(new OrganizationUser {
+        //         UserId         = invitee.Id,
+        //         OrganizationId = orgId,
+        //         Role           = dto.MakeAdmin 
+        //             ? OrganizationRole.Admin 
+        //             : OrganizationRole.Employee
+        //     });
+        //     await db.SaveChangesAsync();
+        //
+        //     return Ok();
+        // }
     }
 }

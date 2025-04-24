@@ -1,4 +1,4 @@
-﻿namespace JobScheduleNotifications.Core.Exceptions;
+﻿namespace Api.Business.Exceptions;
 
 public class DomainException(string? message) : Exception(message)
 {

@@ -1,5 +1,6 @@
-﻿using Api.Infrastructure.DbTables;
+﻿using Api.Infrastructure.DbTables.OrganizationModels;
 using Api.Infrastructure.EntityFramework;
+using Api.ValueTypes;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,11 +20,15 @@ public static class DbContextRegistration
             {
                 var connectionString = configuration.GetConnectionString("DefaultConnection") ?? "Data Source=DevDatabase.db";
                 options.UseSqlite(connectionString);
+                options.UseLazyLoadingProxies();
             });
         }
 
         services
-            .AddIdentity<ApplicationUserRecord, IdentityRole>()
+            .AddIdentity<ApplicationUserRecord, IdentityRole<UserId>>(opts =>
+            {
+                // configure your password, lockout, etc. options here
+            })
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 

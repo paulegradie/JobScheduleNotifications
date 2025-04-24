@@ -1,5 +1,4 @@
 using Mobile.Core.Repositories;
-using Server.Contracts;
 using Server.Contracts.Client;
 using Server.Contracts.Dtos;
 

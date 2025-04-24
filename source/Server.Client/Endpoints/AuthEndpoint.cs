@@ -1,8 +1,6 @@
-﻿using System.Net.Http.Json;
-using Server.Client.Base;
+﻿using Server.Client.Base;
+using Server.Contracts.Client.Endpoints;
 using Server.Contracts.Client.Endpoints.Auth;
-
-namespace Server.Client.Endpoints;
 
 internal class AuthEndpoint : EndpointBase, IAuthenticationEndpoint
 {
@@ -13,96 +11,59 @@ internal class AuthEndpoint : EndpointBase, IAuthenticationEndpoint
     {
     }
 
-    public async Task<UserEmail> GetCurrentUserEmailAsync()
+    public Task<OperationResult<RegistrationResponse>> RegisterAsync(
+        RegisterNewAdminRequest request,
+        CancellationToken cancellationToken) =>
+
+        // POST api/auth/register → no body expected
+        PostAsync<RegisterNewAdminRequest, RegistrationResponse>(request, cancellationToken);
+
+    public async Task<OperationResult<TokenInfo>> LoginAsync(
+        SignInRequest request,
+        CancellationToken cancellationToken)
     {
-        await Task.CompletedTask;
-        if (CurrentToken is null) throw new InvalidOperationException("Not authenticated");
-        return new UserEmail(CurrentToken.Email);
+        var result = await PostAsync<SignInRequest, TokenInfo>(request, cancellationToken);
+        if (result.IsSuccess)
+            CurrentToken = result.Value;
+        return result;
     }
 
-    public async Task<bool> RegisterAsync(RegisterNewAdminRequest req)
+    public async Task<OperationResult> LogoutAsync(
+        SignOutRequest request,
+        CancellationToken cancellationToken)
     {
-        try
-        {
-            var response = await Client.PostAsJsonAsync(req.ApiRoute, req);
-            if (response.IsSuccessStatusCode)
-            {
-                return true;
-            }
-
-            return false;
-        }
-        catch
-        {
-            return false;
-        }
+        // clear locally first
+        CurrentToken = null;
+        var result = await PostAsync<SignOutRequest, Unit>(request, cancellationToken);
+        return OperationResult.Success(result.StatusCode);
     }
 
-    public async Task<TokenInfo> LoginAsync(SignInRequest req)
+    public async Task<OperationResult<TokenInfo>> RefreshTokenAsync(
+        TokenRefreshRequest request,
+        CancellationToken cancellationToken)
     {
-        var response = await Client.PostAsJsonAsync(req.ApiRoute, req);
-        response.EnsureSuccessStatusCode();
-
-        var tokenInfo = await response.Content.ReadFromJsonAsync<TokenInfo>();
-
-        CurrentToken = tokenInfo ?? throw new InvalidOperationException("Failed to parse token response");
-        return tokenInfo;
-    }
-
-    public async Task<bool> LogoutAsync(SignOutRequest request)
-    {
-        try
-        {
-            // Clear the token regardless of server response
-            var currentToken = CurrentToken;
-            CurrentToken = null;
-
-            // Only notify server if we had a token to invalidate
-            if (currentToken != null)
-            {
-                // Optional: Send the refresh token to be invalidated
-                var response = await Client.PostAsync(SignOutRequest.Route, null);
-                return response.IsSuccessStatusCode;
-            }
-
-            return true;
-        }
-        catch
-        {
-            // We've already cleared the token locally, so the user is effectively logged out
-            return true;
-        }
-    }
-
-    public async Task<TokenInfo?> RefreshTokenAsync(TokenRefreshRequest request)
-    {
-        var response = await Client.PostAsJsonAsync(request.ApiRoute, new { request.RefreshToken });
-        response.EnsureSuccessStatusCode();
-
-        var tokenInfo = await response.Content.ReadFromJsonAsync<TokenInfo>();
-
-        CurrentToken = tokenInfo ?? throw new InvalidOperationException("Failed to parse refresh token response");
-        return tokenInfo;
+        var result = await PostAsync<TokenRefreshRequest, TokenInfo>(request, cancellationToken);
+        if (result.IsSuccess)
+            CurrentToken = result.Value;
+        return result;
     }
 
     public async Task<string?> GetValidTokenAsync()
     {
-        // If we don't have a token yet, return null or throw as appropriate
-        if (CurrentToken == null)
-        {
-            return null;
-        }
+        var token = CurrentToken;
+        if (token == null) return null;
 
-        // Check if the current token is close to expiring (e.g., within 5 minutes)
-        if (CurrentToken.ExpiresAt <= DateTime.UtcNow.AddMinutes(5))
+        if (token.ExpiresAt <= DateTime.UtcNow.AddMinutes(5))
         {
             await _refreshLock.WaitAsync();
             try
             {
-                // Double-check that the token still needs refreshing after acquiring the lock
-                if (CurrentToken.ExpiresAt <= DateTime.UtcNow.AddMinutes(5))
+                if (CurrentToken!.ExpiresAt <= DateTime.UtcNow.AddMinutes(5))
                 {
-                    CurrentToken = await RefreshTokenAsync(new TokenRefreshRequest(CurrentToken.AccessToken, CurrentToken.RefreshToken));
+                    var refreshReq = new TokenRefreshRequest(token.AccessToken, token.RefreshToken);
+                    var refreshed = await RefreshTokenAsync(refreshReq, CancellationToken.None);
+                    if (refreshed.IsSuccess)
+                        token = CurrentToken!;
                 }
             }
             finally
@@ -111,7 +72,7 @@ internal class AuthEndpoint : EndpointBase, IAuthenticationEndpoint
             }
         }
 
-        return CurrentToken?.AccessToken;
+        return token.AccessToken;
     }
 
     public bool IsAuthenticated => CurrentToken != null;

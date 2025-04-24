@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Mobile.Core.Domain;
 using Mobile.Core.Repositories;
 using Mobile.Core.Services;
-using Server.Contracts.Customers;
+using Server.Contracts.Client.Endpoints.Customers.Contracts;
 using Server.Contracts.Dtos;
 
 namespace Mobile.UI.PageModels;
@@ -65,7 +65,7 @@ public partial class ScheduleJobViewModel : ObservableObject
         try
         {
             IsBusy = true;
-            var customerList = await _customerRepository.GetServiceRecipients();
+            var customerList = await _customerRepository.GetCustomers();
             Customers.Clear();
             foreach (var customer in customerList)
             {

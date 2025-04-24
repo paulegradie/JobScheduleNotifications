@@ -1,3 +1,4 @@
+using Api.Infrastructure.DbTables.OrganizationModels;
 using Api.Infrastructure.EntityFramework;
 
 namespace Api.Infrastructure.DbTables;
@@ -12,7 +13,5 @@ public class ScheduledJob
     public DateTime? CompletedDate { get; set; }
     public Guid CustomerId { get; set; }
     public virtual Customer Customer { get; set; } = null!;
-    public Guid BusinessOwnerId { get; set; }
-    public virtual BusinessOwner BusinessOwner { get; set; } = null!;
     public virtual ICollection<JobReminder> Reminders { get; } = new List<JobReminder>();
-} 
+}

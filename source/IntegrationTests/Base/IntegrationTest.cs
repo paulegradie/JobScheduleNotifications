@@ -1,6 +1,5 @@
 ﻿using Api.Infrastructure.Auth;
 using Api.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Server.Client;

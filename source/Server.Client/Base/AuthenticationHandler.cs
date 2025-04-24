@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
 using Server.Contracts.Client.Endpoints.Auth;
 
 namespace Server.Client.Base;

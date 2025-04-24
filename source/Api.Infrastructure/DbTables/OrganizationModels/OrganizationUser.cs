@@ -1,0 +1,14 @@
+﻿using Api.ValueTypes;
+
+namespace Api.Infrastructure.DbTables.OrganizationModels;
+
+public class OrganizationUser
+{
+    public UserId UserId           { get; set; }
+    public virtual ApplicationUserRecord User { get; set; } = null!;
+
+    public Guid OrganizationId     { get; set; }
+    public virtual Organization Organization { get; set; } = null!;
+
+    public OrganizationRole Role   { get; set; }
+}

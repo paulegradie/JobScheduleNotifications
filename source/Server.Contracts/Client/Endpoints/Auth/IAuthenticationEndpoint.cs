@@ -2,12 +2,14 @@
 
 public interface IAuthenticationEndpoint
 {
-    Task<TokenInfo> LoginAsync(SignInRequest req);
-    Task<bool> LogoutAsync(SignOutRequest request);
-    Task<bool> RegisterAsync(RegisterNewAdminRequest request);
-    Task<string?> GetValidTokenAsync(); // for refresh
-    Task<TokenInfo?> RefreshTokenAsync(TokenRefreshRequest refreshToken);
-    Task<UserEmail> GetCurrentUserEmailAsync();
+    Task<OperationResult<RegistrationResponse>> RegisterAsync(RegisterNewAdminRequest request, CancellationToken cancellationToken);
+    Task<OperationResult<TokenInfo>> LoginAsync(SignInRequest request, CancellationToken cancellationToken);
+    Task<OperationResult> LogoutAsync(SignOutRequest request, CancellationToken cancellationToken);
+    Task<OperationResult<TokenInfo>> RefreshTokenAsync(TokenRefreshRequest request, CancellationToken cancellationToken);
+
+    // these remain “helper” APIs:
+    Task<string?> GetValidTokenAsync();
+    bool IsAuthenticated { get; }
 }
 
 public record UserEmail(string Email);

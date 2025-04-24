@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.Core.Repositories;
 using Mobile.Core.Services;
-using Server.Contracts.Customers;
 
 namespace Mobile.UI.PageModels;
 
@@ -55,7 +54,8 @@ public partial class CustomerEditViewModel : ObservableObject
         try
         {
             IsBusy = true;
-            var customer = await _customerRepository.GetCustomerByIdAsync(id);
+            var result = await _customerRepository.GetCustomerByIdAsync(id);
+            var customer = result.Value;
             
             FirstName = customer.FirstName;
             LastName = customer.LastName;

@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Mobile.Core.Domain;
 using Mobile.Core.Repositories;
 using Mobile.Core.Services;
-using Server.Contracts.Customers;
+using Server.Contracts.Client.Endpoints.Customers.Contracts;
 
 namespace Mobile.UI.PageModels;
 
@@ -43,7 +43,7 @@ public partial class CustomersViewModel : ObservableObject
         try
         {
             IsLoading = true;
-            var customers = await _customerService.GetServiceRecipients();
+            var customers = await _customerService.GetCustomers();
             Customers.Clear();
             foreach (var customer in customers)
             {

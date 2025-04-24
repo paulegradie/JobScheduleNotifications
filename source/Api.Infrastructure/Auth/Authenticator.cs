@@ -1,6 +1,6 @@
 ﻿using System.Security.Authentication;
 using Api.Infrastructure.Auth.AccessPolicies;
-using Api.Infrastructure.DbTables;
+using Api.Infrastructure.DbTables.OrganizationModels;
 using Microsoft.AspNetCore.Identity;
 using Server.Contracts.Client.Endpoints.Auth;
 
@@ -36,7 +36,7 @@ public class Authenticator : IAuthenticator
             if (user?.UserName is null)
                 throw new AuthenticationException("Could not find user after login - this should not happen!");
 
-            var token = _jwt.GenerateJwtToken(user.IsAdmin, user.UserName);
+            var token = _jwt.GenerateJwtToken(user.IsAdmin, user.Id, user.UserName);
             var refreshToken = _jwt.GenerateRefreshToken();
 
             // Store refresh token in the database
@@ -104,15 +104,14 @@ public class Authenticator : IAuthenticator
     public async Task<AppSignInResult> RefreshToken(string accessToken, string refreshToken, CancellationToken cancellationToken)
     {
         var principal = _jwt.GetPrincipalFromExpiredToken(accessToken);
-        var username = principal.Identity?.Name;
-    
+        var username = principal.Identity?.Name!;
         var user = await _userManager.FindByNameAsync(username);
         if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
         {
             throw new AuthenticationException("Invalid refresh token or token expired");
         }
     
-        var newAccessToken = _jwt.GenerateJwtToken(user.IsAdmin, user.UserName);
+        var newAccessToken = _jwt.GenerateJwtToken(user.IsAdmin, user.Id, user.UserName);
         var newRefreshToken = _jwt.GenerateRefreshToken();
     
         user.RefreshToken = newRefreshToken.Token;

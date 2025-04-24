@@ -1,6 +1,6 @@
 namespace Server.Contracts.Client.Endpoints.Home;
 
-public interface IHomeEndpoint : IServerEndpoint
+public interface IHomeEndpoint
 {
-    Task<HomeResponse> PingHome(HomeRequest homeRequest, CancellationToken cancellationToken);
+    Task<OperationResult<HomeResponse>> PingHomeAsync(HomeRequest request, CancellationToken cancellationToken);
 }

@@ -1,59 +1,109 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using Server.Client.Exceptions;
-using Server.Contracts.Client;
+using Server.Contracts.Client.Endpoints;
+using Server.Contracts.Client.Endpoints.Auth;
 using Server.Contracts.Client.Request;
 
 namespace Server.Client.Base;
 
-internal abstract class EndpointBase(HttpClient client) : IServerEndpoint
+internal abstract class EndpointBase
 {
-    protected readonly HttpClient Client = client;
-    public async Task<TResponse> Post<TRequest, TResponse>(TRequest command, CancellationToken cancellationToken)
+    protected readonly HttpClient Client;
+
+    protected EndpointBase(HttpClient client) => Client = client;
+
+    public Task<OperationResult<TResponse>> GetAsync<TRequest, TResponse>(
+        TRequest request,
+        CancellationToken ct)
+        where TRequest : RequestBase
+        => SendAsync<TRequest, TResponse>(HttpMethod.Get, request, ct);
+
+    public Task<OperationResult<TResponse>> PostAsync<TRequest, TResponse>(
+        TRequest request,
+        CancellationToken ct)
+        where TRequest : RequestBase
+        => SendAsync<TRequest, TResponse>(HttpMethod.Post, request, ct);
+
+    public Task<OperationResult<TResponse>> PutAsync<TRequest, TResponse>(
+        TRequest request,
+        CancellationToken ct)
+        where TRequest : RequestBase
+        => SendAsync<TRequest, TResponse>(HttpMethod.Put, request, ct);
+
+    public Task<OperationResult<TResponse>> DeleteAsync<TRequest, TResponse>(
+        TRequest request,
+        CancellationToken ct)
+        where TRequest : RequestBase
+        => SendAsync<TRequest, TResponse>(HttpMethod.Delete, request, ct);
+
+    private async Task<OperationResult<TResponse>> SendAsync<TRequest, TResponse>(
+        HttpMethod method,
+        TRequest request,
+        CancellationToken ct)
         where TRequest : RequestBase
     {
-        var response = await Client.PostAsJsonAsync(command.GetApiRoute().ToString(), command, cancellationToken);
-        await CatchErrorsAndThrow(response);
-        return await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken) ??
-               throw new ResponseEmptyException(command.GetApiRoute().ToString());
-    }
+        // 1. Build URL
+        var route = request.ApiRoute.ToString();
 
-    public async Task<TResponse> Get<TRequest, TResponse>(TRequest request, CancellationToken cancellationToken)
-        where TRequest : RequestBase
-    {
-        var route = request.GetApiRoute().ToString();
-        var response = await Client.GetAsync(route, cancellationToken);
-        await CatchErrorsAndThrow(response);
-        return await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken) ??
-               throw new ResponseEmptyException(request.GetApiRoute().ToString());
-    }
+        // 2. Pick correct HttpRequestMessage
+        using var message = new HttpRequestMessage(method, route);
+        if (method == HttpMethod.Post || method == HttpMethod.Put)
+            message.Content = JsonContent.Create(request);
 
-    private static async Task CatchErrorsAndThrow(HttpResponseMessage response)
-    {
+        // 3. Send
+        using var response = await Client.SendAsync(message, ct);
+
+        // 4. Read body
+        var raw = await response.Content.ReadAsStringAsync(ct);
+
         if (!response.IsSuccessStatusCode)
         {
-            string raw = await response.Content.ReadAsStringAsync();
-
-            ErrorResponse? errorResponse = null;
+            // try to deserialize ErrorResponse
+            string errorMsg;
             try
             {
-                if (!string.IsNullOrWhiteSpace(raw) && response.Content.Headers.ContentType?.MediaType == "application/json")
-                {
-                    errorResponse = JsonSerializer.Deserialize<ErrorResponse>(raw);
-                }
+                var err = JsonSerializer.Deserialize<Exceptions.ErrorResponse>(raw);
+                errorMsg = err?.Messages?.Any() == true
+                    ? string.Join(", ", err!.Messages!)
+                    : raw.Trim();
             }
             catch (JsonException)
             {
-                // Ignore — we'll fall back to raw text below
+                errorMsg = raw.Trim();
             }
 
-            var message = errorResponse?.Messages is not null && errorResponse.Messages.Any()
-                ? string.Join(", ", errorResponse.Messages)
-                : $"Status {(int)response.StatusCode} ({response.StatusCode}): {raw.Trim()}";
-
-            throw new ServerClientException(message);
+            return OperationResult<TResponse>.Failure(
+                errorMsg,
+                response.StatusCode
+            );
         }
-    }
 
+        // 5. On success, try to read out TResponse
+        TResponse? value = default;
+        if (typeof(TResponse) != typeof(Unit)) // Unit signals “no body expected”
+        {
+            try
+            {
+                value = JsonSerializer.Deserialize<TResponse>(raw, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+            catch (JsonException ex)
+            {
+                throw new ResponseDeserializationException(
+                    $"Failed to deserialize response from {route}", ex);
+            }
+
+            if (value == null)
+                throw new ResponseEmptyException(route);
+        }
+
+        return OperationResult<TResponse>.Success(
+            value!,
+            response.StatusCode
+        );
+    }
 }
 

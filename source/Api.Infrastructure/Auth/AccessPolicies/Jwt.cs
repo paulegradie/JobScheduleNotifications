@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Api.ValueTypes;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -16,23 +17,25 @@ public class Jwt : IJwt
         _jwtKey = authOptions.Value.Key;
     }
 
-    public string GenerateJwtToken(bool isAdmin, string userName)
+    public string GenerateJwtToken(bool isAdmin, UserId userId, string userName)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>
         {
+            new(ClaimTypes.NameIdentifier, userId.ToString()), // ✅ this is used by HttpContext.User
+            new(ClaimTypes.Name, userName), // optional but often helpful
             new(JwtRegisteredClaimNames.Sub, userName),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(ClaimTypes.Role, isAdmin ? UserRoles.AdminRole : UserRoles.MemberRole)
         };
 
         var token = new JwtSecurityToken(
-            issuer: null, // how do I know if I need an issuer?
-            audience: null, // same
+            issuer: null, // or authOptions.Issuer if configured
+            audience: null,
             claims: claims,
-            expires: DateTime.Now.AddHours(3),
+            expires: DateTime.UtcNow.AddHours(3),
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);

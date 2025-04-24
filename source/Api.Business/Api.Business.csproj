@@ -4,7 +4,14 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>JobScheduleNotifications.Core</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Mappers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Api.ValueTypes\Api.ValueTypes.csproj" />
+  </ItemGroup>
 
 </Project>

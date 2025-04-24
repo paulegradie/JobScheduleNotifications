@@ -1,4 +1,4 @@
-﻿using Server.Contracts.Customers;
+﻿using Server.Contracts.Client.Endpoints.Customers.Contracts;
 
 namespace Mobile.Core.Domain;
 
@@ -16,7 +16,6 @@ public class ServiceRecipient
         PhoneNumber = customer.PhoneNumber;
         Notes = customer.Notes;
         CreatedAt = customer.CreatedAt;
-        UpdatedAt = customer.UpdatedAt;
     }
 
     public Guid Id { get; set; }
@@ -26,5 +25,4 @@ public class ServiceRecipient
     public string PhoneNumber { get; set; }
     public string Notes { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
 }   

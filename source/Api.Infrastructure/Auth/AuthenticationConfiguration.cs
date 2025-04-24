@@ -4,7 +4,6 @@ using Api.Infrastructure.Auth.AccessPolicies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Api.Infrastructure.Auth;
@@ -14,7 +13,8 @@ public static class AuthenticationConfiguration
     public static void ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<AuthenticationOptions>(configuration.GetSection(AuthenticationOptions.Node));
-
+        services.AddSingleton<IJwt, Jwt>();
+        services.AddTransient<IAuthenticator, Authenticator>();
         var authSection = configuration.GetSection(AuthenticationOptions.Node);
         var authOptions = authSection.Get<AuthenticationOptions>() ?? throw new Exception("Missing auth configuration");
 
@@ -31,11 +31,12 @@ public static class AuthenticationConfiguration
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = true,
+                    ValidateIssuer = false,
                     ValidIssuer = authOptions.Issuer,
-                    ValidateAudience = true,
+                    ValidateAudience = false,
                     ValidAudience = authOptions.Audience,
                     RoleClaimType = ClaimTypes.Role,
+                    ValidateLifetime = true, // token expiration should be validated
                     ClockSkew = TimeSpan.FromMinutes(2) // optional: prevents minor clock drift causing early expiry
                 };
             });

@@ -1,41 +1,28 @@
 ﻿using System.Security.Claims;
-using Api.Infrastructure.DbTables;
-using JobScheduleNotifications.Core.Mappers;
+using Api.Infrastructure.DbTables.OrganizationModels;
+using Api.Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 
-namespace Api.Infrastructure.Services;
-
-internal class UserRetriever : IUserRetriever
+public class UserRetriever : IUserRetriever
 {
-    private readonly IMapToTheDomain<ApplicationUserRecord, BusinessOwner> toDomainUserMapper;
-    private readonly UserManager<ApplicationUserRecord> userManager;
-    private readonly IHttpContextAccessor contextAccessor;
+    private readonly UserManager<ApplicationUserRecord> _userManager;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UserRetriever(
-        IMapToTheDomain<ApplicationUserRecord, BusinessOwner> toDomainUserMapper,
-        UserManager<ApplicationUserRecord> userManager,
-        IHttpContextAccessor contextAccessor)
+    public UserRetriever(UserManager<ApplicationUserRecord> userManager, IHttpContextAccessor httpContextAccessor)
     {
-        this.toDomainUserMapper = toDomainUserMapper;
-        this.userManager = userManager;
-        this.contextAccessor = contextAccessor;
+        _userManager = userManager;
+        _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<ApplicationUserRecord> GetAdminUser()
+    public async Task<ApplicationUserRecord> GetCurrentUserAsync()
     {
-        var userPrincipal = contextAccessor?.HttpContext?.User ??
-                            throw new UserNotFoundException("No user found associated with this request");
-        var authenticatedUser = userPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
-                                throw new UserNotFoundException("Could not find admin user");
-        var adminUser = await userManager.FindByNameAsync(authenticatedUser);
+        var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId is null)
+            throw new UserNotFoundException("User ID not found in token");
 
-        if (adminUser == null)
-        {
-            throw new UserNotFoundException("Admin user not found");
-        }
-
-        return adminUser;
+        var user = await _userManager.FindByIdAsync(userId);
+        return user ?? throw new UserNotFoundException("User not found in database");
     }
 }
 
