@@ -1,14 +1,20 @@
-﻿using Server.Contracts.Client.Request;
+﻿using Server.Contracts.Common.Request;
 
 namespace Server.Contracts.Client.Endpoints.Customers.Contracts;
 
 public sealed record CreateCustomerResponse(CustomerDto Customer);
-public sealed record CreateCustomerRequest() : RequestBase(Route)
+
+public sealed record CreateCustomerRequest : RequestBase
 {
     public const string Route = "api/customers/create";
 
 
-    public CreateCustomerRequest(string firstName, string lastName, string phoneNumber, string email, string notes) : this()
+    public CreateCustomerRequest(
+        string firstName,
+        string lastName,
+        string phoneNumber,
+        string email,
+        string notes) : base(Route)
     {
         FirstName = firstName;
         LastName = lastName;

@@ -92,7 +92,7 @@ public class Authenticator : IAuthenticator
         RegisterNewAdminRequest req,
         CancellationToken cancellationToken)
     {
-        var newUser = new ApplicationUserRecord(req.Email);
+        var newUser = new ApplicationUserRecord(req.Email, req.PhoneNumber);
         var createRes = await _userManager.CreateAsync(newUser, req.Password);
         if (!createRes.Succeeded)
         {
@@ -104,7 +104,9 @@ public class Authenticator : IAuthenticator
         }
 
         // assign to Admin role
+        await _userManager.AddToRoleAsync(newUser, Roles.OrganizationOwner);
         await _userManager.AddToRoleAsync(newUser, Roles.OrganizationAdmin);
+        await _userManager.AddToRoleAsync(newUser, Roles.OrganizationMember);
 
         return new RegistrationResult(newUser.UserName!);
     }

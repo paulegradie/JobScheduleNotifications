@@ -3,7 +3,7 @@ using System.Text.Json;
 using Server.Client.Exceptions;
 using Server.Contracts.Client.Endpoints;
 using Server.Contracts.Client.Endpoints.Auth;
-using Server.Contracts.Client.Request;
+using Server.Contracts.Common.Request;
 
 namespace Server.Client.Base;
 
@@ -44,7 +44,7 @@ internal abstract class EndpointBase
         where TRequest : RequestBase
     {
         // 1. Build URL
-        var route = request.ApiRoute.ToString();
+        var route = request.ApiRoute;
 
         // 2. Pick correct HttpRequestMessage
         using var message = new HttpRequestMessage(method, route);
@@ -80,6 +80,14 @@ internal abstract class EndpointBase
         }
 
         // 5. On success, try to read out TResponse
+        if (string.IsNullOrEmpty(raw))
+        {
+            return OperationResult<TResponse>.Success(
+                default,
+                response.StatusCode
+            );
+        }
+        
         TResponse? value = default;
         if (typeof(TResponse) != typeof(Unit)) // Unit signals “no body expected”
         {

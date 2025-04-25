@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Mobile.Core.Domain;
 using Mobile.Core.Repositories;
 using Mobile.Core.Services;
+using Mobile.Core.Utilities;
 using Server.Contracts.Client.Endpoints.Customers.Contracts;
 
 namespace Mobile.UI.PageModels;

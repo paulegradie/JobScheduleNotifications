@@ -1,9 +1,9 @@
-using Api.Business.Interfaces;
+using Api.Business.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Infrastructure.Data;
 
-public class CrudRepository<T> : ICrudRepository<T> where T : class
+public class CrudRepository<T, TKey> : ICrudRepository<T, TKey> where T : class
 {
     protected readonly AppDbContext Context;
     protected readonly DbSet<T> DbSet;
@@ -14,7 +14,7 @@ public class CrudRepository<T> : ICrudRepository<T> where T : class
         DbSet = context.Set<T>();
     }
 
-    public virtual async Task<T?> GetByIdAsync(Guid id)
+    public virtual async Task<T?> GetByIdAsync(TKey id)
     {
         return await DbSet.FindAsync(id);
     }

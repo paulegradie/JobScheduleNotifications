@@ -1,7 +1,4 @@
-﻿using System.Security.Claims;
-using Api.ValueTypes;
-
-namespace Api.Infrastructure.Auth;
+﻿namespace Api.Infrastructure.Auth;
 
 
 public class RefreshToken

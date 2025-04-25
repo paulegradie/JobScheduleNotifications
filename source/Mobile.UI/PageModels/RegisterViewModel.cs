@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.Core.Services;
+using Mobile.Core.Utilities;
 using Mobile.UI.Pages;
 using Server.Contracts.Client;
 using Server.Contracts.Client.Endpoints.Auth;

@@ -1,4 +1,4 @@
-namespace Mobile.Core.Services;
+namespace Mobile.Core.Utilities;
 
 public interface INavigationUtility
 {

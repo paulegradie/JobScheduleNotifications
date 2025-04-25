@@ -1,10 +1,14 @@
 using System.Reflection;
-using Api.Business.Interfaces;
+using Api.Business.Repositories;
+using Api.Business.Services;
 using Api.Infrastructure.Data;
 using Api.Infrastructure.DbTables;
+using Api.Infrastructure.DbTables.Jobs;
 using Api.Infrastructure.DbTables.OrganizationModels;
 using Api.Infrastructure.Repositories;
+using Api.Infrastructure.Repositories.Mapping;
 using Api.Infrastructure.Services;
+using Api.ValueTypes;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,27 +23,32 @@ public static class CompositionRoot
         AddBusinessServices(services);
     }
 
-    public static void AddBusinessServices(IServiceCollection services)
+    private static void AddBusinessServices(IServiceCollection services)
     {
+        services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IJobSchedulingService, JobSchedulingService>();
+        services.AddScoped<IRecurrenceCalculator, SimpleRecurrenceCalculator>();
     }
 
-    public static void AddCrudRepositories(IServiceCollection services)
+    private static void AddCrudRepositories(IServiceCollection services)
     {
-        services.AddScoped(typeof(ICrudRepository<>), typeof(CrudRepository<>));
-        services.AddScoped<ICrudRepository<Customer>, CrudRepository<Customer>>();
-        services.AddScoped<ICrudRepository<ScheduledJob>, CrudRepository<ScheduledJob>>();
-        services.AddScoped<ICrudRepository<JobReminder>, CrudRepository<JobReminder>>();
+        services.AddScoped(typeof(ICrudRepository<,>), typeof(CrudRepository<,>));
+        services.AddScoped<ICrudRepository<Customer, CustomerId>, CrudRepository<Customer, CustomerId>>();
+        services.AddScoped<ICrudRepository<CustomerUser, CustomerId>, CrudRepository<CustomerUser, CustomerId>>();
+        services.AddScoped<ICrudRepository<CustomerUser, IdentityUserId>, CrudRepository<CustomerUser, IdentityUserId>>();
+        services.AddScoped<ICrudRepository<JobReminder, JobReminderId>, CrudRepository<JobReminder, JobReminderId>>();
+        services.AddScoped<IJobDefinitionRepository, JobDefinitionRepository>();
     }
 
-    public static void AddMappers(IServiceCollection services)
+    private static void AddMappers(IServiceCollection services)
     {
         services.AddScoped<IMapperFactory, MapperFactory>();
 
         var entry = Assembly.GetExecutingAssembly()!;
         var toScan = new List<Assembly> { entry };
         toScan.AddRange(entry
-            .GetReferencedAssemblies()             // all assemblies your EXE (or WebHost) references
+            .GetReferencedAssemblies() // all assemblies your EXE (or WebHost) references
             .Where(a => a.Name!.StartsWith("Api")) // filter to your “Api.*” projects
             .Select(Assembly.Load));
         var mapFrom = typeof(IMapFrom<,>);
@@ -47,7 +56,7 @@ public static class CompositionRoot
             .SelectMany(a => a.GetTypes())
             .Where(t => !t.IsAbstract && !t.IsInterface)
             .SelectMany(t => t.GetInterfaces(), (t, i) => new { Type = t, Iface = i })
-            .Where(x => x.Iface.IsGenericType 
+            .Where(x => x.Iface.IsGenericType
                         && x.Iface.GetGenericTypeDefinition() == mapFrom);
 
         // 3) Register each:

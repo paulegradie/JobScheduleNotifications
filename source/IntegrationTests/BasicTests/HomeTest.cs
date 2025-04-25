@@ -4,7 +4,7 @@ using Shouldly;
 
 namespace IntegrationTests.BasicTests;
 
-public class HomeTest : AuthenticatedIntegrationTest
+public class HomeTest : IntegrationTest
 {
     [Fact]
     public async Task PingHome()

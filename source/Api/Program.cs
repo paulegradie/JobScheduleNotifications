@@ -4,6 +4,7 @@ using Api.Infrastructure.Data;
 using Api.Infrastructure.EntityFramework;
 using Api.Infrastructure.Identity;
 using Api.Middleware;
+using Api.ModelBinders;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 
@@ -12,7 +13,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders(); // Optional: Clears default providers
 builder.Logging.AddConsole(); // Adds basic console logging
 builder.Logging.AddDebug(); // Useful in Visual Studio output window
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.ModelBinderProviders
+        .Insert(0, new GuidBackedValueObjectModelBinderProvider());
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Host.UseDefaultServiceProvider(sp => { sp.ValidateScopes = true; });

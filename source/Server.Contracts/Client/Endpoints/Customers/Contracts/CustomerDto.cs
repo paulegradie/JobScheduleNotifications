@@ -1,8 +1,10 @@
-﻿namespace Server.Contracts.Client.Endpoints.Customers.Contracts;
+﻿using Api.ValueTypes;
+
+namespace Server.Contracts.Client.Endpoints.Customers.Contracts;
 
 public class CustomerDto
 {
-    public Guid Id { get; set; }
+    public CustomerId Id { get; set; }
     public string? FirstName { get; init; }
     public string? LastName { get; init; }
     public string? PhoneNumber { get; init; }

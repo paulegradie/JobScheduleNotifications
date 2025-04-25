@@ -2,8 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
-[ApiController]
-[Route("api")]
+[ApiController] 
 public abstract class BaseApiController : ControllerBase
 {
     // Common functionality can be added here

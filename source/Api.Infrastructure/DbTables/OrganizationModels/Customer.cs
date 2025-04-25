@@ -1,3 +1,5 @@
+using Api.Business.Features.ScheduledJobs;
+using Api.Infrastructure.DbTables.Jobs;
 using Api.ValueTypes;
 using Server.Contracts.Client.Endpoints.Customers.Contracts;
 
@@ -5,42 +7,77 @@ namespace Api.Infrastructure.DbTables.OrganizationModels;
 
 public class Customer
 {
-    public Customer()
-    {
-        ScheduledJobs = new List<ScheduledJob>();
-    }
-
     public CustomerId Id { get; set; }
-    public string Name { get; set; } = string.Empty;
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
 
     public string Notes { get; set; }
 
 
-    public Guid OrganizationId { get; set; }
+    public OrganizationId OrganizationId { get; set; }
     public virtual Organization Organization { get; set; } = null!;
 
     // ← back to all user-accounts that belong to this customer
-    public virtual ICollection<CustomerUser> CustomerUsers { get; }
-        = new List<CustomerUser>();
+    public virtual ICollection<CustomerUser> CustomerUsers { get; } = new List<CustomerUser>();
 
 
-    public virtual ICollection<ScheduledJob> ScheduledJobs { get; } = new List<ScheduledJob>();
+    public virtual ICollection<ScheduledJobDefinition> ScheduledJobDefinitions { get; } = new List<ScheduledJobDefinition>();
+
 
     public DateTime CreatedAt { get; init; }
     public DateTime? UpdatedAt { get; init; }
+
+    public Customer DefineNewJob(
+        ScheduledJobDefinitionId id,
+        RecurrencePattern pattern,
+        string title,
+        string description,
+        DateTime anchorDate)
+    {
+        ScheduledJobDefinitions.Add(new ScheduledJobDefinition
+        {
+            Id = id,
+            CustomerId = Id,
+            Pattern = pattern,
+            AnchorDate = anchorDate,
+            Title = title,
+            Description = description
+        });
+        return this;
+    }
 
     public CustomerDto ToDto()
     {
         return new CustomerDto()
         {
             Email = Email,
-            FirstName = Name,
-            LastName = Name,
+            FirstName = FirstName,
+            LastName = LastName,
             Id = Id,
             PhoneNumber = PhoneNumber,
             Notes = Notes
         };
+    }
+
+    public Customer UpdateFirstName(string? firstName)
+    {
+        if (firstName is not null)
+        {
+            FirstName = firstName;
+        }
+
+        return this;
+    }
+
+    public Customer UpdateLastName(string? lastName)
+    {
+        if (lastName is not null)
+        {
+            LastName = lastName;
+        }
+
+        return this;
     }
 }

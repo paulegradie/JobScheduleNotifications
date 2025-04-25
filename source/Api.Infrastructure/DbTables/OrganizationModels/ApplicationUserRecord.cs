@@ -8,13 +8,14 @@ namespace Api.Infrastructure.DbTables.OrganizationModels;
 public class ApplicationUserRecord : IdentityUser<IdentityUserId>
 {
     // Create a new user with a generated Id and initialized username/email
-    public ApplicationUserRecord(string email)
+    public ApplicationUserRecord(string email, string phoneNumber)
     {
         Id = IdentityUserId.New();
         UserName = email;
         NormalizedUserName = email.ToUpperInvariant();
         Email = email;
         NormalizedEmail = email.ToUpperInvariant();
+        PhoneNumber = phoneNumber;
     }
 
     /// <summary>

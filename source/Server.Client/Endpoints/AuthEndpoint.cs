@@ -2,6 +2,8 @@
 using Server.Contracts.Client.Endpoints;
 using Server.Contracts.Client.Endpoints.Auth;
 
+namespace Server.Client.Endpoints;
+
 internal class AuthEndpoint : EndpointBase, IAuthenticationEndpoint
 {
     private readonly AsyncLocal<TokenInfo?> _currentToken = new();

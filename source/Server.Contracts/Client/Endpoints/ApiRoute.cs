@@ -25,7 +25,7 @@ public class ApiRoute
 
     public ApiRoute AddRouteParam(string key, string value)
     {
-        _path = _path.Replace("{" + key + "}", value);
+        _path = _path.Replace(key, value);
         return this;
     }
 

@@ -4,30 +4,29 @@ namespace IntegrationTests.Base;
 
 public class AuthenticatedIntegrationTest : IntegrationTest
 {
+    protected readonly RegisterNewAdminRequest TestUser = new RegisterNewAdminRequest
+    {
+        Email = "testowner@gmail.com",
+        Password = "TestPassword123!",
+        BusinessName = "Paul",
+        FirstName = "Paul",
+        LastName = "Gradie",
+        PhoneNumber = "860753044",
+        BusinessDescription = "Demo Business"
+    };
+
     public override async Task InitializeAsync()
     {
         await base.InitializeAsync();
-
-        // 🔹 Seed a test user (or use your existing user creation method)
-        var testUser = new RegisterNewAdminRequest
-        {
-            Email = "test@gmail.com",
-            Password = "TestPassword123!",
-            BusinessName = "Paul",
-            FirstName = "Paul",
-            LastName = "G",
-            PhoneNumber = "860753044",
-            BusinessDescription = "Demo Business"
-        };
-        var registered = await Client.Auth.RegisterAsync(testUser, CancellationToken);
+        var registered = await Client.Auth.RegisterAsync(TestUser, CancellationToken);
         if (!registered.IsSuccess)
         {
             throw new InvalidOperationException($"User registration failed during test setup - {registered.ErrorMessage}");
         }
 
-        var token = await Client.Auth.LoginAsync(new SignInRequest("test@gmail.com", "TestPassword123!"), CancellationToken);
+        var token = await Client.Auth.LoginAsync(new SignInRequest(TestUser.Email, TestUser.Password), CancellationToken);
 
-        if (token is null || string.IsNullOrEmpty(token.Value.AccessToken))
+        if (token?.Value is null || string.IsNullOrEmpty(token.Value.AccessToken))
             throw new InvalidOperationException("Login failed — no token returned");
 
         Client.Http.DefaultRequestHeaders.Authorization = new("Bearer", token.Value.AccessToken);

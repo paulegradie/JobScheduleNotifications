@@ -1,15 +1,16 @@
-﻿using Server.Contracts.Client.Request;
+﻿using Api.ValueTypes;
+using Server.Contracts.Common.Request;
 
 namespace Server.Contracts.Client.Endpoints.Customers.Contracts;
 
-public sealed record GetCustomerByIdRequest(Guid Id) : RequestBase(Route)
+public sealed record GetCustomerByIdRequest(CustomerId Id) : RequestBase(Route)
 {
-    public const string Route = "api/customers/{id}";
+    public const string Route = $"api/customers/{IdSegmentParam}";
 
     public override ApiRoute GetApiRoute()
     {
         var route = base.GetApiRoute();
-        route.AddRouteParam("id", Id.ToString());
+        route.AddRouteParam(IdSegmentParam, Id.ToString());
         return route;
     }
 }

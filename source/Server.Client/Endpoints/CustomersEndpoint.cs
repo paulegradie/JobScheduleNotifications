@@ -3,6 +3,8 @@ using Server.Contracts.Client.Endpoints;
 using Server.Contracts.Client.Endpoints.Customers;
 using Server.Contracts.Client.Endpoints.Customers.Contracts;
 
+namespace Server.Client.Endpoints;
+
 internal class CustomersEndpoint : EndpointBase, ICustomersEndpoint
 {
     public CustomersEndpoint(HttpClient client) : base(client) { }

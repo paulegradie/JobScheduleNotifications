@@ -1,4 +1,4 @@
-﻿using Server.Contracts.Client.Request;
+﻿using Server.Contracts.Common.Request;
 
 namespace Server.Contracts.Client.Endpoints.Customers.Contracts;
 

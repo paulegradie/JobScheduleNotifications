@@ -1,8 +1,7 @@
-using Mobile.Core.Repositories;
 using Server.Contracts.Client;
 using Server.Contracts.Dtos;
 
-namespace Mobile.Core.Services;
+namespace Mobile.Core.Repositories;
 
 public class JobRepository : IJobRepository
 {

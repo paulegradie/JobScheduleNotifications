@@ -1,5 +1,6 @@
-using System.Reflection;
+using Api.Infrastructure.Data.TypeConverters;
 using Api.Infrastructure.DbTables;
+using Api.Infrastructure.DbTables.Jobs;
 using Api.Infrastructure.DbTables.OrganizationModels;
 using Api.Infrastructure.EntityFramework;
 using Api.Infrastructure.Services;
@@ -7,23 +8,25 @@ using Api.ValueTypes;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Api.Infrastructure.Data;
 
 public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRole<IdentityUserId>, IdentityUserId>
 {
-    private readonly IEnumerable<IEntityPropertyConvention> _conventions;
+    private readonly IEnumerable<IEntityPropertyConvention> _conventions; // not using this, but available if we decide to for now
     private readonly IdentityUserId? _currentUserId;
 
     public DbSet<Organization> Organizations { get; set; }
     public DbSet<Customer> Customers => Set<Customer>();
-    public DbSet<ScheduledJob> ScheduledJobs => Set<ScheduledJob>();
-    public DbSet<JobReminder> JobReminders => Set<JobReminder>();
+    public DbSet<ScheduledJobDefinition> ScheduledJobDefinitions { get; set; }
+    public DbSet<JobOccurrence> JobOccurrences { get; set; }
+    public DbSet<JobReminder> JobReminders { get; set; }
 
     // Link Tables
     public DbSet<OrganizationUser> OrganizationUsers { get; set; }
     public DbSet<CustomerUser> CustomerUsers { get; set; }
+    public DbSet<ApplicationUserRecord> ApplicationUsers => Set<ApplicationUserRecord>();
+
 
     public AppDbContext(
         DbContextOptions options,
@@ -35,35 +38,18 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
         _currentUserId = currentUserService.UserId;
     }
 
-
-    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-    {
-        var entry = Assembly.GetExecutingAssembly()
-            .GetReferencedAssemblies()
-            .SingleOrDefault(a => a.Name!.StartsWith("Api.ValueTypes"));
-        if (entry is null) throw new Exception("ENTRY IS NULL DB _ EF CORE DAMMIT");
-        var types = Assembly.Load(entry!);
-
-        var converterTypes = types
-            .GetTypes()
-            .Where(t =>
-                t is { IsAbstract: false, IsGenericTypeDefinition: false }
-                && typeof(ValueConverter).IsAssignableFrom(t)
-                && t.GetConstructor(Type.EmptyTypes) != null
-            );
-
-        foreach (var convType in converterTypes)
-        {
-            var converter = (ValueConverter)Activator.CreateInstance(convType)!;
-            configurationBuilder
-                .Properties(converter.ModelClrType)
-                .HaveConversion(converter.GetType());
-        }
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<ApplicationUserRecord>(u =>
+        {
+            u
+                .Property(u => u.Id)
+                .HasConversion<IdentityUserIdValueConverter>()
+                .HasValueGenerator<IdentityUserIdValueGenerator>()
+                .ValueGeneratedOnAdd();
+        });
+
         modelBuilder.Entity<OrganizationUser>(b =>
         {
             b.HasKey(x => new { UserId = x.IdentityUserId, x.OrganizationId });
@@ -75,71 +61,95 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
             b.HasOne(x => x.Organization)
                 .WithMany(o => o.OrganizationUsers)
                 .HasForeignKey(x => x.OrganizationId);
+
+            b.Property(x => x.IdentityUserId).HasConversion<IdentityUserIdValueConverter>().IsRequired();
+            b.Property(x => x.OrganizationId).HasConversion<OrganizationIdValueConverter>().IsRequired();
         });
 
-        modelBuilder.Entity<CustomerUser>(b =>
-        {
-            b.HasKey(x => new { UserId = x.IdentityUserId, x.CustomerId });
+        modelBuilder
+            .Entity<Customer>(b =>
+            {
+                b.Property(c => c.Id)
+                    .HasValueGenerator<CustomerIdValueGenerator>()
+                    .HasConversion<CustomerIdConverter>()
+                    .ValueGeneratedOnAdd();
 
-            b.HasOne(x => x.User)
-                .WithMany(u => u.CustomerUsers)
-                .HasForeignKey(x => x.IdentityUserId);
+                b.Property(c => c.OrganizationId).HasConversion<OrganizationIdValueConverter>();
 
-            b.HasOne(x => x.Customer)
-                .WithMany(c => c.CustomerUsers)
-                .HasForeignKey(x => x.CustomerId);
-        });
+                b.HasMany(c => c.ScheduledJobDefinitions)
+                    .WithOne(d => d.Customer)
+                    .HasForeignKey(d => d.CustomerId);
+                b.HasOne(c => c.Organization)
+                    .WithMany(o => o.Customers)
+                    .HasForeignKey(c => c.OrganizationId);
+            });
 
-        modelBuilder.Entity<Customer>(b =>
-        {
-            b.HasKey(c => c.Id);
+        modelBuilder
+            .Entity<CustomerUser>(b =>
+            {
+                b.HasKey(x => new { UserId = x.IdentityUserId, x.CustomerId });
 
-            b.HasOne(c => c.Organization)
-                .WithMany(o => o.Customers)
-                .HasForeignKey(c => c.OrganizationId);
-        });
+                b.HasOne(x => x.User)
+                    .WithMany(u => u.CustomerUsers)
+                    .HasForeignKey(x => x.IdentityUserId);
+
+                b.HasOne(x => x.Customer)
+                    .WithMany(c => c.CustomerUsers)
+                    .HasForeignKey(x => x.CustomerId);
+                b.Property(x => x.IdentityUserId).HasConversion<IdentityUserIdValueConverter>().IsRequired();
+                b.Property(x => x.CustomerId).HasConversion<CustomerIdConverter>().IsRequired();
+            });
 
 
-        // if we want to scoop up db model types with the Attribute-driven conventions
-        // Apply attribute-driven conventions
-        // var entities = typeof(AppDbContext)
-        //     .Assembly
-        //     .GetTypes()
-        //     .Where(x => x.IsClass && x.GetCustomAttribute<DatabaseModelAttribute>() != null);
-        //
-        // foreach (var entity in entities)
-        // {
-        //     var entityBuilder = modelBuilder.Entity(entity).ToTable(entity.Name);
-        //     foreach (var entityProperty in entity.GetProperties()
-        //                  .Where(x => x.GetCustomAttribute<NotMappedAttribute>() is null))
-        //     {
-        //         foreach (var convention in _conventions)
-        //         {
-        //             convention.Apply(modelBuilder, entityBuilder, entityProperty);
-        //         }
-        //     }
-        // }
+        modelBuilder
+            .Entity<ScheduledJobDefinition>(def =>
+            {
+                def.Property(p => p.Id).HasConversion<ScheduledJobDefinitionIdConverter>().HasValueGenerator<ScheduledJobDefinitionIdValueGenerator>().ValueGeneratedOnAdd();
+                def.OwnsOne(
+                    d => d.Pattern,
+                    rp =>
+                    {
+                        rp.Property(p => p.Id).HasConversion<ScheduledJobDefinitionIdConverter>().HasValueGenerator<ScheduledJobDefinitionIdValueGenerator>().ValueGeneratedOnAdd();
+                        rp.Property(p => p.Frequency).HasColumnName("Frequency").IsRequired();
+                        rp.Property(p => p.Interval).HasColumnName("Interval").IsRequired();
+                        rp.Property(p => p.DaysOfWeek).HasColumnName("DaysOfWeek");
+                        rp.Property(p => p.DayOfMonth).HasColumnName("DayOfMonth");
+                        rp.Property(p => p.CronExpression).HasColumnName("CronExpression");
+                    });
 
-        modelBuilder.Entity<ScheduledJob>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Title).IsRequired();
-            entity.Property(e => e.ScheduledDate).IsRequired();
-            entity
-                .HasOne(e => e.Customer)
-                .WithMany(e => e.ScheduledJobs)
-                .HasForeignKey(e => e.CustomerId)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
+                // Definition → Occurrences
+                def.HasMany(d => d.JobOccurrences)
+                    .WithOne(o => o.Definition)
+                    .HasForeignKey(o => o.DefinitionId);
+            });
+
+        // Occurrence → Reminders
+        modelBuilder
+            .Entity<JobOccurrence>(oc =>
+            {
+                oc.Property(o => o.Id)
+                    .HasConversion<JobOccurrenceIdConverter>()
+                    .HasValueGenerator<JobOccurrenceIdValueGenerator>()
+                    .ValueGeneratedOnAdd();
+                oc.Property(o => o.OccurrenceDate).IsRequired();
+                oc.Property(o => o.DefinitionId).HasConversion<ScheduledJobDefinitionIdConverter>();
+                oc.Property(o => o.CustomerId).HasConversion<CustomerIdConverter>();
+                oc.HasMany(o => o.JobReminders)
+                    .WithOne(r => r.JobOccurrence)
+                    .HasForeignKey(r => r.JobOccurrenceId);
+            });
 
         modelBuilder.Entity<JobReminder>(entity =>
         {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.ReminderTime).IsRequired();
+            entity.Property(e => e.ReminderDateTime).IsRequired();
+            entity.Property(c => c.Id)
+                .HasConversion<JobReminderIdConverter>()
+                .HasValueGenerator<JobReminderIdValueGenerator>()
+                .ValueGeneratedOnAdd();
             entity.Property(e => e.Message).IsRequired();
-            entity.HasOne(e => e.ScheduledJob)
-                .WithMany(e => e.Reminders)
-                .HasForeignKey(e => e.ScheduledJobId)
+            entity.HasOne(e => e.JobOccurrence)
+                .WithMany(e => e.JobReminders)
+                .HasForeignKey(e => e.JobOccurrenceId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

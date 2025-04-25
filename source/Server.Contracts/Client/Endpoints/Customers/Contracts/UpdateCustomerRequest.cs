@@ -1,25 +1,31 @@
-﻿using Server.Contracts.Client.Request;
+﻿using Api.ValueTypes;
+using Server.Contracts.Common.Request;
 
 namespace Server.Contracts.Client.Endpoints.Customers.Contracts;
 
 public sealed record UpdateCustomerRequest : RequestBase
 {
-    public const string Route = "api/customers/update/{id}";
+    public const string Route = $"api/customers/update/{IdSegmentParam}";
 
     public override ApiRoute GetApiRoute()
     {
         var route = base.GetApiRoute();
-        route.AddRouteParam("id", Id.ToString());
+        route.AddRouteParam(IdSegmentParam, Id.ToString());
         return route;
     }
 
+    public UpdateCustomerRequest(CustomerId id) : base(Route)
+    {
+        Id = id;
+    }
+
     private UpdateCustomerRequest(
-        Guid id,
-        string? firstName,
-        string? lastName,
-        string? phoneNumber,
-        string? email,
-        string? notes)
+        CustomerId id,
+        string? firstName = null,
+        string? lastName = null,
+        string? phoneNumber = null,
+        string? email = null,
+        string? notes = null)
         : base(Route)
     {
         Id = id;
@@ -30,16 +36,16 @@ public sealed record UpdateCustomerRequest : RequestBase
         Notes = notes;
     }
 
-    public Guid Id { get; set; }
+    public CustomerId Id { get; set; }
     public string? FirstName { get; init; }
     public string? LastName { get; init; }
     public string? PhoneNumber { get; init; }
     public string? Email { get; init; }
     public string? Notes { get; init; }
 
-    public static Builder CreateBuilder(Guid id) => new(id);
+    public static Builder CreateBuilder(CustomerId id) => new(id);
 
-    public sealed class Builder(Guid Id)
+    public sealed class Builder(CustomerId Id)
     {
         private string? _firstName;
         private string? _lastName;
@@ -80,10 +86,6 @@ public sealed record UpdateCustomerRequest : RequestBase
 
         public UpdateCustomerRequest Build()
         {
-            // Optional validation
-            if (string.IsNullOrWhiteSpace(_email))
-                throw new InvalidOperationException("Email is required when updating customer.");
-
             return new UpdateCustomerRequest(
                 id: Id,
                 firstName: _firstName,

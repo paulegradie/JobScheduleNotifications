@@ -1,11 +1,3 @@
-﻿using System.Text.Json;
+﻿namespace Server.Client.Exceptions;
 
-namespace Server.Client.Exceptions;
-
-internal class ResponseDeserializationException : Exception
-{
-    public ResponseDeserializationException(string s, JsonException jsonException)
-    {
-        throw new NotImplementedException();
-    }
-}
+internal class ResponseDeserializationException(string? message, Exception ex) : Exception(message, ex);

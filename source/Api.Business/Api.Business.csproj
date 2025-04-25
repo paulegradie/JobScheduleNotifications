@@ -7,11 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Mappers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Api.ValueTypes\Api.ValueTypes.csproj" />
+    <ProjectReference Include="..\Server.Contracts\Server.Contracts.csproj" />
   </ItemGroup>
 
 </Project>
