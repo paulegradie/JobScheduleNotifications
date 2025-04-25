@@ -36,7 +36,7 @@ namespace Api.Controllers
         public async Task<ActionResult<IEnumerable<ScheduledJobDefinitionDto>>> ListDefinitions([FromRoute] CustomerId customerId)
         {
             var defs = await _repo.ListByCustomerAsync(customerId);
-            var dtos = defs.Select(d => new ScheduledJobDefinitionDto(d));
+            var dtos = defs.Select(d => d.ToDto());
             return Ok(dtos);
         }
 

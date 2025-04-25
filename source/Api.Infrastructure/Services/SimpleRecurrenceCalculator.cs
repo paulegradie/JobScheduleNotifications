@@ -45,7 +45,7 @@ public class SimpleRecurrenceCalculator : IRecurrenceCalculator
 
             // map DayOfWeek → WeekDays mask
             var dowFlag = (WeekDays)(1 << (int)candidate.DayOfWeek);
-            var isCorrectDay = pat.WeekDays.HasFlag(dowFlag);
+            var isCorrectDay = pat.WeekDays.Any(x => x.HasFlag(dowFlag));
 
             if (inCorrectInterval && isCorrectDay)
                 return candidate.Add(afterUtc.TimeOfDay);

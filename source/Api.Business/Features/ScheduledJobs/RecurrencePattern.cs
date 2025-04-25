@@ -5,7 +5,6 @@ namespace Api.Business.Features.ScheduledJobs;
 
 public class RecurrencePattern
 {
-    // parameterless ctor still needed for e.g. serializers/tests
     public RecurrencePattern()
     {
     }
