@@ -1,6 +1,7 @@
 using Mobile.Core.Domain;
 using Server.Contracts.Client.Endpoints;
 using Server.Contracts.Client.Endpoints.Customers.Contracts;
+using Server.Contracts.Dtos;
 
 namespace Mobile.Core.Repositories;
 

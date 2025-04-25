@@ -2,9 +2,7 @@
 using Api.ValueTypes.Enums;
 using Server.Contracts.Common.Request;
 
-namespace Server.Contracts.Client.Endpoints.ScheduledJobs;
-
-public sealed record UpdateScheduledJobDefinitionResponse(ScheduledJobDefinitionDto ScheduledJobDefinitionDto);
+namespace Server.Contracts.Client.Endpoints.ScheduledJobs.Contracts;
 
 public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
 {

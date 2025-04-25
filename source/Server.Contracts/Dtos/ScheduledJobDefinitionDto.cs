@@ -1,6 +1,6 @@
 ﻿using Api.ValueTypes;
 
-namespace Server.Contracts.Client.Endpoints.ScheduledJobs;
+namespace Server.Contracts.Dtos;
 
 public record ScheduledJobDefinitionDto(
     ScheduledJobDefinitionId Id,

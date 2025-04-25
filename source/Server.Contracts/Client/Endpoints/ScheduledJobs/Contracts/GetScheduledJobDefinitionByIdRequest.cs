@@ -1,9 +1,7 @@
 ﻿using Api.ValueTypes;
 using Server.Contracts.Common.Request;
 
-namespace Server.Contracts.Client.Endpoints.ScheduledJobs;
-
-public sealed record GetScheduledJobDefinitionByIdResponse(ScheduledJobDefinitionDto JobDefinition);
+namespace Server.Contracts.Client.Endpoints.ScheduledJobs.Contracts;
 
 public sealed record GetScheduledJobDefinitionByIdRequest(CustomerId CustomerId, ScheduledJobDefinitionId JobDefinitionId) : RequestBase(Route)
 {

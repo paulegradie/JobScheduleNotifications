@@ -1,4 +1,5 @@
 ﻿using Server.Contracts.Client.Endpoints.Customers.Contracts;
+using Server.Contracts.Dtos;
 
 namespace Mobile.Core.Domain;
 

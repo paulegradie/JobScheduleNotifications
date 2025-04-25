@@ -1,9 +1,8 @@
 ﻿using Api.ValueTypes;
 using Server.Contracts.Common.Request;
 
-namespace Server.Contracts.Client.Endpoints.ScheduledJobs;
+namespace Server.Contracts.Client.Endpoints.ScheduledJobs.Contracts;
 
-public sealed record GetNextScheduledJobRunResponse(DateTime NextRun);
 public sealed record GetNextScheduledJobRunRequest(CustomerId CustomerId, ScheduledJobDefinitionId ScheduledJobDefinitionId) : RequestBase(Route)
 {
     public const string Route = $"api/customers/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/next";

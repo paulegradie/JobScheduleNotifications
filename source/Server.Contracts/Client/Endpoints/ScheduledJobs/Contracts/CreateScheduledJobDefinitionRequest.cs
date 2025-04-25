@@ -2,9 +2,7 @@
 using Api.ValueTypes.Enums;
 using Server.Contracts.Common.Request;
 
-namespace Server.Contracts.Client.Endpoints.ScheduledJobs;
-
-public sealed record CreateScheduledJobDefinitionResponse(ScheduledJobDefinitionDto JobDefinition);
+namespace Server.Contracts.Client.Endpoints.ScheduledJobs.Contracts;
 
 public sealed record CreateScheduledJobDefinitionRequest(
     CustomerId Id,

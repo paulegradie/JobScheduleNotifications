@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Server.Contracts.Client.Endpoints.Home;
+using Server.Contracts.Client.Endpoints.Home.Contracts;
 
 namespace Api.Controllers;
 

@@ -2,6 +2,7 @@ using Api.Business.Features.ScheduledJobs;
 using Api.Infrastructure.DbTables.Jobs;
 using Api.ValueTypes;
 using Server.Contracts.Client.Endpoints.Customers.Contracts;
+using Server.Contracts.Dtos;
 
 namespace Api.Infrastructure.DbTables.OrganizationModels;
 

@@ -1,6 +1,6 @@
 ﻿using Api.ValueTypes;
 
-namespace Server.Contracts.Client.Endpoints.Customers.Contracts;
+namespace Server.Contracts.Dtos;
 
 public class CustomerDto
 {

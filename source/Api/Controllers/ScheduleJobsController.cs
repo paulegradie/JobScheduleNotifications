@@ -8,19 +8,20 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Server.Contracts.Client.Endpoints.Customers.Contracts;
 using Server.Contracts.Client.Endpoints.ScheduledJobs;
+using Server.Contracts.Client.Endpoints.ScheduledJobs.Contracts;
 
 namespace Api.Controllers
 {
     [Authorize]
     [ApiController]
-    public class ScheduledJobsController : ControllerBase
+    public class ScheduledJobDefinitionsController : ControllerBase
     {
         private readonly IJobDefinitionRepository _repo;
         private readonly IRecurrenceCalculator _calculator;
         private readonly IJobSchedulingService _scheduler;
         private readonly AppDbContext _uow;
 
-        public ScheduledJobsController(
+        public ScheduledJobDefinitionsController(
             IJobDefinitionRepository repo,
             IRecurrenceCalculator calculator,
             IJobSchedulingService scheduler,
@@ -33,11 +34,11 @@ namespace Api.Controllers
         }
 
         [HttpGet(ListJobDefinitionsByCustomerIdRequest.Route)]
-        public async Task<ActionResult<IEnumerable<ScheduledJobDefinitionDto>>> ListDefinitions([FromRoute] CustomerId customerId)
+        public async Task<ActionResult<ListJobDefinitionsByCustomerIdResponse>> ListDefinitions([FromRoute] CustomerId customerId)
         {
             var defs = await _repo.ListByCustomerAsync(customerId);
             var dtos = defs.Select(d => d.ToDto());
-            return Ok(dtos);
+            return Ok(new ListJobDefinitionsByCustomerIdResponse(dtos));
         }
 
         // GET: api/customers/{customerId}/jobs/{jobId}

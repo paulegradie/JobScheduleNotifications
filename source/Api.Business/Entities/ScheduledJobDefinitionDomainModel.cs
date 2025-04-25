@@ -2,6 +2,7 @@
 using Api.Business.Features.ScheduledJobs;
 using Api.ValueTypes;
 using Server.Contracts.Client.Endpoints.ScheduledJobs;
+using Server.Contracts.Dtos;
 
 namespace Api.Business.Entities;
 

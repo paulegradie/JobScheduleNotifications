@@ -3,13 +3,14 @@ using Api.Infrastructure.DbTables.Jobs;
 using Api.ValueTypes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Server.Contracts.Client.Endpoints.Reminders;
 using Server.Contracts.Dtos;
+
 
 namespace Api.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/customers/{customerId:guid}/jobs/{jobId:guid}/reminders")]
     public class JobRemindersController : ControllerBase
     {
         private readonly ICrudRepository<JobReminder, JobReminderId> _jobReminderRepo;
@@ -23,120 +24,121 @@ namespace Api.Controllers
             _jobDefRepo = jobDefRepo;
         }
 
-        // GET: api/customers/{customerId}/jobs/{jobId}/reminders
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<JobReminderDto>>> List(
-            [FromRoute] Guid customerId,
-            [FromRoute] Guid jobId,
+        // GET: api/customers/{customerId}/jobs/{jobDefinitionId}/reminders
+        [HttpGet(ListJobRemindersRequest.Route)]
+        public async Task<ActionResult<ListJobRemindersResponse>> List(
+            [FromRoute] CustomerId customerId,
+            [FromRoute] ScheduledJobDefinitionId jobDefinitionId,
             [FromQuery] bool? isSent)
         {
-            var def = await _jobDefRepo.GetByIdAsync(new ScheduledJobDefinitionId(jobId));
-            if (def == null || def.CustomerId != new CustomerId(customerId))
+            var def = await _jobDefRepo.GetByIdAsync(jobDefinitionId);
+            if (def == null || def.CustomerId != customerId)
                 return NotFound();
 
-            // flatten reminders across all occurrences
             var reminders = def.JobOccurrences
                 .SelectMany(o => o.JobReminders)
                 .AsQueryable();
+
             if (isSent.HasValue)
                 reminders = reminders.Where(r => r.IsSent == isSent.Value);
 
             var dtos = reminders
                 .OrderBy(r => r.ReminderDateTime)
-                .Select(r => new JobReminderDto(r));
+                .Select(r => r.ToDto());
 
-            return Ok(dtos);
+            return Ok(new ListJobRemindersResponse(dtos));
         }
 
-        // GET: api/customers/{customerId}/jobs/{jobId}/reminders/{id}
-        [HttpGet("{id:guid}")]
-        public async Task<ActionResult<JobReminderDto>> Get(
-            [FromRoute] Guid customerId,
-            [FromRoute] Guid jobId,
-            [FromRoute] Guid id)
+        // GET: api/customers/{customerId}/jobs/{jobDefinitionId}/reminders/{reminderId}
+        [HttpGet(GetJobReminderByIdRequest.Route)]
+        public async Task<ActionResult<GetJobReminderByIdResponse>> Get(
+            [FromRoute] CustomerId customerId,
+            [FromRoute] ScheduledJobDefinitionId jobDefinitionId,
+            [FromRoute] JobReminderId reminderId)
         {
-            var def = await _jobDefRepo.GetByIdAsync(new ScheduledJobDefinitionId(jobId));
-            if (def == null || def.CustomerId != new CustomerId(customerId))
+            var def = await _jobDefRepo.GetByIdAsync(jobDefinitionId);
+            if (def == null || def.CustomerId != customerId)
                 return NotFound();
 
             var reminder = def.JobOccurrences
                 .SelectMany(o => o.JobReminders)
-                .FirstOrDefault(r => r.Id == new JobReminderId(id));
+                .FirstOrDefault(r => r.Id == reminderId);
+
             if (reminder == null)
                 return NotFound();
 
-            return Ok(new JobReminderDto(reminder));
+            return Ok(new GetJobReminderByIdResponse(reminder.ToDto()));
         }
 
-        // POST: api/customers/{customerId}/jobs/{jobId}/reminders
-        [HttpPost]
-        public async Task<ActionResult<JobReminderDto>> Create(
-            [FromRoute] Guid customerId,
-            [FromRoute] Guid jobId,
-            [FromBody] CreateJobReminderDto dto)
+        // POST: api/customers/{customerId}/jobs/{jobDefinitionId}/reminders
+        [HttpPost(CreateJobReminderRequest.Route)]
+        public async Task<ActionResult<CreateJobReminderResponse>> Create(
+            [FromRoute] CustomerId customerId,
+            [FromRoute] ScheduledJobDefinitionId jobDefinitionId,
+            [FromBody] CreateJobReminderRequest req)
         {
-            var def = await _jobDefRepo.GetByIdAsync(new ScheduledJobDefinitionId(jobId));
-            if (def == null || def.CustomerId != new CustomerId(customerId))
-                return NotFound("Scheduled job definition not found");
+            var def = await _jobDefRepo.GetByIdAsync(jobDefinitionId);
+            if (def == null || def.CustomerId != customerId)
+                return NotFound();
 
             var reminder = new JobReminder
             {
                 Id = new JobReminderId(Guid.NewGuid()),
-                ScheduledJobId = new ScheduledJobDefinitionId(jobId),
-                ReminderDateTime = dto.ReminderTime,
-                Message = dto.Message,
+                ScheduledJobDefinitionId = jobDefinitionId,
+                ReminderDateTime = req.ReminderDateTime,
+                Message = req.Message,
+                IsSent = false
             };
 
-            var created = await _jobReminderRepo.AddAsync(reminder);
+            await _jobReminderRepo.AddAsync(reminder);
             await _jobReminderRepo.SaveChangesAsync();
 
-            return CreatedAtAction(
-                nameof(Get),
-                new { customerId, jobId, id = created.Id.Value },
-                new JobReminderDto(created));
+            return Ok(new CreateJobReminderResponse(reminder.ToDto()));
         }
 
-        // PUT: api/customers/{customerId}/jobs/{jobId}/reminders/{id}
-        [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(
-            [FromRoute] Guid customerId,
-            [FromRoute] Guid jobId,
-            [FromRoute] Guid id,
-            [FromBody] UpdateJobReminderDto dto)
+        // PATCH: api/customers/{customerId}/jobs/{jobDefinitionId}/reminders/{reminderId}
+        [HttpPatch(UpdateJobReminderRequest.Route)]
+        public async Task<ActionResult<UpdateJobReminderResponse>> Update(
+            [FromRoute] CustomerId customerId,
+            [FromRoute] ScheduledJobDefinitionId jobDefinitionId,
+            [FromRoute] JobReminderId reminderId,
+            [FromBody] UpdateJobReminderRequest req)
         {
-            var def = await _jobDefRepo.GetByIdAsync(new ScheduledJobDefinitionId(jobId));
-            if (def == null || def.CustomerId != new CustomerId(customerId))
+            var def = await _jobDefRepo.GetByIdAsync(jobDefinitionId);
+            if (def == null || def.CustomerId != customerId)
                 return NotFound();
 
             var reminder = def.JobOccurrences
                 .SelectMany(o => o.JobReminders)
-                .FirstOrDefault(r => r.Id == new JobReminderId(id));
+                .FirstOrDefault(r => r.Id == reminderId);
+
             if (reminder == null)
                 return NotFound();
 
-            reminder.ReminderDateTime = dto.ReminderTime;
-            reminder.Message = dto.Message;
+            reminder.ReminderDateTime = req.ReminderDateTime;
+            reminder.Message = req.Message;
 
             await _jobReminderRepo.UpdateAsync(reminder);
             await _jobReminderRepo.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new UpdateJobReminderResponse(reminder.ToDto()));
         }
 
-        // DELETE: api/customers/{customerId}/jobs/{jobId}/reminders/{id}
-        [HttpDelete("{id:guid}")]
+        // DELETE: api/customers/{customerId}/jobs/{jobDefinitionId}/reminders/{reminderId}
+        [HttpDelete(DeleteJobReminderRequest.Route)]
         public async Task<IActionResult> Delete(
-            [FromRoute] Guid customerId,
-            [FromRoute] Guid jobId,
-            [FromRoute] Guid id)
+            [FromRoute] CustomerId customerId,
+            [FromRoute] ScheduledJobDefinitionId jobDefinitionId,
+            [FromRoute] JobReminderId reminderId)
         {
-            var def = await _jobDefRepo.GetByIdAsync(new ScheduledJobDefinitionId(jobId));
-            if (def == null || def.CustomerId != new CustomerId(customerId))
+            var def = await _jobDefRepo.GetByIdAsync(jobDefinitionId);
+            if (def == null || def.CustomerId != customerId)
                 return NotFound();
 
             var reminder = def.JobOccurrences
                 .SelectMany(o => o.JobReminders)
-                .FirstOrDefault(r => r.Id == new JobReminderId(id));
+                .FirstOrDefault(r => r.Id == reminderId);
+
             if (reminder == null)
                 return NotFound();
 
@@ -146,20 +148,21 @@ namespace Api.Controllers
             return NoContent();
         }
 
-        // PATCH: api/customers/{customerId}/jobs/{jobId}/reminders/{id}/ack
-        [HttpPatch("{id:guid}/ack")]
-        public async Task<IActionResult> Acknowledge(
-            [FromRoute] Guid customerId,
-            [FromRoute] Guid jobId,
-            [FromRoute] Guid id)
+        // PATCH: api/customers/{customerId}/jobs/{jobDefinitionId}/reminders/{reminderId}/ack
+        [HttpPatch(AcknowledgeJobReminderRequest.Route)]
+        public async Task<ActionResult<AcknowledgeJobReminderResponse>> Acknowledge(
+            [FromRoute] CustomerId customerId,
+            [FromRoute] ScheduledJobDefinitionId jobDefinitionId,
+            [FromRoute] JobReminderId reminderId)
         {
-            var def = await _jobDefRepo.GetByIdAsync(new ScheduledJobDefinitionId(jobId));
-            if (def == null || def.CustomerId != new CustomerId(customerId))
+            var def = await _jobDefRepo.GetByIdAsync(jobDefinitionId);
+            if (def == null || def.CustomerId != customerId)
                 return NotFound();
 
             var reminder = def.JobOccurrences
                 .SelectMany(o => o.JobReminders)
-                .FirstOrDefault(r => r.Id == new JobReminderId(id));
+                .FirstOrDefault(r => r.Id == reminderId);
+
             if (reminder == null)
                 return NotFound();
 
@@ -169,7 +172,7 @@ namespace Api.Controllers
             await _jobReminderRepo.UpdateAsync(reminder);
             await _jobReminderRepo.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new AcknowledgeJobReminderResponse(reminder.ToDto()));
         }
     }
 }

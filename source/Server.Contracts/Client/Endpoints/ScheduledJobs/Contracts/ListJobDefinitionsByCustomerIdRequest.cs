@@ -1,7 +1,7 @@
 ﻿using Api.ValueTypes;
 using Server.Contracts.Common.Request;
 
-namespace Server.Contracts.Client.Endpoints.ScheduledJobs;
+namespace Server.Contracts.Client.Endpoints.ScheduledJobs.Contracts;
 
 public record ListJobDefinitionsByCustomerIdRequest(CustomerId CustomerId) : RequestBase(Route)
 {

@@ -5,6 +5,7 @@ using Mobile.Core.Repositories;
 using Mobile.Core.Services;
 using Mobile.Core.Utilities;
 using Server.Contracts.Client.Endpoints.Customers.Contracts;
+using Server.Contracts.Dtos;
 
 namespace Mobile.UI.PageModels;
 

@@ -6,6 +6,7 @@ using Api.Infrastructure.Repositories.Mapping;
 using Api.ValueTypes;
 using Microsoft.AspNetCore.Identity;
 using Server.Contracts.Client.Endpoints.Customers.Contracts;
+using Server.Contracts.Dtos;
 
 namespace Api.Infrastructure.Services;
 
