@@ -3,7 +3,9 @@ using Server.Contracts.Common.Request;
 
 namespace Server.Contracts.Client.Endpoints.ScheduledJobs;
 
-public sealed record GetScheduledJobDefinitionById(CustomerId CustomerId, ScheduledJobDefinitionId JobDefinitionId) : RequestBase(Route)
+public sealed record GetScheduledJobDefinitionByIdResponse(ScheduledJobDefinitionDto JobDefinition);
+
+public sealed record GetScheduledJobDefinitionByIdRequest(CustomerId CustomerId, ScheduledJobDefinitionId JobDefinitionId) : RequestBase(Route)
 {
     public const string Route = $"api/customers/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}";
 

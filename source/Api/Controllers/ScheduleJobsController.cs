@@ -3,6 +3,7 @@ using Api.Business.Repositories;
 using Api.Business.Features.ScheduledJobs;
 using Api.Infrastructure.Data;
 using Api.ValueTypes;
+using Api.ValueTypes.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Server.Contracts.Client.Endpoints.Customers.Contracts;
@@ -12,7 +13,6 @@ namespace Api.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/customers/{customerId:guid}/jobs")]
     public class ScheduledJobsController : ControllerBase
     {
         private readonly IJobDefinitionRepository _repo;
@@ -41,38 +41,38 @@ namespace Api.Controllers
         }
 
         // GET: api/customers/{customerId}/jobs/{jobId}
-        [HttpGet("{jobId:guid}", Name = "GetJobDefinition")]
-        public async Task<ActionResult<ScheduledJobDefinitionDto>> GetDefinition([FromRoute] Guid customerId, [FromRoute] Guid jobId)
+        [HttpGet(GetScheduledJobDefinitionByIdRequest.Route)]
+        public async Task<ActionResult<GetScheduledJobDefinitionByIdResponse>> GetDefinition([FromRoute] CustomerId customerId, [FromRoute] ScheduledJobDefinitionId jobId)
         {
-            var def = await _repo.GetAsync(new ScheduledJobDefinitionId(jobId));
-            if (def == null || def.CustomerId != new CustomerId(customerId))
+            var def = await _repo.GetAsync(jobId);
+            if (def == null || def.CustomerId != customerId)
                 return NotFound();
 
-            return Ok(new ScheduledJobDefinitionDto(def));
+            return Ok(new GetScheduledJobDefinitionByIdResponse(def.ToDto()));
         }
 
         // GET: api/customers/{customerId}/jobs/{jobId}/next
-        [HttpGet("{jobId:guid}/next")]
-        public async Task<ActionResult<DateTime>> GetNextRun([FromRoute] Guid customerId, [FromRoute] Guid jobId)
+        [HttpGet(GetNextScheduledJobRunRequest.Route)]
+        public async Task<ActionResult<DateTime>> GetNextRun([FromRoute] CustomerId customerId, [FromRoute] ScheduledJobDefinitionId jobId)
         {
-            var def = await _repo.GetAsync(new ScheduledJobDefinitionId(jobId));
+            var def = await _repo.GetAsync(jobId);
             if (def == null || def.CustomerId != new CustomerId(customerId))
                 return NotFound();
 
-            var lastOcc = def.Occurrences
+            var lastOcc = def.JobOccurrences
                               .OrderByDescending(o => o.OccurrenceDate)
                               .FirstOrDefault()?.OccurrenceDate
                           ?? def.AnchorDate;
 
             var next = _calculator.GetNextOccurrence(def.Pattern, def.AnchorDate, lastOcc);
-            return Ok(next);
+            return Ok(new GetNextScheduledJobRunResponse(next));
         }
 
         // POST: api/customers/{customerId}/jobs
-        [HttpPost]
-        public async Task<ActionResult<ScheduledJobDefinitionDto>> CreateDefinition(
+        [HttpPost(CreateScheduledJobRunRequest.Route)]
+        public async Task<ActionResult<CreateScheduledJobDefinitionResponse>> CreateDefinition(
             [FromRoute] Guid customerId,
-            [FromBody] CreateJobDefinitionRequest req)
+            [FromBody] CreateScheduledJobRunRequest req)
         {
             var def = new ScheduledJobDefinitionDomainModel
             {
@@ -80,24 +80,20 @@ namespace Api.Controllers
                 CustomerId = new CustomerId(customerId),
                 Title = req.Title,
                 Description = req.Description,
-                AnchorDate = req.AnchorDate ?? DateTime.UtcNow,
+                AnchorDate = req.AnchorDate,
                 Pattern = new RecurrencePattern(
                     req.Frequency,
                     req.Interval,
-                    req.DaysOfWeek,
+                    req.WeekDays ?? [WeekDays.Monday],
                     req.DayOfMonth,
                     req.CronExpression),
                 JobOccurrences = new List<JobOccurrenceDomainModel>()
             };
 
             await _repo.AddAsync(def);
-            await _uow.CommitAsync();
+            await _uow.SaveChangesAsync();
 
-            var dto = new ScheduledJobDefinitionDto(def);
-            return CreatedAtRoute(
-                "GetJobDefinition",
-                new { customerId, jobId = def.Id.Value },
-                dto);
+            return new CreateScheduledJobDefinitionResponse(def.ToDto());
         }
 
         // PATCH: api/customers/{customerId}/jobs/{jobId}
@@ -117,7 +113,7 @@ namespace Api.Controllers
             def.AnchorDate = req.AnchorDate ?? def.AnchorDate;
             def.Pattern.Frequency = req.Frequency;
             def.Pattern.Interval = req.Interval;
-            def.Pattern.DaysOfWeek = req.DaysOfWeek;
+            def.Pattern.WeekDays = req.DaysOfWeek;
             def.Pattern.DayOfMonth = req.DayOfMonth;
             def.Pattern.CronExpression = req.CronExpression;
 

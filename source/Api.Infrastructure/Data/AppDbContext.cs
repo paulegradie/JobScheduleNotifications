@@ -112,7 +112,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
                         rp.Property(p => p.Id).HasConversion<ScheduledJobDefinitionIdConverter>().HasValueGenerator<ScheduledJobDefinitionIdValueGenerator>().ValueGeneratedOnAdd();
                         rp.Property(p => p.Frequency).HasColumnName("Frequency").IsRequired();
                         rp.Property(p => p.Interval).HasColumnName("Interval").IsRequired();
-                        rp.Property(p => p.DaysOfWeek).HasColumnName("DaysOfWeek");
+                        rp.Property(p => p.WeekDays).HasColumnName("DaysOfWeek");
                         rp.Property(p => p.DayOfMonth).HasColumnName("DayOfMonth");
                         rp.Property(p => p.CronExpression).HasColumnName("CronExpression");
                     });

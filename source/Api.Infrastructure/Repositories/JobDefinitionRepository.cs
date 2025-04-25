@@ -68,7 +68,7 @@ internal static class JobDefinitionMappings
             Id = e.Id,
             CustomerId = e.CustomerId,
             AnchorDate = e.AnchorDate,
-            Pattern = new RecurrencePattern(e.Pattern.Frequency, e.Pattern.Interval, e.Pattern.DaysOfWeek),
+            Pattern = new RecurrencePattern(e.Pattern.Frequency, e.Pattern.Interval, e.Pattern.WeekDays),
             JobOccurrences = e.JobOccurrences
                 .Select(o => new JobOccurrenceDomainModel
                 {
@@ -94,7 +94,7 @@ internal static class JobDefinitionMappings
             {
                 Frequency = d.Pattern.Frequency,
                 Interval = d.Pattern.Interval,
-                DaysOfWeek = d.Pattern.DaysOfWeek
+                WeekDays = d.Pattern.WeekDays
             },
             JobOccurrences = d.JobOccurrences
                 .Select(o => new JobOccurrence

@@ -12,7 +12,7 @@ public sealed record CreateScheduledJobRunRequest(
     string Description,
     Frequency Frequency,
     int Interval,
-    WeekDays[]? DaysOfWeek,
+    WeekDays[]? WeekDays,
     int? DayOfMonth,
     string? CronExpression,
     DateTime AnchorDate) : RequestBase(Route)
@@ -26,7 +26,3 @@ public sealed record CreateScheduledJobRunRequest(
         return route;
     }
 }
-
-
-
-public sealed record UpdateScheduledJobDefinition

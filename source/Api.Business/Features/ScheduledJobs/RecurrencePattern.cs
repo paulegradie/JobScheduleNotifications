@@ -13,13 +13,13 @@ public class RecurrencePattern
     public RecurrencePattern(
         Frequency frequency,
         int interval,
-        WeekDays daysOfWeek,
+        WeekDays[] weekDays,
         int? dayOfMonth = null,
         string? cronExpression = null)
     {
         Frequency = frequency;
         Interval = interval;
-        DaysOfWeek = daysOfWeek;
+        WeekDays = weekDays;
         DayOfMonth = dayOfMonth;
         CronExpression = cronExpression;
     }
@@ -28,7 +28,7 @@ public class RecurrencePattern
 
     public Frequency Frequency { get; set; } = Frequency.Weekly;
     public int Interval { get; set; } = 1;
-    public WeekDays DaysOfWeek { get; set; } = WeekDays.Monday;
+    public WeekDays[] WeekDays { get; set; } = [ValueTypes.Enums.WeekDays.Monday];
 
     public int? DayOfMonth { get; set; }
     public string? CronExpression { get; set; }
