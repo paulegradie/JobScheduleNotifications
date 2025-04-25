@@ -1,14 +1,22 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using Mobile.UI.PageModels;
 using Mobile.UI.Pages.Base;
+using Mobile.UI.RepositoryAbstractions;
+using Server.Contracts.Client;
+using Server.Contracts.Client.Endpoints.Auth.Contracts;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace Mobile.UI.Pages;
 
 public sealed class HomePage : BasePage<HomePageViewModel>
 {
-    public HomePage(HomePageViewModel vm) : base(vm)
+    private readonly IServerClient _serverClient;
+    private readonly ITokenRepository _tokenRepository;
+
+    public HomePage(HomePageViewModel vm, IServerClient serverClient, ITokenRepository tokenRepository) : base(vm)
     {
+        _serverClient = serverClient;
+        _tokenRepository = tokenRepository;
         Title = "Welcome";
 
         /*──────── visual tree ────────*/
@@ -59,19 +67,19 @@ public sealed class HomePage : BasePage<HomePageViewModel>
                         {
                             new Button()
                                 .Text("Sign In")
-                                .BindCommand(nameof(vm.NavigateToLoginCommand))
+                                .BindCommand((HomePageViewModel vm) => vm.NavigateToLoginCommand)
                                 .BackgroundColor(Colors.CadetBlue)
                                 .TextColor(Colors.White)
                                 .Height(50),
                             new Button()
                                 .Text("Create Account")
-                                .BindCommand(nameof(vm.NavigateToRegisterCommand))
+                                .BindCommand((HomePageViewModel vm) => vm.NavigateToRegisterCommand)
                                 .BackgroundColor(Colors.ForestGreen)
                                 .TextColor(Colors.CadetBlue)
                                 .Height(50),
                             new Button()
                                 .Text("View Customers")
-                                .BindCommand(nameof(vm.NavigateToCustomersCommand))
+                                .BindCommand((HomePageViewModel vm) => vm.NavigateToCustomersCommand)
                                 .BackgroundColor(Colors.SteelBlue)
                                 .TextColor(Colors.White)
                                 .Height(50)
@@ -101,6 +109,35 @@ public sealed class HomePage : BasePage<HomePageViewModel>
     protected override void OnAppearing()
     {
         base.OnAppearing();
+        var newTestRego = new RegisterNewAdminRequest
+        {
+            Email = "testowner@gmail.com",
+            Password = "TestPassword123!",
+            BusinessName = "Paul",
+            FirstName = "Paul",
+            LastName = "Gradie",
+            PhoneNumber = "860753044",
+            BusinessDescription = "Demo Business"
+        };
+
+        var registered = _serverClient.Auth.RegisterAsync(newTestRego, CancellationToken.None).GetAwaiter().GetResult();
+        if (!registered.IsSuccess)
+        {
+            throw new InvalidOperationException($"User registration failed during test setup - {registered.ErrorMessage}");
+        }
+
+        var token = _serverClient.Auth.LoginAsync(new SignInRequest(newTestRego.Email, newTestRego.Password), CancellationToken.None).GetAwaiter().GetResult();
+        if (!token.IsSuccess)
+        {
+            throw new Exception($"Failed to login! {token.ErrorMessage}");
+        }
+
+        _tokenRepository.StoreTokenMeta(token.Value);
+
+        if (token?.Value is null || string.IsNullOrEmpty(token.Value.AccessToken))
+            throw new InvalidOperationException("Login failed — no token returned");
+
+        _serverClient.Http.DefaultRequestHeaders.Authorization = new("Bearer", token.Value.AccessToken);
 
         try
         {

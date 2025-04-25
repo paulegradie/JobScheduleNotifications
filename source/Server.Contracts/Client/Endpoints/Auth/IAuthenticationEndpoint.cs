@@ -13,5 +13,3 @@ public interface IAuthenticationEndpoint
     Task<string?> GetValidTokenAsync();
     bool IsAuthenticated { get; }
 }
-
-public record UserEmail(string Email);

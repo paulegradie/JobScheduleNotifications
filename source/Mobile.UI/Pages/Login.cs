@@ -135,7 +135,14 @@ namespace Mobile.UI.Pages
                                     .TextColor(Colors.White)
                                     .FontSize(16)
                                     .Height(50),
-
+                                // Sign In button
+                                new Button()
+                                    .Text("Go Back")
+                                    .BindCommand((LoginViewModel vm) => vm.NavigateBackCommand)
+                                    .Bind(IsEnabledProperty, nameof(vm.IsBusy))
+                                    .TextColor(Colors.White)
+                                    .FontSize(16)
+                                    .Height(50),
 
                                 // Activity indicator
                                 new ActivityIndicator

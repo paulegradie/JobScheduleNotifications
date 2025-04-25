@@ -1,49 +1,42 @@
+using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.Core.Repositories;
-using Mobile.Core.Services;
-using Mobile.Core.Utilities;
+using Mobile.UI.RepositoryAbstractions;
+using Server.Contracts.Client.Endpoints.Customers.Contracts;
 
 namespace Mobile.UI.PageModels;
 
 public partial class CustomerEditViewModel : ObservableObject
 {
     private readonly ICustomerRepository _customerRepository;
-    private readonly INavigationUtility _navigationUtility;
-    private Guid? _customerId;
+    private readonly INavigationRepository _navigationRepository;
+    private CustomerId? _customerId;
 
-    [ObservableProperty]
-    private string _firstName = string.Empty;
+    [ObservableProperty] private string _firstName = string.Empty;
 
-    [ObservableProperty]
-    private string _lastName;
+    [ObservableProperty] private string _lastName;
 
-    [ObservableProperty]
-    private string _email = string.Empty;
+    [ObservableProperty] private string _email = string.Empty;
 
-    [ObservableProperty]
-    private string _phoneNumber = string.Empty;
+    [ObservableProperty] private string _phoneNumber = string.Empty;
 
-    [ObservableProperty]
-    private string _notes = string.Empty;
+    [ObservableProperty] private string _notes = string.Empty;
 
-    [ObservableProperty]
-    private bool _isBusy;
+    [ObservableProperty] private bool _isBusy;
 
-    [ObservableProperty]
-    private string _title = "Add Customer";
+    [ObservableProperty] private string _title = "Add Customer";
 
-    public CustomerEditViewModel(ICustomerRepository customerRepository, INavigationUtility navigationUtility)
+    public CustomerEditViewModel(ICustomerRepository customerRepository, INavigationRepository navigationRepository)
     {
         _customerRepository = customerRepository;
-        _navigationUtility = navigationUtility;
+        _navigationRepository = navigationRepository;
     }
 
     public void Initialize(Guid? customerId = null)
     {
         _customerId = customerId;
         Title = customerId.HasValue ? "Edit Customer" : "Add Customer";
-        
+
         if (customerId.HasValue)
         {
             MainThread.BeginInvokeOnMainThread(async () => await LoadCustomerAsync(customerId.Value));
@@ -57,7 +50,7 @@ public partial class CustomerEditViewModel : ObservableObject
             IsBusy = true;
             var result = await _customerRepository.GetCustomerByIdAsync(id);
             var customer = result.Value;
-            
+
             FirstName = customer.FirstName;
             LastName = customer.LastName;
             Email = customer.Email;
@@ -66,8 +59,8 @@ public partial class CustomerEditViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await _navigationUtility.ShowAlertAsync("Error", $"Failed to load customer: {ex.Message}");
-            await _navigationUtility.GoBackAsync();
+            await _navigationRepository.ShowAlertAsync("Error", $"Failed to load customer: {ex.Message}");
+            await _navigationRepository.GoBackAsync();
         }
         finally
         {
@@ -84,38 +77,35 @@ public partial class CustomerEditViewModel : ObservableObject
 
             if (_customerId.HasValue)
             {
-                var updateDto = new UpdateCustomerDto
-                {
-                    FirstName = FirstName,
-                    LastName = LastName,
-                    Email = Email,
-                    PhoneNumber = PhoneNumber,
-                    Notes = Notes
-                };
+                var update = UpdateCustomerRequest.CreateBuilder(_customerId.Value)
+                    .WithFirstName(FirstName)
+                    .WithLastName(LastName)
+                    .WithEmail(Email)
+                    .WithPhoneNumber(PhoneNumber)
+                    .WithNotes(Notes)
+                    .Build();
 
-                await _customerRepository.UpdateCustomerAsync(_customerId.Value, updateDto);
-                await _navigationUtility.ShowAlertAsync("Success", "Customer updated successfully");
+                await _customerRepository.UpdateCustomerAsync(update, CancellationToken.None);
+                await _navigationRepository.ShowAlertAsync("Success", "Customer updated successfully");
             }
             else
             {
-                var createDto = new CreateCustomerDto
-                {
-                    FirstName = FirstName,
-                    LastName = LastName,
-                    Email = Email,
-                    PhoneNumber = PhoneNumber,
-                    Notes = Notes
-                };
+                var update = new CreateCustomerRequest(
+                    firstName: FirstName,
+                    lastName: LastName,
+                    email: Email,
+                    phoneNumber: PhoneNumber,
+                    notes: Notes);
 
-                await _customerRepository.CreateCustomerAsync(createDto);
-                await _navigationUtility.ShowAlertAsync("Success", "Customer created successfully");
+                await _customerRepository.CreateCustomerAsync(update);
+                await _navigationRepository.ShowAlertAsync("Success", "Customer created successfully");
             }
 
-            await _navigationUtility.GoBackAsync();
+            await _navigationRepository.GoBackAsync();
         }
         catch (Exception ex)
         {
-            await _navigationUtility.ShowAlertAsync("Error", $"Failed to save customer: {ex.Message}");
+            await _navigationRepository.ShowAlertAsync("Error", $"Failed to save customer: {ex.Message}");
         }
         finally
         {
@@ -126,6 +116,6 @@ public partial class CustomerEditViewModel : ObservableObject
     [RelayCommand]
     private async Task Cancel()
     {
-        await _navigationUtility.GoBackAsync();
+        await _navigationRepository.GoBackAsync();
     }
 }

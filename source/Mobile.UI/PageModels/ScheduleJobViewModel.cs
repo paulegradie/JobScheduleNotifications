@@ -1,11 +1,8 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.Core.Domain;
-using Mobile.Core.Repositories;
-using Mobile.Core.Services;
-using Mobile.Core.Utilities;
-using Server.Contracts.Client.Endpoints.Customers.Contracts;
+using Mobile.UI.Entities;
+using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Dtos;
 
 namespace Mobile.UI.PageModels;
@@ -14,7 +11,7 @@ public partial class ScheduleJobViewModel : ObservableObject
 {
     private readonly IJobRepository _jobRepository;
     private readonly ICustomerRepository _customerRepository;
-    private readonly INavigationUtility _navigationUtility;
+    private readonly INavigationRepository _navigationUtility;
 
     [ObservableProperty] private ObservableCollection<ServiceRecipient> _customers = new();
 
@@ -37,7 +34,7 @@ public partial class ScheduleJobViewModel : ObservableObject
     public ScheduleJobViewModel(
         IJobRepository jobRepository,
         ICustomerRepository customerRepository,
-        INavigationUtility navigationUtility,
+        INavigationRepository navigationUtility,
         CustomerDto selectedCustomer)
     {
         _jobRepository = jobRepository;
@@ -66,9 +63,9 @@ public partial class ScheduleJobViewModel : ObservableObject
         try
         {
             IsBusy = true;
-            var customerList = await _customerRepository.GetCustomers();
+            var customerList = await _customerRepository.GetCustomersAsync();
             Customers.Clear();
-            foreach (var customer in customerList)
+            foreach (var customer in customerList.Value)
             {
                 Customers.Add(customer);
             }

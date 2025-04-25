@@ -54,6 +54,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Mobile.UI\Mobile.UI.csproj" />
         <ProjectReference Include="..\Server.Contracts\Server.Contracts.csproj"/>
     </ItemGroup>
 
@@ -61,6 +62,10 @@
         <Reference Include="Mono.Android">
             <HintPath>C:\Program Files\dotnet\packs\Microsoft.Android.Ref.35\35.0.61\ref\net9.0\Mono.Android.dll</HintPath>
         </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Domain\" />
     </ItemGroup>
 
 </Project>

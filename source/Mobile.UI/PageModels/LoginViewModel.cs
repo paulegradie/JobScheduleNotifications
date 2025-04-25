@@ -1,11 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.Core.Services;
-using Mobile.Core.Utilities;
 using Mobile.UI.Pages;
+using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Client;
-using Server.Contracts.Client.Endpoints.Auth;
 using Server.Contracts.Client.Endpoints.Auth.Contracts;
 
 namespace Mobile.UI.PageModels;
@@ -13,7 +11,7 @@ namespace Mobile.UI.PageModels;
 public partial class LoginViewModel : ObservableValidator
 {
     private readonly IServerClient _serverClient;
-    private readonly INavigationUtility _navigationUtility;
+    private readonly INavigationRepository _navigationRepository;
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(ErrorMessage))] [Required(ErrorMessage = "Email is required")] [EmailAddress(ErrorMessage = "Invalid email format")]
     private string _email = string.Empty;
@@ -29,10 +27,10 @@ public partial class LoginViewModel : ObservableValidator
 
     [ObservableProperty] private string _title = "Login";
 
-    public LoginViewModel(IServerClient serverClient, INavigationUtility navigationUtility)
+    public LoginViewModel(IServerClient serverClient, INavigationRepository navigationRepository)
     {
         _serverClient = serverClient;
-        _navigationUtility = navigationUtility;
+        _navigationRepository = navigationRepository;
     }
 
     [RelayCommand]
@@ -51,11 +49,11 @@ public partial class LoginViewModel : ObservableValidator
                 return;
             }
 
-            var success = await _serverClient.Auth.LoginAsync(new SignInRequest(Email, Password));
+            var success = await _serverClient.Auth.LoginAsync(new SignInRequest(Email, Password), CancellationToken.None);
             if (true)
             {
                 // The IServerClient will internally handle storing the TokenInfo and managing refreshes
-                await _navigationUtility.NavigateToAsync(nameof(HomePage));
+                await _navigationRepository.NavigateToAsync(nameof(HomePage));
             }
             else
             {
@@ -76,12 +74,18 @@ public partial class LoginViewModel : ObservableValidator
     [RelayCommand]
     private async Task NavigateToRegister()
     {
-        await _navigationUtility.NavigateToAsync(nameof(RegisterPage));
+        await _navigationRepository.NavigateToAsync(nameof(RegisterPage));
     }
 
     [RelayCommand]
     private void TogglePasswordVisibility()
     {
         IsPasswordVisible = !IsPasswordVisible;
+    }
+
+    [RelayCommand]
+    private async Task NavigateBack()
+    {
+        await _navigationRepository.GoBackAsync();
     }
 }

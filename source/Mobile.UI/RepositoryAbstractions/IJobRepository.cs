@@ -1,6 +1,6 @@
 using Server.Contracts.Dtos;
 
-namespace Mobile.Core.Repositories;
+namespace Mobile.UI.RepositoryAbstractions;
 
 public interface IJobRepository
 {

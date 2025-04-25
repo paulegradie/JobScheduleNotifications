@@ -1,8 +1,9 @@
 using Mobile.Core.Services;
+using Mobile.UI.RepositoryAbstractions;
 
 namespace Mobile.Core.Utilities;
 
-public class NavigationUtility : INavigationUtility
+public class NavigationRepository : INavigationRepository
 {
     public async Task NavigateToAsync(string route, IDictionary<string, object>? parameters = null)
     {

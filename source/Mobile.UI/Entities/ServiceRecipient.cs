@@ -1,7 +1,6 @@
-﻿using Server.Contracts.Client.Endpoints.Customers.Contracts;
-using Server.Contracts.Dtos;
+﻿using Server.Contracts.Dtos;
 
-namespace Mobile.Core.Domain;
+namespace Mobile.UI.Entities;
 
 public class ServiceRecipient
 {

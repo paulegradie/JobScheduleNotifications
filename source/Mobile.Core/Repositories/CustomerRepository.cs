@@ -1,4 +1,5 @@
-using Mobile.Core.Domain;
+using Mobile.UI.Entities;
+using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Client;
 using Server.Contracts.Client.Endpoints;
 using Server.Contracts.Client.Endpoints.Customers.Contracts;

@@ -1,6 +1,6 @@
-namespace Mobile.Core.Utilities;
+namespace Mobile.UI.RepositoryAbstractions;
 
-public interface INavigationUtility
+public interface INavigationRepository
 {
     Task NavigateToAsync(string route, IDictionary<string, object>? parameters = null);
     Task GoBackAsync();

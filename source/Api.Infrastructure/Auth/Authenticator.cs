@@ -1,6 +1,7 @@
 ﻿using System.Security.Authentication;
 using Api.Infrastructure.DbTables.OrganizationModels;
 using Api.Infrastructure.Identity;
+using Api.ValueTypes;
 using Microsoft.AspNetCore.Identity;
 using Server.Contracts.Client.Endpoints.Auth;
 using Server.Contracts.Client.Endpoints.Auth.Contracts;
@@ -56,7 +57,7 @@ public class Authenticator : IAuthenticator
         var roles = await _userManager.GetRolesAsync(user);
 
         // optionally resolve a single customerId here if needed
-        Guid? custId = null;
+        CustomerId? custId = null;
         // e.g. if (roles.Contains(Roles.Customer)) { ... lookup from CustomerUsers }
 
         // generate tokens

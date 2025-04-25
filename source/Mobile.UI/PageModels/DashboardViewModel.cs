@@ -1,10 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.Core.Services;
-using Mobile.Core.Utilities;
 using Mobile.UI.Pages;
+using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Client;
-using Server.Contracts.Client.Endpoints.Auth;
 using Server.Contracts.Client.Endpoints.Auth.Contracts;
 
 namespace Mobile.UI.PageModels;
@@ -12,7 +10,8 @@ namespace Mobile.UI.PageModels;
 public partial class DashboardViewModel : ObservableObject
 {
     private readonly IServerClient _serverClient;
-    private readonly INavigationUtility _navigationUtility;
+    private readonly INavigationRepository _navigationUtility;
+    private readonly ITokenRepository _tokenRepository;
 
     [ObservableProperty] private string _title = "Dashboard";
 
@@ -30,10 +29,11 @@ public partial class DashboardViewModel : ObservableObject
 
     [ObservableProperty] private bool _isBusy;
 
-    public DashboardViewModel(IServerClient serverClient, INavigationUtility navigationUtility)
+    public DashboardViewModel(IServerClient serverClient, INavigationRepository navigationUtility, ITokenRepository tokenRepository)
     {
         _serverClient = serverClient;
         _navigationUtility = navigationUtility;
+        _tokenRepository = tokenRepository;
     }
 
     [RelayCommand]
@@ -84,8 +84,10 @@ public partial class DashboardViewModel : ObservableObject
         try
         {
             IsBusy = true;
-            var currentUser = await _serverClient.Auth.GetCurrentUserEmailAsync();
-            await _serverClient.Auth.LogoutAsync(new SignOutRequest(currentUser.Email));
+            var token = await _tokenRepository.RetrieveTokenMeta();
+            if (token == null) throw new Exception("No token found");
+            await _serverClient.Auth.LogoutAsync(new SignOutRequest(token.Email), CancellationToken.None);
+
             await _navigationUtility.NavigateToAsync(nameof(LoginPage));
         }
         catch (Exception ex)

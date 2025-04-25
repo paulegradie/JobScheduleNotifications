@@ -1,11 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.Core.Services;
-using Mobile.Core.Utilities;
 using Mobile.UI.Pages;
+using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Client;
-using Server.Contracts.Client.Endpoints.Auth;
 using Server.Contracts.Client.Endpoints.Auth.Contracts;
 
 namespace Mobile.UI.PageModels;
@@ -13,9 +11,9 @@ namespace Mobile.UI.PageModels;
 public partial class RegisterViewModel : ObservableValidator
 {
     private readonly IServerClient _serverClient;
-    private readonly INavigationUtility _navigationUtility;
+    private readonly INavigationRepository _navigationUtility;
 
-    public RegisterViewModel(IServerClient serverClient, INavigationUtility navigationUtility)
+    public RegisterViewModel(IServerClient serverClient, INavigationRepository navigationUtility)
     {
         _serverClient = serverClient;
         _navigationUtility = navigationUtility;
@@ -138,10 +136,10 @@ public partial class RegisterViewModel : ObservableValidator
                 BusinessDescription = BusinessDescription
             };
 
-            var success = await _serverClient.Auth.RegisterAsync(registration);
+            var success = await _serverClient.Auth.RegisterAsync(registration, CancellationToken.None);
             if (success.IsSuccess)
             {
-                var suc = await _serverClient.Auth.LoginAsync(new SignInRequest(Email, Password));
+                var suc = await _serverClient.Auth.LoginAsync(new SignInRequest(Email, Password), CancellationToken.None);
                 if (true)
                 {
                     await _navigationUtility.NavigateToAsync(nameof(HomePage));

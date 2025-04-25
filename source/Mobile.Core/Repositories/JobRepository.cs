@@ -1,3 +1,4 @@
+using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Client;
 using Server.Contracts.Dtos;
 

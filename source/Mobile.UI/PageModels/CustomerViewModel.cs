@@ -1,9 +1,8 @@
 using System.Collections.ObjectModel;
+using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.Core.Repositories;
-using Mobile.Core.Services;
-using Mobile.Core.Utilities;
+using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Client.Endpoints.Customers.Contracts;
 using Server.Contracts.Dtos;
 
@@ -12,7 +11,7 @@ namespace Mobile.UI.PageModels;
 public partial class CustomerViewModel : ObservableValidator
 {
     private readonly ICustomerRepository _customerRepository;
-    private readonly INavigationUtility _navigationUtility;
+    private readonly INavigationRepository _navigationUtility;
 
     [ObservableProperty] private ObservableCollection<CustomerDto> _customers = new();
 
@@ -38,7 +37,7 @@ public partial class CustomerViewModel : ObservableValidator
 
     public bool CanSave => !IsBusy && SelectedCustomer != null && !HasValidationError;
 
-    public CustomerViewModel(ICustomerRepository customerRepository, INavigationUtility navigationUtility)
+    public CustomerViewModel(ICustomerRepository customerRepository, INavigationRepository navigationUtility)
     {
         _customerRepository = customerRepository;
         _navigationUtility = navigationUtility;
@@ -62,15 +61,14 @@ public partial class CustomerViewModel : ObservableValidator
             IsBusy = true;
             if (IsEditing)
             {
-                var updateDto = new UpdateCustomerDto
-                {
-                    FirstName = SelectedCustomer.FirstName,
-                    LastName = SelectedCustomer.LastName,
-                    Email = SelectedCustomer.Email,
-                    PhoneNumber = SelectedCustomer.PhoneNumber,
-                    Notes = SelectedCustomer.Notes
-                };
-                await _customerRepository.UpdateCustomerAsync(SelectedCustomer.Id, updateDto);
+                var update = UpdateCustomerRequest.CreateBuilder(CustomerId)
+                    .WithFirstName(SelectedCustomer.FirstName)
+                    .WithLastName(SelectedCustomer.LastName)
+                    .WithPhoneNumber(SelectedCustomer.PhoneNumber)
+                    .WithNotes(SelectedCustomer.Notes)
+                    .Build();
+
+                await _customerRepository.UpdateCustomerAsync(update, CancellationToken.None);
                 var existingCustomer = Customers.FirstOrDefault<CustomerDto>(c => c.Id == SelectedCustomer.Id);
                 if (existingCustomer != null)
                 {
@@ -80,16 +78,17 @@ public partial class CustomerViewModel : ObservableValidator
             }
             else
             {
-                var createDto = new CreateCustomerDto
-                {
-                    FirstName = SelectedCustomer.FirstName,
-                    LastName = SelectedCustomer.LastName,
-                    Email = SelectedCustomer.Email,
-                    PhoneNumber = SelectedCustomer.PhoneNumber,
-                    Notes = SelectedCustomer.Notes
-                };
-                var newCustomer = await _customerRepository.CreateCustomerAsync(createDto);
-                Customers.Add(newCustomer);
+                var createCustomer = new CreateCustomerRequest(
+                    firstName: SelectedCustomer.FirstName,
+                    lastName: SelectedCustomer.LastName,
+                    email: SelectedCustomer.Email,
+                    phoneNumber: SelectedCustomer.PhoneNumber,
+                    notes: SelectedCustomer.Notes);
+
+                var newCustomer = await _customerRepository.CreateCustomerAsync(createCustomer);
+
+                if (!newCustomer.IsSuccess) throw new Exception("Couldn't create customer");
+                Customers.Add(newCustomer.Value);
             }
 
             HasValidationError = false;
@@ -149,9 +148,9 @@ public partial class CustomerViewModel : ObservableValidator
         {
             IsBusy = true;
             var customer = await _customerRepository.GetCustomerByIdAsync(customerId);
-            if (customer != null)
+            if (customer is { IsSuccess: true, Value: not null })
             {
-                SelectedCustomer = customer;
+                SelectedCustomer = customer.Value;
                 IsEditing = true;
                 Title = "Edit Customer";
             }
@@ -168,5 +167,5 @@ public partial class CustomerViewModel : ObservableValidator
     }
 
     public string Name { get; set; } = "Not Set Yet";
-    public Guid CustomerId { get; set; }
+    public CustomerId CustomerId { get; set; }
 }

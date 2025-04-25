@@ -1,11 +1,8 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.Core.Domain;
-using Mobile.Core.Repositories;
-using Mobile.Core.Services;
-using Mobile.Core.Utilities;
-using Server.Contracts.Client.Endpoints.Customers.Contracts;
+using Mobile.UI.Entities;
+using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Dtos;
 
 namespace Mobile.UI.PageModels;
@@ -14,7 +11,7 @@ public partial class CustomersViewModel : ObservableObject
 {
     public const string Title = "OMG TODO";
     private readonly ICustomerRepository _customerService;
-    private readonly INavigationUtility _navigationUtility;
+    private readonly INavigationRepository _navigationUtility;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsNotLoading))]
@@ -31,7 +28,7 @@ public partial class CustomersViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<ServiceRecipient> _customers = new();
 
-    public CustomersViewModel(ICustomerRepository customerService, INavigationUtility navigationUtility)
+    public CustomersViewModel(ICustomerRepository customerService, INavigationRepository navigationUtility)
     {
         _customerService = customerService;
         _navigationUtility = navigationUtility;
@@ -45,9 +42,9 @@ public partial class CustomersViewModel : ObservableObject
         try
         {
             IsLoading = true;
-            var customers = await _customerService.GetCustomers();
+            var customers = await _customerService.GetCustomersAsync();
             Customers.Clear();
-            foreach (var customer in customers)
+            foreach (var customer in customers.Value)
             {
                 Customers.Add(customer);
             }

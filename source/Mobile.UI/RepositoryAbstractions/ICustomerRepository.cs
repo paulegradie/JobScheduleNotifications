@@ -1,9 +1,9 @@
-using Mobile.Core.Domain;
+using Mobile.UI.Entities;
 using Server.Contracts.Client.Endpoints;
 using Server.Contracts.Client.Endpoints.Customers.Contracts;
 using Server.Contracts.Dtos;
 
-namespace Mobile.Core.Repositories;
+namespace Mobile.UI.RepositoryAbstractions;
 
 public interface ICustomerRepository
 {

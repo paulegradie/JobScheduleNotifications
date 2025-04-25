@@ -1,16 +1,15 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.Core.Services;
-using Mobile.Core.Utilities;
 using Mobile.UI.Pages;
+using Mobile.UI.RepositoryAbstractions;
 
 namespace Mobile.UI.PageModels
 {
     public partial class HomePageViewModel : ObservableObject
     {
-        private readonly INavigationUtility _navigation;
+        private readonly INavigationRepository _navigation;
 
-        public HomePageViewModel(INavigationUtility navigation)
+        public HomePageViewModel(INavigationRepository navigation)
         {
             _navigation = navigation;
         }
