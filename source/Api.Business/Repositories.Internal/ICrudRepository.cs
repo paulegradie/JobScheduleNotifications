@@ -1,4 +1,4 @@
-namespace Api.Business.Repositories;
+namespace Api.Business.Repositories.Internal;
 
 // TODO: This should only live in the infra - we should use these in repositories - this is for pulling
 // entities out of the db

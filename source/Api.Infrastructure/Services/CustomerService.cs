@@ -1,4 +1,5 @@
 ﻿using Api.Business.Repositories;
+using Api.Business.Repositories.Internal;
 using Api.Business.Services;
 using Api.Infrastructure.DbTables.OrganizationModels;
 using Api.Infrastructure.Repositories;

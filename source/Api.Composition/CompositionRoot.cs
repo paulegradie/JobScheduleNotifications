@@ -1,5 +1,6 @@
 using System.Reflection;
 using Api.Business.Repositories;
+using Api.Business.Repositories.Internal;
 using Api.Business.Services;
 using Api.Infrastructure.Data;
 using Api.Infrastructure.DbTables;
@@ -33,20 +34,15 @@ public static class CompositionRoot
 
     private static void AddCrudRepositories(IServiceCollection services)
     {
-        services.AddScoped(typeof(ICrudRepository<,>), typeof(CrudRepository<,>));
-        services.AddScoped<ICrudRepository<Customer, CustomerId>, CrudRepository<Customer, CustomerId>>();
-        services.AddScoped<ICrudRepository<CustomerUser, CustomerId>, CrudRepository<CustomerUser, CustomerId>>();
-        services.AddScoped<ICrudRepository<CustomerUser, IdentityUserId>, CrudRepository<CustomerUser, IdentityUserId>>();
-        services.AddScoped<ICrudRepository<JobReminder, JobReminderId>, CrudRepository<JobReminder, JobReminderId>>();
-        services.AddScoped<IJobDefinitionRepository, JobDefinitionRepository>();
         services
+            .AddScoped(typeof(ICrudRepository<,>), typeof(CrudRepository<,>))
+            .AddScoped<ICrudRepository<Customer, CustomerId>, CrudRepository<Customer, CustomerId>>()
+            .AddScoped<ICrudRepository<CustomerUser, CustomerId>, CrudRepository<CustomerUser, CustomerId>>()
+            .AddScoped<ICrudRepository<CustomerUser, IdentityUserId>, CrudRepository<CustomerUser, IdentityUserId>>()
+            .AddScoped<ICrudRepository<JobReminder, JobReminderId>, CrudRepository<JobReminder, JobReminderId>>()
+            .AddScoped<IJobDefinitionRepository, JobDefinitionRepository>()
+            .AddScoped<IJobOccurrenceRepository, JobOccurrenceRepository>()
             .AddScoped<IJobReminderRepository, JobReminderRepository>();
-
-
-
-
-
-
     }
 
     private static void AddMappers(IServiceCollection services)

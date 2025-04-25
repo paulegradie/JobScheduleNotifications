@@ -1,4 +1,4 @@
-﻿namespace Api.Business.Repositories;
+﻿namespace Api.Business.Services;
 
 public interface IJobSchedulingService
 {

@@ -1,6 +1,6 @@
 ﻿using Api.Business.Features.ScheduledJobs;
 
-namespace Api.Business.Repositories;
+namespace Api.Business.Services;
 
 public interface IRecurrenceCalculator
 {

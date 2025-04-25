@@ -1,4 +1,5 @@
 ﻿using Api.Business.Repositories;
+using Api.Business.Repositories.Internal;
 using Api.Infrastructure.DbTables.OrganizationModels;
 using Api.ValueTypes;
 using Server.Contracts.Client.Endpoints.Customers.Contracts;

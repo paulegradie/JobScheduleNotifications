@@ -1,5 +1,6 @@
 ﻿using Api.Business.Entities;
 using Api.Business.Repositories;
+using Api.Business.Repositories.Internal;
 using Api.Infrastructure.Data;
 using Api.Infrastructure.DbTables.Jobs;
 using Api.ValueTypes;
@@ -62,7 +63,7 @@ namespace Api.Infrastructure.Repositories
                 q = q.Where(r => r.IsSent == isSent.Value);
 
             var list = await q.ToListAsync();
-            return list.Select(e => e.ToDomain());
+            return list.Select(ToDomain);
         }
 
         public async Task<IEnumerable<JobReminderDomainModel>> ListByCustomerAsync(

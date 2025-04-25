@@ -1,6 +1,7 @@
 ﻿using Api.Business.Entities;
 using Api.Business.Repositories;
 using Api.Business.Features.ScheduledJobs;
+using Api.Business.Services;
 using Api.Infrastructure.Data;
 using Api.ValueTypes;
 using Api.ValueTypes.Enums;

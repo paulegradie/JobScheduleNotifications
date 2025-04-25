@@ -1,4 +1,5 @@
 using Api.Business.Repositories;
+using Api.Business.Repositories.Internal;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Infrastructure.Data;

@@ -2,41 +2,7 @@
 using Server.Contracts.Common.Request;
 using Server.Contracts.Dtos;
 
-namespace Server.Contracts.Client.Endpoints.Reminders;
-
-public record ListJobRemindersRequest(CustomerId CustomerId, ScheduledJobDefinitionId JobDefinitionId)
-    : RequestBase(Route)
-{
-    public const string Route = $"api/customers/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/reminders";
-
-    public override ApiRoute GetApiRoute()
-    {
-        var route = base.GetApiRoute();
-        route.AddRouteParam(CustomerIdSegmentParam, CustomerId.ToString());
-        route.AddRouteParam(JobDefinitionIdSegmentParam, JobDefinitionId.ToString());
-        return route;
-    }
-}
-
-public sealed record ListJobRemindersResponse(IEnumerable<JobReminderDto> JobReminderDtos);
-
-public record GetJobReminderByIdRequest(
-    CustomerId CustomerId,
-    ScheduledJobDefinitionId JobDefinitionId,
-    JobReminderId ReminderId)
-    : RequestBase(Route)
-{
-    public const string Route = $"api/customers/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/reminders/{JobReminderIdSegmentParam}";
-
-    public override ApiRoute GetApiRoute()
-    {
-        var route = base.GetApiRoute();
-        route.AddRouteParam(CustomerIdSegmentParam, CustomerId.ToString());
-        route.AddRouteParam(JobDefinitionIdSegmentParam, JobDefinitionId.ToString());
-        route.AddRouteParam(JobReminderIdSegmentParam, ReminderId.ToString());
-        return route;
-    }
-}
+namespace Server.Contracts.Client.Endpoints.Reminders.Contracts;
 
 public sealed record GetJobReminderByIdResponse(JobReminderDto JobReminderDto);
 
