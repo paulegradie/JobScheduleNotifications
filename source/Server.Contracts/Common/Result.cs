@@ -1,4 +1,4 @@
-﻿namespace Server.Contracts.Client.Endpoints.Auth;
+﻿namespace Server.Contracts.Common;
 
 public class Result
 {

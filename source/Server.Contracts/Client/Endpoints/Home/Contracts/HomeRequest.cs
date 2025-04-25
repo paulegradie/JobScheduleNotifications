@@ -1,6 +1,6 @@
 using Server.Contracts.Common.Request;
 
-namespace Server.Contracts.Client.Endpoints.Home;
+namespace Server.Contracts.Client.Endpoints.Home.Contracts;
 
 public record HomeRequest() : RequestBase(Route)
 {

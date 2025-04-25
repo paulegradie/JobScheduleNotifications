@@ -2,8 +2,9 @@ using System.Security.Authentication;
 using Api.Infrastructure.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Server.Contracts.Authentication;
 using Server.Contracts.Client.Endpoints.Auth;
+using Server.Contracts.Client.Endpoints.Auth.Contracts;
+using Server.Contracts.Dtos;
 
 namespace Api.Controllers;
 

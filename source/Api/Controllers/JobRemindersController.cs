@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Server.Contracts.Client.Endpoints.Reminders;
 using Api.Business.Repositories;
 using Api.Business.Entities;
 using Api.ValueTypes;

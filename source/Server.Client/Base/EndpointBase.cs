@@ -3,6 +3,7 @@ using System.Text.Json;
 using Server.Client.Exceptions;
 using Server.Contracts.Client.Endpoints;
 using Server.Contracts.Client.Endpoints.Auth;
+using Server.Contracts.Common;
 using Server.Contracts.Common.Request;
 
 namespace Server.Client.Base;

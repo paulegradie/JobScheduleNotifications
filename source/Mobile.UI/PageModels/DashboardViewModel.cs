@@ -5,6 +5,7 @@ using Mobile.Core.Utilities;
 using Mobile.UI.Pages;
 using Server.Contracts.Client;
 using Server.Contracts.Client.Endpoints.Auth;
+using Server.Contracts.Client.Endpoints.Auth.Contracts;
 
 namespace Mobile.UI.PageModels;
 

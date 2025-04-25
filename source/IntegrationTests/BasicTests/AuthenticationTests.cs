@@ -1,5 +1,6 @@
 ﻿using IntegrationTests.Base;
 using Server.Contracts.Client.Endpoints.Auth;
+using Server.Contracts.Client.Endpoints.Auth.Contracts;
 using Shouldly;
 
 namespace IntegrationTests.BasicTests;

@@ -2,6 +2,7 @@
 using IntegrationTests.Base;
 using IntegrationTests.Utils;
 using Server.Contracts.Client.Endpoints.Auth;
+using Server.Contracts.Client.Endpoints.Auth.Contracts;
 using Server.Contracts.Client.Endpoints.Customers.Contracts;
 using Shouldly;
 

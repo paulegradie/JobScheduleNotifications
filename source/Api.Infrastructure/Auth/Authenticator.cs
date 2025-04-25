@@ -3,6 +3,7 @@ using Api.Infrastructure.DbTables.OrganizationModels;
 using Api.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Server.Contracts.Client.Endpoints.Auth;
+using Server.Contracts.Client.Endpoints.Auth.Contracts;
 
 namespace Api.Infrastructure.Auth;
 

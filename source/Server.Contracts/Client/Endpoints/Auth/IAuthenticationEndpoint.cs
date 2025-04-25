@@ -1,4 +1,6 @@
-﻿namespace Server.Contracts.Client.Endpoints.Auth;
+﻿using Server.Contracts.Client.Endpoints.Auth.Contracts;
+
+namespace Server.Contracts.Client.Endpoints.Auth;
 
 public interface IAuthenticationEndpoint
 {

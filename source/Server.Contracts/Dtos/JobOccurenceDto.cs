@@ -7,6 +7,14 @@ namespace Server.Contracts.Dtos;
 /// </summary>
 public class JobOccurrenceDto
 {
+    public JobOccurrenceDto(JobOccurrenceId id, ScheduledJobDefinitionId scheduledJobDefinitionId, DateTime occurrenceDate, List<JobReminderDto> jobReminders)
+    {
+        Id = id;
+        ScheduledJobDefinitionId = scheduledJobDefinitionId;
+        OccurrenceDate = occurrenceDate;
+        JobReminders = jobReminders;
+    }
+
     /// <summary>
     /// Unique identifier for this occurrence.
     /// </summary>
@@ -25,5 +33,5 @@ public class JobOccurrenceDto
     /// <summary>
     /// All reminders associated with this occurrence.
     /// </summary>
-    public List<JobReminderDto> JobReminders { get; set; } = new();
+    public List<JobReminderDto> JobReminders { get; set; }
 }

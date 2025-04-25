@@ -1,5 +1,6 @@
 ﻿using Api.Business.Entities.Base;
 using Api.ValueTypes;
+using Server.Contracts.Dtos;
 
 namespace Api.Business.Entities;
 

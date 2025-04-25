@@ -1,6 +1,6 @@
 using Server.Contracts.Common.Request;
 
-namespace Server.Contracts.Client.Endpoints.Auth;
+namespace Server.Contracts.Client.Endpoints.Auth.Contracts;
 
 public record TokenRefreshRequest(string AccessToken, string RefreshToken) : RequestBase(Route)
 {

@@ -5,6 +5,8 @@ using Api.Infrastructure.DbTables.Jobs;
 using Api.ValueTypes;
 using Microsoft.EntityFrameworkCore;
 
+namespace Api.Infrastructure.Repositories;
+
 /// <summary>
 /// EF-backed implementation of <see cref="IJobOccurrenceRepository"/>.
 /// </summary>

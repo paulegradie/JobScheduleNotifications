@@ -1,4 +1,5 @@
 ﻿using Server.Contracts.Client.Endpoints.Auth;
+using Server.Contracts.Client.Endpoints.Auth.Contracts;
 
 namespace IntegrationTests.Base;
 

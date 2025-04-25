@@ -1,4 +1,4 @@
-﻿namespace Server.Contracts.Client.Endpoints.Auth;
+﻿namespace Server.Contracts.Client.Endpoints.Auth.Contracts;
 
 public class TokenInfo
 {
