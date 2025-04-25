@@ -69,10 +69,10 @@ namespace Api.Controllers
         }
 
         // POST: api/customers/{customerId}/jobs
-        [HttpPost(CreateScheduledJobRunRequest.Route)]
+        [HttpPost(CreateScheduledJobDefinitionRequest.Route)]
         public async Task<ActionResult<CreateScheduledJobDefinitionResponse>> CreateDefinition(
             [FromRoute] Guid customerId,
-            [FromBody] CreateScheduledJobRunRequest req)
+            [FromBody] CreateScheduledJobDefinitionRequest req)
         {
             var def = new ScheduledJobDefinitionDomainModel
             {
@@ -97,30 +97,30 @@ namespace Api.Controllers
         }
 
         // PATCH: api/customers/{customerId}/jobs/{jobId}
-        [HttpPatch("{jobId:guid}")]
-        public async Task<IActionResult> UpdateDefinition(
-            [FromRoute] Guid customerId,
-            [FromRoute] Guid jobId,
-            [FromBody] UpdateJobDefinitionRequest req)
+        [HttpPatch(CreateScheduledJobDefinitionRequest.Route)]
+        public async Task<ActionResult<UpdateScheduledJobDefinitionResponse>> UpdateDefinition(
+            [FromRoute] CustomerId customerId,
+            [FromRoute] ScheduledJobDefinitionId jobId,
+            [FromBody] CreateScheduledJobDefinitionRequest req)
         {
-            var def = await _repo.GetAsync(new ScheduledJobDefinitionId(jobId));
-            if (def == null || def.CustomerId != new CustomerId(customerId))
+            var def = await _repo.GetAsync(jobId);
+            if (def == null || def.CustomerId != customerId)
                 return NotFound();
 
             // apply changes
             def.Title = req.Title;
             def.Description = req.Description;
-            def.AnchorDate = req.AnchorDate ?? def.AnchorDate;
+            def.AnchorDate = req.AnchorDate;
             def.Pattern.Frequency = req.Frequency;
             def.Pattern.Interval = req.Interval;
-            def.Pattern.WeekDays = req.DaysOfWeek;
+            def.Pattern.WeekDays = req.WeekDays ?? [WeekDays.Monday];
             def.Pattern.DayOfMonth = req.DayOfMonth;
             def.Pattern.CronExpression = req.CronExpression;
 
             await _repo.UpdateAsync(def);
-            await _uow.CommitAsync();
+            await _uow.SaveChangesAsync();
 
-            return NoContent();
+            return new UpdateScheduledJobDefinitionResponse(def.ToDto());
         }
     }
 }

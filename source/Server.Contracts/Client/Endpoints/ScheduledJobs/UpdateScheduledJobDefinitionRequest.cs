@@ -4,6 +4,8 @@ using Server.Contracts.Common.Request;
 
 namespace Server.Contracts.Client.Endpoints.ScheduledJobs;
 
+public sealed record UpdateScheduledJobDefinitionResponse(ScheduledJobDefinitionDto ScheduledJobDefinitionDto);
+
 public sealed record UpdateScheduledJobDefinitionRequest(
     CustomerId CustomerId,
     ScheduledJobDefinitionId ScheduledJobDefinitionId,

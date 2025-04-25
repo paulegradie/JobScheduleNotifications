@@ -6,7 +6,7 @@ namespace Server.Contracts.Client.Endpoints.ScheduledJobs;
 
 public sealed record CreateScheduledJobDefinitionResponse(ScheduledJobDefinitionDto JobDefinition);
 
-public sealed record CreateScheduledJobRunRequest(
+public sealed record CreateScheduledJobDefinitionRequest(
     CustomerId Id,
     string Title,
     string Description,
