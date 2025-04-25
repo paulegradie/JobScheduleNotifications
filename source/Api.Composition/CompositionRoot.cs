@@ -39,6 +39,14 @@ public static class CompositionRoot
         services.AddScoped<ICrudRepository<CustomerUser, IdentityUserId>, CrudRepository<CustomerUser, IdentityUserId>>();
         services.AddScoped<ICrudRepository<JobReminder, JobReminderId>, CrudRepository<JobReminder, JobReminderId>>();
         services.AddScoped<IJobDefinitionRepository, JobDefinitionRepository>();
+        services
+            .AddScoped<IJobReminderRepository, JobReminderRepository>();
+
+
+
+
+
+
     }
 
     private static void AddMappers(IServiceCollection services)

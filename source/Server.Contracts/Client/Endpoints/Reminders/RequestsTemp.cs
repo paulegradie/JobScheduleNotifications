@@ -18,7 +18,7 @@ public record ListJobRemindersRequest(CustomerId CustomerId, ScheduledJobDefinit
     }
 }
 
-ListJobRemindersResponse
+public sealed record ListJobRemindersResponse(IEnumerable<JobReminderDto> JobReminderDtos);
 
 public record GetJobReminderByIdRequest(
     CustomerId CustomerId,

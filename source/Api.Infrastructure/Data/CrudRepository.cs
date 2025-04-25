@@ -46,4 +46,9 @@ public class CrudRepository<T, TKey> : ICrudRepository<T, TKey> where T : class
     {
         await Context.SaveChangesAsync();
     }
+
+    public IQueryable<T> Query()
+    {
+        return DbSet.AsQueryable();
+    }
 } 

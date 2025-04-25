@@ -1,5 +1,7 @@
 namespace Api.Business.Repositories;
 
+// TODO: This should only live in the infra - we should use these in repositories - this is for pulling
+// entities out of the db
 public interface ICrudRepository<T, in TKey> where T : class
 {
     Task<T?> GetByIdAsync(TKey id);
@@ -8,4 +10,5 @@ public interface ICrudRepository<T, in TKey> where T : class
     Task UpdateAsync(T entity);
     Task DeleteAsync(T entity);
     Task SaveChangesAsync();
+    IQueryable<T> Query();
 } 

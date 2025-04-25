@@ -11,12 +11,11 @@ public class ScheduledJobDefinition
 
     public virtual Customer Customer { get; set; }
 
-    // the very first run (or “start counting from”)
-    public DateTime AnchorDate { get; set; }
+    public DateTime AnchorDate { get; set; } // the very first run (or “start counting from”)
 
     public string Title { get; set; } = "";
     public string Description { get; set; } = "";
 
     public RecurrencePattern Pattern { get; set; } = null!;
-    public virtual ICollection<JobOccurrence> JobOccurrences { get; set;  } = new List<JobOccurrence>();
+    public virtual ICollection<JobOccurrence> JobOccurrences { get; set; } = new List<JobOccurrence>();
 }

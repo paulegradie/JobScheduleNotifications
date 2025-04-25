@@ -6,15 +6,18 @@ namespace Api.Infrastructure.DbTables.Jobs;
 public class JobOccurrence
 {
     public JobOccurrenceId Id { get; set; }
-    public ScheduledJobDefinitionId DefinitionId { get; set; }
     public DateTime OccurrenceDate { get; set; }
     public DateTime? CompletedDate { get; set; }
 
+
+    // relationships
+
+    //UP
     public CustomerId CustomerId { get; set; }
     public virtual Customer Customer { get; set; } = null!;
+    public virtual ScheduledJobDefinition ScheduledJobDefinition { get; set; } = null!;
+    public ScheduledJobDefinitionId ScheduledJobDefinitionId { get; set; }
 
-    public virtual ScheduledJobDefinition Definition { get; set; } = null!;
-
-    // if you want per‐occurrence reminders
+    // DOWN
     public virtual ICollection<JobReminder> JobReminders { get; set; } = new List<JobReminder>();
 }

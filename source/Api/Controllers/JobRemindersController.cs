@@ -4,7 +4,6 @@ using Api.ValueTypes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Server.Contracts.Client.Endpoints.Reminders;
-using Server.Contracts.Dtos;
 
 
 namespace Api.Controllers

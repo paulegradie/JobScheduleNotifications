@@ -14,17 +14,23 @@ namespace Api.Infrastructure.Data;
 public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRole<IdentityUserId>, IdentityUserId>
 {
     private readonly IEnumerable<IEntityPropertyConvention> _conventions; // not using this, but available if we decide to for now
-    private readonly IdentityUserId? _currentUserId;
+    private readonly IdentityUserId? _currentUserId; // can we even filter by id here?
 
-    public DbSet<Organization> Organizations { get; set; }
-    public DbSet<Customer> Customers => Set<Customer>();
+
+    // Domain Tables
+    public DbSet<Customer> Customers { get; set; } //=> Set<Customer>();
     public DbSet<ScheduledJobDefinition> ScheduledJobDefinitions { get; set; }
     public DbSet<JobOccurrence> JobOccurrences { get; set; }
     public DbSet<JobReminder> JobReminders { get; set; }
 
+
     // Link Tables
-    public DbSet<OrganizationUser> OrganizationUsers { get; set; }
     public DbSet<CustomerUser> CustomerUsers { get; set; }
+    public DbSet<OrganizationUser> OrganizationUsers { get; set; }
+
+
+    // Org
+    public DbSet<Organization> Organizations { get; set; }
     public DbSet<ApplicationUserRecord> ApplicationUsers => Set<ApplicationUserRecord>();
 
 
@@ -119,8 +125,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
 
                 // Definition → Occurrences
                 def.HasMany(d => d.JobOccurrences)
-                    .WithOne(o => o.Definition)
-                    .HasForeignKey(o => o.DefinitionId);
+                    .WithOne(o => o.ScheduledJobDefinition)
+                    .HasForeignKey(o => o.ScheduledJobDefinitionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                    ;
             });
 
         // Occurrence → Reminders
@@ -132,11 +140,13 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
                     .HasValueGenerator<JobOccurrenceIdValueGenerator>()
                     .ValueGeneratedOnAdd();
                 oc.Property(o => o.OccurrenceDate).IsRequired();
-                oc.Property(o => o.DefinitionId).HasConversion<ScheduledJobDefinitionIdConverter>();
+                oc.Property(o => o.ScheduledJobDefinitionId).HasConversion<ScheduledJobDefinitionIdConverter>();
                 oc.Property(o => o.CustomerId).HasConversion<CustomerIdConverter>();
                 oc.HasMany(o => o.JobReminders)
                     .WithOne(r => r.JobOccurrence)
-                    .HasForeignKey(r => r.JobOccurrenceId);
+                    .HasForeignKey(r => r.JobOccurrenceId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
             });
 
         modelBuilder.Entity<JobReminder>(entity =>
