@@ -1,6 +1,7 @@
 ﻿using Api.Business.Entities;
 using Api.Business.Repositories;
 using Api.Business.Features.ScheduledJobs;
+using Api.Infrastructure.Data;
 using Api.ValueTypes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,13 +18,13 @@ namespace Api.Controllers
         private readonly IJobDefinitionRepository _repo;
         private readonly IRecurrenceCalculator _calculator;
         private readonly IJobSchedulingService _scheduler;
-        private readonly IUnitOfWork _uow;
+        private readonly AppDbContext _uow;
 
         public ScheduledJobsController(
             IJobDefinitionRepository repo,
             IRecurrenceCalculator calculator,
             IJobSchedulingService scheduler,
-            IUnitOfWork uow)
+            AppDbContext uow)
         {
             _repo = repo;
             _calculator = calculator;
@@ -31,11 +32,10 @@ namespace Api.Controllers
             _uow = uow;
         }
 
-        // GET: api/customers/{customerId}/jobs
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ScheduledJobDefinitionDto>>> ListDefinitions([FromRoute] Guid customerId)
+        [HttpGet(ListJobDefinitionsByCustomerIdRequest.Route)]
+        public async Task<ActionResult<IEnumerable<ScheduledJobDefinitionDto>>> ListDefinitions([FromRoute] CustomerId customerId)
         {
-            var defs = await _repo.ListByCustomerAsync(new CustomerId(customerId));
+            var defs = await _repo.ListByCustomerAsync(customerId);
             var dtos = defs.Select(d => new ScheduledJobDefinitionDto(d));
             return Ok(dtos);
         }

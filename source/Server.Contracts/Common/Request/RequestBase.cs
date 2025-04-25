@@ -11,6 +11,6 @@ public abstract record RequestBase(string RouteInternal)
 
     public string ApiRoute => GetApiRoute().ToString();
 
-
-    public const string IdSegmentParam = "{id}";
+    protected const string IdSegmentParam = "{id}";
+    protected const string CustomerIdSegmentParam = "{customerId}";
 }

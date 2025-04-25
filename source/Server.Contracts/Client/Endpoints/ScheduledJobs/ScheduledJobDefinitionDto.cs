@@ -1,14 +1,9 @@
-﻿using Api.ValueTypes.Enums;
+﻿using Api.ValueTypes;
 
 namespace Server.Contracts.Client.Endpoints.ScheduledJobs;
 
 public record ScheduledJobDefinitionDto(
-    Guid Id,
+    ScheduledJobDefinitionId Id,
     string Title,
     string Description,
-    Frequency Frequency,
-    int Interval,
-    DayOfWeek[]? DaysOfWeek,
-    int? DayOfMonth,
-    string? CronExpression
-);
+    DateTime AnchorDate);
