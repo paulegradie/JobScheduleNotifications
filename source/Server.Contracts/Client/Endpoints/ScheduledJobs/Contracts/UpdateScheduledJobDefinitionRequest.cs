@@ -92,13 +92,13 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
             return this;
         }
 
-        public Builder WithFrequency(Frequency frequency)
+        public Builder WithFrequency(Frequency? frequency)
         {
             _frequency = frequency;
             return this;
         }
 
-        public Builder WithInterval(int interval)
+        public Builder WithInterval(int? interval)
         {
             _interval = interval;
             return this;
@@ -110,7 +110,7 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
             return this;
         }
 
-        public Builder WithDayOfMonth(int dayOfMonth)
+        public Builder WithDayOfMonth(int? dayOfMonth)
         {
             _dayOfMonth = dayOfMonth;
             return this;
@@ -122,7 +122,7 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
             return this;
         }
 
-        public Builder WithAnchorDate(DateTime anchorDate)
+        public Builder WithAnchorDate(DateTime? anchorDate)
         {
             _anchorDate = anchorDate;
             return this;

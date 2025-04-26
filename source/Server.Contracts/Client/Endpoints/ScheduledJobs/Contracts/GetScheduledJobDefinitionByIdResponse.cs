@@ -2,4 +2,4 @@
 
 namespace Server.Contracts.Client.Endpoints.ScheduledJobs.Contracts;
 
-public sealed record GetScheduledJobDefinitionByIdResponse(ScheduledJobDefinitionDto JobDefinition);
+public sealed record GetScheduledJobDefinitionByIdResponse(ScheduledJobDefinitionDto ScheduledJobDefinitionDto);

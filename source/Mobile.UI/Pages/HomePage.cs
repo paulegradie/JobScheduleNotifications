@@ -1,9 +1,6 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using Mobile.UI.PageModels;
 using Mobile.UI.Pages.Base;
-using Mobile.UI.RepositoryAbstractions;
-using Server.Contracts.Client;
-using Server.Contracts.Client.Endpoints.Auth.Contracts;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace Mobile.UI.Pages;

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Api.Controllers.Base;
+using Microsoft.AspNetCore.Mvc;
 using Server.Contracts.Client.Endpoints.Home;
 using Server.Contracts.Client.Endpoints.Home.Contracts;
 

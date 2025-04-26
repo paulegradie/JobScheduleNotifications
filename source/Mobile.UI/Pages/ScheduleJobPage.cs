@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Maui.Markup;
+﻿using Api.ValueTypes.Enums;
+using CommunityToolkit.Maui.Markup;
+using CommunityToolkit.Maui.Converters;
 using Mobile.UI.PageModels;
 using Mobile.UI.Pages.Base;
 
@@ -6,82 +8,97 @@ namespace Mobile.UI.Pages;
 
 public sealed class ScheduleJobPage : BasePage<ScheduleJobViewModel>
 {
+    private readonly ScheduleJobViewModel _vm;
+
     public ScheduleJobPage(ScheduleJobViewModel vm) : base(vm)
     {
-        Title = vm.Title;
-
+        _vm = vm;
+        Title = "Schedule Job";
         Content = new ScrollView
         {
-            Content = new Grid
+            Content = new VerticalStackLayout
             {
                 Padding = 20,
-
+                Spacing = 15,
                 Children =
                 {
-                    new VerticalStackLayout
-                    {
-                        Spacing = 20,
+                    Section("Customer",
+                        new Picker()
+                            .Bind(Picker.ItemsSourceProperty, nameof(vm.Customers))
+                            .Bind(Picker.SelectedItemProperty, nameof(vm.SelectedCustomer))),
 
-                        Children =
+                    Section("Title",
+                        new Entry()
+                            .Placeholder("Job title")
+                            .Bind(Entry.TextProperty, nameof(vm.Title))),
+
+                    Section("Description",
+                        new Editor { HeightRequest = 100 }
+                            .Bind(Editor.TextProperty, nameof(vm.Description))),
+
+                    Section("Anchor Date",
+                        new DatePicker()
+                            .Bind(DatePicker.DateProperty, nameof(vm.AnchorDate))),
+
+                    Section("Frequency",
+                        new Picker { ItemsSource = Enum.GetValues<Frequency>() }
+                            .Bind(Picker.SelectedItemProperty, nameof(vm.Frequency))),
+
+                    Section("Interval",
+                        new Stepper { Minimum = 1, Maximum = 30 }
+                            .Bind(Stepper.ValueProperty, nameof(vm.Interval))),
+
+                    Section("Week Days",
+                        new HorizontalStackLayout
                         {
-                            Section("Select Customer",
-                                new Picker()
-                                    .Bind(Picker.ItemsSourceProperty, nameof(vm.Customers))
-                                    .Bind(Picker.SelectedItemProperty, nameof(vm.SelectedCustomer))
-                                    .Bind(Picker.SelectedItemProperty,
-                                        nameof(CustomerViewModel.Name))),
+                            Spacing = 5,
+                            // Children = Enum.GetValues<DayOfWeek>()
+                            //     .Select(d => new CheckBox()
+                            //         .Bind(CheckBox.IsCheckedProperty, nameof(vm.SelectedWeekDays), converterParameter: d))
+                            //     .ToList<IView>()
+                        }),
 
-                            Section("Select Date", 
-                                new DatePicker()
-                                    .Bind(DatePicker.DateProperty, nameof(vm.ScheduledDate))),
+                    Section("Day of Month",
+                        new Entry { Keyboard = Keyboard.Numeric }
+                            .Bind(Entry.TextProperty, nameof(vm.DayOfMonth))),
 
-                            Section("Select Time",
-                                new TimePicker()
-                                    .Bind(TimePicker.TimeProperty, nameof(vm.ScheduledTime))),
+                    Section("Cron Expression",
+                        new Entry()
+                            .Placeholder("Optional cron")
+                            .Bind(Entry.TextProperty, nameof(vm.CronExpression))),
 
-                            Section("Job Description",
-                                new Editor
-                                    {
-                                        Placeholder = "Enter job description",
-                                        AutoSize = EditorAutoSizeOption.TextChanges,
-                                        HeightRequest = 100
-                                    }
-                                    .Bind(Editor.TextProperty, nameof(vm.JobDescription))),
+                    new Label()
+                        .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
+                        .TextColor(Colors.Red)
+                        .Bind(IsVisibleProperty, nameof(vm.ErrorMessage)),
 
-                            new Label()
-                                .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
-                                .TextColor(Colors.Red)
-                                .CenterHorizontal()
-                                .Bind(IsVisibleProperty, nameof(vm.ErrorMessage)),
+                    new Button()
+                        .Text("Schedule")
+                        .BindCommand(nameof(vm.ScheduleJobCommand))
+                        .Bind(IsEnabledProperty, nameof(vm.IsBusy), converter: new InvertedBoolConverter()),
 
-                            new Button()
-                                .Text("Schedule Job")
-                                .BindCommand(nameof(vm.ScheduleJobCommand))
-                                .Bind(Button.IsEnabledProperty, nameof(vm.IsBusy))
-                                .BackgroundColor(Colors.CadetBlue)
-                                .TextColor(Colors.White)
-                                .FontSize(16),
-                            new ActivityIndicator()
-                                .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
-                                .Bind(ActivityIndicator.IsVisibleProperty, nameof(vm.IsBusy))
-                        }
-                    }
+                    new ActivityIndicator()
+                        .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
+                        .Bind(ActivityIndicator.IsVisibleProperty, nameof(vm.IsBusy))
                 }
             }
         };
     }
 
-    private static View Section(string labelText, View input) =>
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        _vm.LoadCustomersCommand.Execute(null);
+    }
+
+    private static View Section(string label, View control) =>
         new VerticalStackLayout
         {
-            Spacing = 10,
-            Margin = new Thickness(0, 0, 0, 20),
+            Spacing = 2,
             Children =
             {
-                new Label()
-                    .Text(labelText)
-                    .Font(size: 16, bold: true),
-                input
+                new Label().Text(label).Font(size: 14, bold: true),
+                control
             }
         };
 }

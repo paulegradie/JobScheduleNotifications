@@ -1,7 +1,8 @@
 using System.Collections.ObjectModel;
+using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.UI.Entities;
+using Mobile.UI.Pages;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Dtos;
 
@@ -13,20 +14,16 @@ public partial class CustomersViewModel : ObservableObject
     private readonly ICustomerRepository _customerService;
     private readonly INavigationRepository _navigationUtility;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsNotLoading))]
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsNotLoading))]
     private bool _isLoading;
 
-    [ObservableProperty]
-    private string _searchText = string.Empty;
+    [ObservableProperty] private string _searchText = string.Empty;
 
-    [ObservableProperty]
-    private CustomerDto? _selectedCustomer;
+    [ObservableProperty] private CustomerDto? _selectedCustomer;
 
     public bool IsNotLoading => !IsLoading;
 
-    [ObservableProperty]
-    private ObservableCollection<ServiceRecipient> _customers = new();
+    [ObservableProperty] private ObservableCollection<CustomerDto> _customers = new();
 
     public CustomersViewModel(ICustomerRepository customerService, INavigationRepository navigationUtility)
     {
@@ -62,26 +59,26 @@ public partial class CustomersViewModel : ObservableObject
     [RelayCommand]
     private async Task AddCustomer()
     {
-        await _navigationUtility.NavigateToAsync("AddCustomerPage");
+        await _navigationUtility.NavigateToAsync(nameof(AddCustomerPage));
     }
 
     [RelayCommand]
-    private async Task EditCustomer(ServiceRecipient? customer)
+    private async Task EditCustomer(CustomerDto? customer)
     {
         if (customer == null) return;
-        var parameters = new Dictionary<string, object> { { "CustomerId", customer.Id } };
+        var parameters = new Dictionary<string, object> { { nameof(CustomerId), customer.Id } };
         await _navigationUtility.NavigateToAsync("EditCustomerPage", parameters);
     }
 
     [RelayCommand]
-    private async Task DeleteCustomer(ServiceRecipient? customer)
+    private async Task DeleteCustomer(CustomerDto? customer)
     {
         if (customer == null) return;
-        
+
         var result = await _navigationUtility.ShowConfirmationAsync(
             "Delete Customer",
             $"Are you sure you want to delete {customer.FirstName} {customer.LastName}?");
-            
+
         if (result)
         {
             try

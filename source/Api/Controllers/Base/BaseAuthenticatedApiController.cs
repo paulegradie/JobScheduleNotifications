@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 
-namespace Api.Controllers;
+namespace Api.Controllers.Base;
 
 [Authorize]
 public abstract class BaseAuthenticatedApiController : BaseApiController

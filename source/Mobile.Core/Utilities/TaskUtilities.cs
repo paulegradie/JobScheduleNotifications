@@ -1,4 +1,4 @@
-using Mobile.Core.Services;
+using Mobile.Core.Errors;
 
 namespace Mobile.Core.Utilities;
 

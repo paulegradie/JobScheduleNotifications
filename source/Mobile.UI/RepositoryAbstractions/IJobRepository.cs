@@ -1,15 +1,35 @@
+using Api.ValueTypes;
+using Server.Contracts.Client.Endpoints;
 using Server.Contracts.Dtos;
 
 namespace Mobile.UI.RepositoryAbstractions;
 
 public interface IJobRepository
 {
-    Task<IEnumerable<JobDto>> GetJobsAsync();
-    Task<JobDto> GetJobByIdAsync(Guid id);
-    Task<JobDto> CreateJobAsync(CreateJobDto job);
-    Task<JobDto> UpdateJobAsync(Guid id, UpdateJobDto job);
-    Task DeleteJobAsync(Guid id);
-    Task<JobDto> MarkJobAsCompletedAsync(Guid id);
-    Task<IEnumerable<JobDto>> GetJobsByCustomerAsync(Guid customerId);
-    Task<IEnumerable<JobDto>> GetJobsByBusinessOwnerAsync(Guid businessOwnerId);
-} 
+    Task<OperationResult<ScheduledJobDefinitionDto>> GetJobByIdAsync(
+        CustomerId customerId,
+        ScheduledJobDefinitionId id,
+        CancellationToken ct = default);
+
+    Task<OperationResult<ScheduledJobDefinitionDto>> CreateJobAsync(
+        CreateScheduledJobDefinitionDto job,
+        CancellationToken ct = default);
+
+    Task<OperationResult<ScheduledJobDefinitionDto>> UpdateJobAsync(
+        CustomerId customerId,
+        ScheduledJobDefinitionId id,
+        UpdateJobDto job,
+        CancellationToken ct = default);
+
+    Task<OperationResult> DeleteJobAsync(
+        ScheduledJobDefinitionId id,
+        CancellationToken ct = default);
+
+    Task<OperationResult<ScheduledJobDefinitionDto>> MarkJobAsCompletedAsync(
+        ScheduledJobDefinitionId id,
+        CancellationToken ct = default);
+
+    Task<OperationResult<IEnumerable<ScheduledJobDefinitionDto>>> GetJobsByCustomerAsync(
+        CustomerId customerId,
+        CancellationToken ct = default);
+}

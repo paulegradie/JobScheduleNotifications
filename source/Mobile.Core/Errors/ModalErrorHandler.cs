@@ -1,6 +1,6 @@
 using Mobile.Core.Utilities;
 
-namespace Mobile.Core.Services;
+namespace Mobile.Core.Errors;
 
 /// <summary>
 /// Modal Error Handler.

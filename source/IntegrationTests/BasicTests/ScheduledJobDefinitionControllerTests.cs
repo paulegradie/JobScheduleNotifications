@@ -86,8 +86,8 @@ public class ScheduledJobDefinitionControllerTests : AuthenticatedIntegrationTes
         var getResp = await Client.ScheduledJobs.GetScheduledJobDefinitionByIdAsync(getReq, CancellationToken);
 
         getResp.IsSuccess.ShouldBeTrue();
-        getResp.Value.JobDefinition.Id.ShouldBe(id);
-        getResp.Value.JobDefinition.Title.ShouldBe("JobX");
+        getResp.Value.ScheduledJobDefinitionDto.Id.ShouldBe(id);
+        getResp.Value.ScheduledJobDefinitionDto.Title.ShouldBe("JobX");
     }
 
     [Fact]

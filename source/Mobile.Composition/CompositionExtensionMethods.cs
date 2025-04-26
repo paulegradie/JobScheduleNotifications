@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using Microsoft.Extensions.Logging;
-using Mobile.Core.Repositories;
-using Mobile.Core.Services;
+using Mobile.Core.Domain.Repositories;
+using Mobile.Core.Errors;
 using Mobile.Core.Utilities;
 using Mobile.Infrastructure.Persistence;
 using Mobile.UI.PageModels;
@@ -21,6 +21,7 @@ public static class CompositionExtensionMethods
         services.AddLogging(configure => configure.AddDebug());
 #endif
 
+        // Pages
         services.AddSingleton<ModalErrorHandler>();
 
         services.AddSingleton<HomePage>();
@@ -35,12 +36,21 @@ public static class CompositionExtensionMethods
         services.AddSingleton<CustomersPage>();
         services.AddSingleton<CustomersViewModel>();
 
-        services.AddTransient<INavigationRepository, NavigationRepository>();
 
+        services.AddSingleton<ScheduleJobViewModel>();
+        services.AddSingleton<ScheduleJobPage>();
+
+        // Repositories
+        services.AddTransient<INavigationRepository, NavigationRepository>();
+        services.AddTransient<IJobRepository, JobRepository>();
         services.AddSingleton<ITokenRepository, InMemoryTokenRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
-        services.AddTransient<AuthenticationHandler>();
 
+        // Service
+        services.AddTransient<IJobRepository, JobRepository>();
+
+        // Clients
+        services.AddTransient<AuthenticationHandler>();
         services.AddHttpClient<IServerClient, ServerClient>(ConfigureServerClient)
             .AddHttpMessageHandler<AuthenticationHandler>();
         services.AddHttpClient<IAuthClient, AuthClient>(ConfigureAuthClient);

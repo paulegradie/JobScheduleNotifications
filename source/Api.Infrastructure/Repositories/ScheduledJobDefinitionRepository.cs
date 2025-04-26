@@ -48,7 +48,7 @@ public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepositor
         // You’ll need a reverse-map: domain → EF entity
         var entity = def.ToEntity();
         await _context.ScheduledJobDefinitions.AddAsync(entity);
-        def.Id = entity.Id;
+        def.ScheduledJobDefinitionId = entity.Id;
         // copy the generated Id back if you need it: def.Id = entity.Id;
     }
 
@@ -57,7 +57,7 @@ public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepositor
         var entity = await _context.ScheduledJobDefinitions
             .Include(d => d.JobOccurrences)
             .ThenInclude(o => o.JobReminders)
-            .FirstOrDefaultAsync(d => d.Id == def.Id);
+            .FirstOrDefaultAsync(d => d.Id == def.ScheduledJobDefinitionId);
 
         if (entity == null) return false;
 
@@ -72,7 +72,7 @@ internal static class JobDefinitionMappings
     public static ScheduledJobDefinitionDomainModel ToDomain(this ScheduledJobDefinition e)
         => new()
         {
-            Id = e.Id,
+            ScheduledJobDefinitionId = e.Id,
             CustomerId = e.CustomerId,
             AnchorDate = e.AnchorDate,
             Title = e.Title,
@@ -103,7 +103,7 @@ internal static class JobDefinitionMappings
     {
         var e = new ScheduledJobDefinition
         {
-            Id = d.Id,
+            Id = d.ScheduledJobDefinitionId,
             Title = d.Title,
             Description = d.Description,
             CustomerId = d.CustomerId,
@@ -118,7 +118,7 @@ internal static class JobDefinitionMappings
                 .Select(o => new JobOccurrence
                 {
                     Id = o.Id,
-                    ScheduledJobDefinitionId = d.Id,
+                    ScheduledJobDefinitionId = d.ScheduledJobDefinitionId,
                     OccurrenceDate = o.OccurrenceDate,
                     JobReminders = o.JobReminders
                         .Select(r => new JobReminder

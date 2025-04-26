@@ -1,11 +1,11 @@
-using Mobile.UI.Entities;
+using Api.ValueTypes;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Client;
 using Server.Contracts.Client.Endpoints;
 using Server.Contracts.Client.Endpoints.Customers.Contracts;
 using Server.Contracts.Dtos;
 
-namespace Mobile.Core.Repositories;
+namespace Mobile.Core.Domain.Repositories;
 
 public class CustomerRepository : ICustomerRepository
 {
@@ -14,25 +14,23 @@ public class CustomerRepository : ICustomerRepository
     public CustomerRepository(IServerClient serverClient)
         => _server = serverClient;
 
-    public async Task<OperationResult<IEnumerable<ServiceRecipient>>> GetCustomersAsync(CancellationToken ct = default)
+    public async Task<OperationResult<IEnumerable<CustomerDto>>> GetCustomersAsync(CancellationToken ct = default)
     {
         var op = await _server
             .Customers
             .GetCustomersAsync(new GetCustomersRequest(), ct);
 
         if (!op.IsSuccess)
-            return OperationResult<IEnumerable<ServiceRecipient>>
+            return OperationResult<IEnumerable<CustomerDto>>
                 .Failure(op.ErrorMessage ?? "Unknown error", op.StatusCode);
 
-        var customers = op.Value.Customers
-            .Select(dto => new ServiceRecipient(dto))
-            .ToList();
+        var customers = op.Value.Customers.ToList();
 
-        return OperationResult<IEnumerable<ServiceRecipient>>
+        return OperationResult<IEnumerable<CustomerDto>>
             .Success(customers, op.StatusCode);
     }
 
-    public async Task<OperationResult<CustomerDto>> GetCustomerByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task<OperationResult<CustomerDto>> GetCustomerByIdAsync(CustomerId id, CancellationToken ct = default)
     {
         var op = await _server
             .Customers
@@ -74,7 +72,7 @@ public class CustomerRepository : ICustomerRepository
             .Success(op.Value.Customer, op.StatusCode);
     }
 
-    public async Task<OperationResult> DeleteCustomerAsync(Guid id, CancellationToken ct = default)
+    public async Task<OperationResult> DeleteCustomerAsync(CustomerId id, CancellationToken ct = default)
     {
         var op = await _server
             .Customers

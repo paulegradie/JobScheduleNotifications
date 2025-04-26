@@ -7,7 +7,7 @@ namespace Api.Business.Entities;
 
 public class ScheduledJobDefinitionDomainModel : DomainModelBase<ScheduledJobDefinitionDto>
 {
-    public ScheduledJobDefinitionId Id { get; set; }
+    public ScheduledJobDefinitionId ScheduledJobDefinitionId { get; set; }
     public CustomerId CustomerId { get; set; }
     public DateTime AnchorDate { get; set; }
     public RecurrencePattern Pattern { get; set; }
@@ -18,6 +18,20 @@ public class ScheduledJobDefinitionDomainModel : DomainModelBase<ScheduledJobDef
 
     public override ScheduledJobDefinitionDto ToDto()
     {
-        return new ScheduledJobDefinitionDto(Id, Title, Description, AnchorDate, Pattern.DayOfMonth);
+        return new ScheduledJobDefinitionDto(
+            CustomerId,
+            ScheduledJobDefinitionId,
+            AnchorDate,
+            new RecurrencePatternDto
+            {
+                Id = Pattern.Id,
+                WeekDays = Pattern.WeekDays,
+                CronExpression = Pattern.CronExpression,
+                DayOfMonth = Pattern.DayOfMonth,
+                Frequency = Pattern.Frequency,
+                Interval = Pattern.Interval
+            },
+            Title,
+            Description);
     }
 }

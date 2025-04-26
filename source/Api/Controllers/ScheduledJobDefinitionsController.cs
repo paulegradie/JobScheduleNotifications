@@ -76,7 +76,7 @@ public class ScheduledJobDefinitionsController : ControllerBase
     {
         var def = new ScheduledJobDefinitionDomainModel
         {
-            Id = new ScheduledJobDefinitionId(Guid.NewGuid()),
+            ScheduledJobDefinitionId = new ScheduledJobDefinitionId(Guid.NewGuid()),
             CustomerId = new CustomerId(customerId),
             Title = req.Title,
             Description = req.Description,

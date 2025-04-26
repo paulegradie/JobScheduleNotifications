@@ -1,4 +1,5 @@
 using System.Security.Authentication;
+using Api.Controllers.Base;
 using Api.Infrastructure.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,134 +1,131 @@
 using System.Collections.ObjectModel;
+using Api.ValueTypes.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.UI.Entities;
 using Mobile.UI.RepositoryAbstractions;
+using Mobile.UI.Services;
 using Server.Contracts.Dtos;
 
-namespace Mobile.UI.PageModels;
-
-public partial class ScheduleJobViewModel : ObservableObject
+namespace Mobile.UI.PageModels
 {
-    private readonly IJobRepository _jobRepository;
-    private readonly ICustomerRepository _customerRepository;
-    private readonly INavigationRepository _navigationUtility;
-
-    [ObservableProperty] private ObservableCollection<ServiceRecipient> _customers = new();
-
-    [ObservableProperty] private CustomerDto _selectedCustomer;
-
-    [ObservableProperty] private DateTime _scheduledDate = DateTime.Now;
-
-    [ObservableProperty] private TimeSpan _scheduledTime = DateTime.Now.TimeOfDay;
-
-    [ObservableProperty] private TimeSpan _minimumTime = DateTime.Now.TimeOfDay;
-
-    [ObservableProperty] private string _jobDescription = string.Empty;
-
-    [ObservableProperty] private string _errorMessage = string.Empty;
-
-    [ObservableProperty] private string _title = "Schedule Job";
-
-    [ObservableProperty] private bool _isBusy;
-
-    public ScheduleJobViewModel(
-        IJobRepository jobRepository,
-        ICustomerRepository customerRepository,
-        INavigationRepository navigationUtility,
-        CustomerDto selectedCustomer)
+    public partial class ScheduleJobViewModel : ObservableObject
     {
-        _jobRepository = jobRepository;
-        _customerRepository = customerRepository;
-        _navigationUtility = navigationUtility;
-        SelectedCustomer = selectedCustomer;
-    }
+        private readonly IJobService _jobService;
+        private readonly ICustomerService _customerService;
+        private readonly INavigationRepository _navigation;
 
-    partial void OnScheduledDateChanged(DateTime value)
-    {
-        if (value.Date == DateTime.Now.Date)
+        [ObservableProperty]
+        private ObservableCollection<CustomerDto> _customers = new();
+
+        [ObservableProperty]
+        private CustomerDto _selectedCustomer;
+
+        [ObservableProperty]
+        private string _title = "Schedule Job";
+
+        [ObservableProperty]
+        private DateTime _anchorDate = DateTime.Now;
+
+        [ObservableProperty]
+        private Frequency _frequency = Frequency.Daily;
+
+        [ObservableProperty]
+        private int _interval = 1;
+
+        [ObservableProperty]
+        private ObservableCollection<WeekDays> _selectedWeekDays = new();
+
+        [ObservableProperty]
+        private int? _dayOfMonth;
+
+        [ObservableProperty]
+        private string _cronExpression;
+
+        [ObservableProperty]
+        private string _description = string.Empty;
+
+        [ObservableProperty]
+        private string _errorMessage = string.Empty;
+
+        [ObservableProperty]
+        private bool _isBusy;
+
+        public ScheduleJobViewModel(
+            IJobService jobService,
+            ICustomerService customerService,
+            INavigationRepository navigation)
         {
-            MinimumTime = DateTime.Now.TimeOfDay;
+            _jobService = jobService;
+            _customerService = customerService;
+            _navigation = navigation;
         }
-        else
-        {
-            MinimumTime = TimeSpan.Zero;
-        }
-    }
 
-    [RelayCommand]
-    private async Task LoadCustomers()
-    {
-        if (IsBusy) return;
-
-        try
+        [RelayCommand]
+        private async Task LoadCustomersAsync()
         {
+            if (IsBusy) return;
             IsBusy = true;
-            var customerList = await _customerRepository.GetCustomersAsync();
-            Customers.Clear();
-            foreach (var customer in customerList.Value)
+            try
             {
-                Customers.Add(customer);
+                var list = await _customerService.GetCustomersAsync();
+                Customers.Clear();
+                foreach (var c in list)
+                    Customers.Add(c);
+                SelectedCustomer ??= Customers.FirstOrDefault();
             }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Unable to load customers.";
+            }
+            finally { IsBusy = false; }
         }
-        catch (Exception ex)
-        {
-            await Shell.Current.DisplayAlert("Error", "Failed to load customers", "OK");
-            System.Diagnostics.Debug.WriteLine($"Load Customers Error: {ex.Message}");
-        }
-        finally
-        {
-            IsBusy = false;
-        }
-    }
 
-    [RelayCommand]
-    private async Task ScheduleJob()
-    {
-        if (IsBusy) return;
-
-        try
+        [RelayCommand]
+        private async Task ScheduleJobAsync()
         {
+            if (IsBusy) return;
             IsBusy = true;
             ErrorMessage = string.Empty;
 
             if (SelectedCustomer == null)
             {
-                ErrorMessage = "Please select a customer";
-                return;
+                ErrorMessage = "Select a customer.";
+                IsBusy = false; return;
+            }
+            if (string.IsNullOrWhiteSpace(Title))
+            {
+                ErrorMessage = "Enter a title.";
+                IsBusy = false; return;
+            }
+            if (string.IsNullOrWhiteSpace(Description))
+            {
+                ErrorMessage = "Enter a description.";
+                IsBusy = false; return;
             }
 
-            if (string.IsNullOrWhiteSpace(JobDescription))
+            try
             {
-                ErrorMessage = "Please enter a job description";
-                return;
+                var dto = new CreateScheduledJobDefinitionDto
+                {
+                    CustomerId = SelectedCustomer.Id,
+                    Title = Title,
+                    Description = Description,
+                    AnchorDate = AnchorDate,
+                    Frequency = Frequency,
+                    Interval = Interval,
+                    WeekDays = SelectedWeekDays.ToArray(),
+                    DayOfMonth = DayOfMonth,
+                    CronExpression = CronExpression
+                };
+                await _jobService.CreateJobAsync(dto);
+                await Shell.Current.DisplayAlert("Success", "Job scheduled!", "OK");
+                await _navigation.GoBackAsync();
             }
-
-            var scheduledDateTime = ScheduledDate.Date.Add(ScheduledTime);
-            if (scheduledDateTime < DateTime.Now)
+            catch (Exception ex)
             {
-                ErrorMessage = "Scheduled time must be in the future";
-                return;
+                ErrorMessage = "Failed to schedule job.";
             }
-
-            var job = new CreateJobDto
-            {
-                CustomerId = SelectedCustomer.Id,
-                ScheduledDate = scheduledDateTime,
-                Description = JobDescription
-            };
-
-            await _jobRepository.CreateJobAsync(job);
-            await Shell.Current.DisplayAlert("Success", "Job scheduled successfully", "OK");
-            await _navigationUtility.GoBackAsync();
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = "Failed to schedule job";
-            System.Diagnostics.Debug.WriteLine($"Schedule Job Error: {ex.Message}");
-        }
-        finally
-        {
-            IsBusy = false;
+            finally { IsBusy = false; }
         }
     }
 }
