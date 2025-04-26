@@ -1,48 +1,93 @@
+using System.Net.Http.Headers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.Pages;
 using Mobile.UI.RepositoryAbstractions;
+using Server.Contracts.Client;
+using Server.Contracts.Client.Endpoints.Auth.Contracts;
 
-namespace Mobile.UI.PageModels
+namespace Mobile.UI.PageModels;
+
+public partial class HomePageViewModel : ObservableObject
 {
-    public partial class HomePageViewModel : ObservableObject
+    private readonly INavigationRepository _navigation;
+    private readonly IServerClient _serverClient;
+    private readonly IAuthClient _authClient;
+    private readonly ITokenRepository _tokenRepository;
+
+    public HomePageViewModel(
+        INavigationRepository navigation,
+        IServerClient serverClient,
+        IAuthClient authClient,
+        ITokenRepository tokenRepository)
     {
-        private readonly INavigationRepository _navigation;
+        _navigation = navigation;
+        _serverClient = serverClient;
+        _authClient = authClient;
+        _tokenRepository = tokenRepository;
+    }
 
-        public HomePageViewModel(INavigationRepository navigation)
+    [ObservableProperty] private int _count;
+    [ObservableProperty] private string _counterText = "Click me";
+
+
+    [RelayCommand]
+    private void IncrementCounter()
+    {
+        Count++;
+        CounterText = Count == 1 ? $"Clicked {Count} time" : $"Clicked {Count} times";
+    }
+
+    [RelayCommand]
+    private async Task NavigateToLogin()
+    {
+        await Shell.Current.GoToAsync(nameof(LoginPage));
+    }
+
+    [RelayCommand]
+    private async Task NavigateToRegister()
+    {
+        await Shell.Current.GoToAsync(nameof(RegisterPage));
+    }
+
+    [RelayCommand]
+    private async Task NavigateToCustomers()
+    {
+        await _navigation.NavigateToAsync(nameof(CustomersPage));
+    }
+
+    [RelayCommand]
+    public async Task AutoLoginForDev()
+    {
+#if DEBUG
+        // — your existing registration + login —
+        var newTestRego = new RegisterNewAdminRequest
         {
-            _navigation = navigation;
-        }
+            Email = $"{Guid.NewGuid().ToString()}@gmail.com",
+            Password = "TestPassword123!",
+            BusinessName = "Paul",
+            FirstName = "Paul",
+            LastName = "Gradie",
+            PhoneNumber = "8607530466",
+            BusinessDescription = "Demo Business"
+        };
+        var registered = await _authClient.Auth.RegisterAsync(newTestRego, CancellationToken.None);
+        if (!registered.IsSuccess)
+            throw new InvalidOperationException($"Dev signup failed: {registered.ErrorMessage}");
 
-        [ObservableProperty] private int _count;
-        [ObservableProperty] private string _counterText = "Click me";
+        var token = await _authClient.Auth.LoginAsync(
+            new SignInRequest(newTestRego.Email, newTestRego.Password),
+            CancellationToken.None);
+        if (!token.IsSuccess)
+            throw new Exception($"Dev login failed: {token.ErrorMessage}");
 
+        // persist & wire up the bearer header
+        await _tokenRepository.StoreTokenMeta(token.Value);
+        _serverClient.Http.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token.Value.AccessToken);
 
-        [RelayCommand]
-        private void IncrementCounter()
-        {
-            Count++;
-            CounterText = Count == 1 ? $"Clicked {Count} time" : $"Clicked {Count} times";
-        }
-
-        [RelayCommand]
-        private async Task NavigateToLogin()
-        {
-            await Shell.Current.GoToAsync(nameof(LoginPage));
-        }
-
-        [RelayCommand]
-        private async Task NavigateToRegister()
-        {
-            await Shell.Current.GoToAsync(nameof(RegisterPage));
-        }
-
-        [RelayCommand]
-        private async Task NavigateToCustomers()
-        {
-            await _navigation.NavigateToAsync(nameof(CustomersPage));
-        }
-
-
+        // — now navigate to Dashboard —
+        await _navigation.NavigateToAsync(nameof(DashboardPage));
+#endif
     }
 }

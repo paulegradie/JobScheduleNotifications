@@ -2,4 +2,4 @@
 
 namespace Server.Contracts.Client.Endpoints.ScheduledJobs.Contracts;
 
-public record ListJobDefinitionsByCustomerIdResponse(IEnumerable<ScheduledJobDefinitionDto> scheduledJobDefinitionDto);
+public record ListJobDefinitionsByCustomerIdResponse(IEnumerable<ScheduledJobDefinitionDto> ScheduledJobDefinitions);

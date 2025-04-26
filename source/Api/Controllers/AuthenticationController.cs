@@ -90,7 +90,7 @@ public class AuthenticationController : BaseApiController
             return BadRequest("Couldn't sign you out");
         }
     }
-        
+
     // [Authorize] ensures the caller is authenticated
     // [HttpPost("{orgId}/invite")]
     // public async Task<IActionResult> Invite(

@@ -12,4 +12,5 @@ public interface IAuthenticationEndpoint
     // these remain “helper” APIs:
     Task<string?> GetValidTokenAsync();
     bool IsAuthenticated { get; }
+    void SetCurrentToken(TokenInfo tokenInfo);
 }

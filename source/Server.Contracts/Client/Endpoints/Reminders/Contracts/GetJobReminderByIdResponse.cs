@@ -2,4 +2,4 @@
 
 namespace Server.Contracts.Client.Endpoints.Reminders.Contracts;
 
-public sealed record GetJobReminderByIdResponse(JobReminderDto JobReminderDto);
+public sealed record GetJobReminderByIdResponse(JobReminderDto JobReminder);

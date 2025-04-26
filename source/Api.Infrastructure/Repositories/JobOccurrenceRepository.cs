@@ -32,11 +32,47 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
 
     public async Task<JobOccurrenceDomainModel?> GetByIdAsync(JobOccurrenceId occurrenceId)
     {
-        var e = await _context.JobOccurrences
+        var entity = await _context.JobOccurrences
             .Include(o => o.JobReminders)
             .FirstOrDefaultAsync(o => o.Id == occurrenceId);
 
-        return e is null ? null : ToDomain(e);
+        return entity is null ? null : ToDomain(entity);
+    }
+
+    public async Task AddAsync(JobOccurrenceDomainModel occurrence)
+    {
+        var entity = occurrence.ToEntity();
+        var def = await _context.ScheduledJobDefinitions.SingleAsync(x => x.Id == occurrence.ScheduledJobDefinitionId);
+        def.JobOccurrences.Add(entity);
+        await _context.SaveChangesAsync();
+        occurrence.Id = entity.Id;
+        occurrence.ScheduledJobDefinitionId = def.Id;
+    }
+
+    public async Task UpdateAsync(JobOccurrenceDomainModel occurrence)
+    {
+        var entity = await _context.JobOccurrences.FirstOrDefaultAsync(o => o.Id == occurrence.Id);
+
+        if (entity == null)
+            return;
+
+        entity.OccurrenceDate = occurrence.OccurrenceDate;
+
+        _context.JobOccurrences.Update(entity);
+        await _context.SaveChangesAsync();
+        occurrence.Id = entity.Id;
+    }
+
+    public async Task DeleteAsync(JobOccurrenceDomainModel occurrence)
+    {
+        var entity = await _context.JobOccurrences
+            .FirstOrDefaultAsync(o => o.Id == occurrence.Id);
+
+        if (entity == null)
+            return;
+
+        _context.JobOccurrences.Remove(entity);
+        await _context.SaveChangesAsync();
     }
 
     private static JobOccurrenceDomainModel ToDomain(JobOccurrence e)
@@ -51,6 +87,54 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
                     Id = r.Id,
                     JobOccurrenceId = r.JobOccurrenceId,
                     ScheduledJobDefinitionId = e.ScheduledJobDefinitionId,
+                    ReminderDateTime = r.ReminderDateTime,
+                    Message = r.Message,
+                    IsSent = r.IsSent,
+                    SentDate = r.SentDate
+                })
+                .ToList()
+        };
+}
+
+internal static class JobOccurrenceMappings
+{
+    /// <summary>
+    /// Map EF entity to domain model.
+    /// </summary>
+    public static JobOccurrenceDomainModel ToDomain(this JobOccurrence e)
+        => new()
+        {
+            Id = e.Id,
+            ScheduledJobDefinitionId = e.ScheduledJobDefinitionId,
+            OccurrenceDate = e.OccurrenceDate,
+            JobReminders = e.JobReminders
+                .Select(r => new JobReminderDomainModel
+                {
+                    Id = r.Id,
+                    JobOccurrenceId = r.JobOccurrenceId,
+                    ScheduledJobDefinitionId = e.ScheduledJobDefinitionId,
+                    ReminderDateTime = r.ReminderDateTime,
+                    Message = r.Message,
+                    IsSent = r.IsSent,
+                    SentDate = r.SentDate
+                })
+                .ToList()
+        };
+
+    /// <summary>
+    /// Map domain model back to EF entity, including nested reminders.
+    /// </summary>
+    public static JobOccurrence ToEntity(this JobOccurrenceDomainModel d)
+        => new()
+        {
+            Id = d.Id,
+            ScheduledJobDefinitionId = d.ScheduledJobDefinitionId,
+            OccurrenceDate = d.OccurrenceDate,
+            JobReminders = d.JobReminders
+                .Select(r => new JobReminder
+                {
+                    Id = r.Id,
+                    JobOccurrenceId = r.JobOccurrenceId,
                     ReminderDateTime = r.ReminderDateTime,
                     Message = r.Message,
                     IsSent = r.IsSent,

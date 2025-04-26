@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Net.Http.Headers;
+using Microsoft.Extensions.Logging;
 using Mobile.Core.Repositories;
 using Mobile.Core.Services;
 using Mobile.Core.Utilities;
@@ -6,6 +7,7 @@ using Mobile.Infrastructure.Persistence;
 using Mobile.UI.PageModels;
 using Mobile.UI.Pages;
 using Mobile.UI.RepositoryAbstractions;
+using Server.Client;
 using Server.Client.Base;
 using Server.Contracts.Client;
 
@@ -35,10 +37,49 @@ public static class CompositionExtensionMethods
 
         services.AddTransient<INavigationRepository, NavigationRepository>();
 
-        services.AddTransient<ICustomerRepository, CustomerRepository>();
         services.AddSingleton<ITokenRepository, InMemoryTokenRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddTransient<AuthenticationHandler>();
-        services.AddHttpClient<IServerClient>().AddHttpMessageHandler<AuthenticationHandler>();
+
+        services.AddHttpClient<IServerClient, ServerClient>(ConfigureServerClient)
+            .AddHttpMessageHandler<AuthenticationHandler>();
+        services.AddHttpClient<IAuthClient, AuthClient>(ConfigureAuthClient);
     }
+
+    private static ServerClient ConfigureServerClient(HttpClient client, IServiceProvider sp)
+    {
+        client.BaseAddress = new Uri("https://localhost:5001");
+
+        // ← synchronously retrieve saved token
+        var tokenRepo = sp.GetRequiredService<ITokenRepository>();
+        var saved = tokenRepo.RetrieveTokenMeta().GetAwaiter().GetResult();
+
+        if (saved == null) return new ServerClient(client);
+
+
+        // preload if available from a previous session
+        // this will make more sense once SetCurrentToken implements an out-of-process store
+        // restore AuthEndpoint’s in-memory token
+        if (sp.GetService<IAuthClient>() is AuthClient ac)
+            ac.Auth.SetCurrentToken(saved);
+
+        // prime the header
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", saved.AccessToken);
+
+        return new ServerClient(client);
+    }
+
+    private static AuthClient ConfigureAuthClient(HttpClient client, IServiceProvider sp)
+    {
+        client.BaseAddress = new Uri("https://localhost:5001");
+        return new AuthClient(client);
+    }
+}
+
+public class ApiOptions
+{
+    public const string Node = "Api";
+    public string ServerBaseUrl { get; set; } = default!;
+    public string AuthBaseUrl { get; set; } = default!;
 }

@@ -6,4 +6,5 @@ public record ScheduledJobDefinitionDto(
     ScheduledJobDefinitionId Id,
     string Title,
     string Description,
-    DateTime AnchorDate);
+    DateTime AnchorDate, 
+    int? DayOfMonth);

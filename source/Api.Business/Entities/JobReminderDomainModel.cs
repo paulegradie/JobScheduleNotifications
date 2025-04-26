@@ -7,7 +7,7 @@ namespace Api.Business.Entities;
 public class JobReminderDomainModel : DomainModelBase<JobReminderDto>
 {
     public JobReminderId Id { get; set; }
-    public JobOccurrenceId JobOccurrenceId { get; set; }            // ← newly surfaced
+    public JobOccurrenceId JobOccurrenceId { get; set; } // ← newly surfaced
     public ScheduledJobDefinitionId ScheduledJobDefinitionId { get; set; }
     public DateTime ReminderDateTime { get; set; }
     public string Message { get; set; } = string.Empty;
@@ -17,11 +17,11 @@ public class JobReminderDomainModel : DomainModelBase<JobReminderDto>
     public override JobReminderDto ToDto()
         => new JobReminderDto
         {
-            Id                       = Id,
+            Id = Id,
             ScheduledJobDefinitionId = ScheduledJobDefinitionId,
-            ReminderTime             = ReminderDateTime,
-            Message                  = Message,
-            IsSent                   = IsSent,
-            SentDate                 = SentDate
+            ReminderTime = ReminderDateTime,
+            Message = Message,
+            IsSent = IsSent,
+            SentDate = SentDate
         };
 }

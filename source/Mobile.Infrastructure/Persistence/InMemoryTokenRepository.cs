@@ -28,7 +28,7 @@ public sealed class InMemoryTokenRepository : ITokenRepository
         return Task.CompletedTask;
     }
 
-    public Task<TokenInfo> RetrieveTokenMeta()
+    public Task<TokenInfo?> RetrieveTokenMeta()
     {
         return Task.FromResult(_tokenInfo);
     }

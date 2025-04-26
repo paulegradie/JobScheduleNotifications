@@ -8,12 +8,12 @@ namespace Api.Infrastructure.Services;
 
 public class JobSchedulingService : IJobSchedulingService
 {
-    private readonly IJobDefinitionRepository _repo;
+    private readonly IScheduledJobDefinitionRepository _repo;
     private readonly IRecurrenceCalculator _calculator;
     private readonly AppDbContext _uow; // or your DbContext
 
     public JobSchedulingService(
-        IJobDefinitionRepository repo,
+        IScheduledJobDefinitionRepository repo,
         IRecurrenceCalculator calc,
         AppDbContext uow)
     {

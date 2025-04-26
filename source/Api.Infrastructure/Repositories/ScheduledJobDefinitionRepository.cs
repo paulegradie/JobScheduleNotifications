@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Api.Infrastructure.Repositories;
 
-public class JobDefinitionRepository : IJobDefinitionRepository
+public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepository
 {
     private readonly AppDbContext _context;
 
-    public JobDefinitionRepository(AppDbContext context) => _context = context;
+    public ScheduledJobDefinitionRepository(AppDbContext context) => _context = context;
 
     public async Task<ScheduledJobDefinitionDomainModel?> GetAsync(ScheduledJobDefinitionId id)
     {
@@ -48,14 +48,21 @@ public class JobDefinitionRepository : IJobDefinitionRepository
         // You’ll need a reverse-map: domain → EF entity
         var entity = def.ToEntity();
         await _context.ScheduledJobDefinitions.AddAsync(entity);
+        def.Id = entity.Id;
         // copy the generated Id back if you need it: def.Id = entity.Id;
     }
 
-    public Task UpdateAsync(ScheduledJobDefinitionDomainModel def)
+    public async Task<bool> UpdateAsync(ScheduledJobDefinitionDomainModel def)
     {
-        var entity = def.ToEntity();
-        _context.ScheduledJobDefinitions.Update(entity);
-        return Task.CompletedTask;
+        var entity = await _context.ScheduledJobDefinitions
+            .Include(d => d.JobOccurrences)
+            .ThenInclude(o => o.JobReminders)
+            .FirstOrDefaultAsync(d => d.Id == def.Id);
+
+        if (entity == null) return false;
+
+        _context.ScheduledJobDefinitions.Update(def.ToEntity());
+        return true;
     }
 }
 
@@ -68,6 +75,8 @@ internal static class JobDefinitionMappings
             Id = e.Id,
             CustomerId = e.CustomerId,
             AnchorDate = e.AnchorDate,
+            Title = e.Title,
+            Description = e.Description,
             Pattern = new RecurrencePattern(e.Pattern.Frequency, e.Pattern.Interval, e.Pattern.WeekDays),
             JobOccurrences = e.JobOccurrences
                 .Select(o => new JobOccurrenceDomainModel
@@ -88,6 +97,8 @@ internal static class JobDefinitionMappings
         var e = new ScheduledJobDefinition
         {
             Id = d.Id,
+            Title = d.Title,
+            Description = d.Description,
             CustomerId = d.CustomerId,
             AnchorDate = d.AnchorDate,
             Pattern = new RecurrencePattern

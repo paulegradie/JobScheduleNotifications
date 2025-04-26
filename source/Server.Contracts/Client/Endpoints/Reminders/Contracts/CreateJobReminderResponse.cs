@@ -2,4 +2,4 @@
 
 namespace Server.Contracts.Client.Endpoints.Reminders.Contracts;
 
-public sealed record CreateJobReminderResponse(JobReminderDto JobReminderDto);
+public sealed record CreateJobReminderResponse(JobReminderDto JobReminder);

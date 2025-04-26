@@ -2,7 +2,6 @@
 using System.Text.Json;
 using Server.Client.Exceptions;
 using Server.Contracts.Client.Endpoints;
-using Server.Contracts.Client.Endpoints.Auth;
 using Server.Contracts.Common;
 using Server.Contracts.Common.Request;
 
@@ -53,7 +52,19 @@ internal abstract class EndpointBase
             message.Content = JsonContent.Create(request);
 
         // 3. Send
-        using var response = await Client.SendAsync(message, ct);
+        
+        HttpResponseMessage response;
+        try
+        {
+
+            response = await Client.SendAsync(message, ct);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            ;
+            throw;
+        }
 
         // 4. Read body
         var raw = await response.Content.ReadAsStringAsync(ct);

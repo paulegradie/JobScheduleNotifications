@@ -15,13 +15,13 @@ namespace Api.Controllers;
 [ApiController]
 public class ScheduledJobDefinitionsController : ControllerBase
 {
-    private readonly IJobDefinitionRepository _repo;
+    private readonly IScheduledJobDefinitionRepository _repo;
     private readonly IRecurrenceCalculator _calculator;
     private readonly IJobSchedulingService _scheduler;
     private readonly AppDbContext _uow;
 
     public ScheduledJobDefinitionsController(
-        IJobDefinitionRepository repo,
+        IScheduledJobDefinitionRepository repo,
         IRecurrenceCalculator calculator,
         IJobSchedulingService scheduler,
         AppDbContext uow)
@@ -42,9 +42,9 @@ public class ScheduledJobDefinitionsController : ControllerBase
 
     // GET: api/customers/{customerId}/jobs/{jobId}
     [HttpGet(GetScheduledJobDefinitionByIdRequest.Route)]
-    public async Task<ActionResult<GetScheduledJobDefinitionByIdResponse>> GetDefinition([FromRoute] CustomerId customerId, [FromRoute] ScheduledJobDefinitionId jobId)
+    public async Task<ActionResult<GetScheduledJobDefinitionByIdResponse>> GetDefinition([FromRoute] CustomerId customerId, [FromRoute] ScheduledJobDefinitionId jobDefinitionId)
     {
-        var def = await _repo.GetAsync(jobId);
+        var def = await _repo.GetAsync(jobDefinitionId);
         if (def == null || def.CustomerId != customerId)
             return NotFound();
 
@@ -53,9 +53,9 @@ public class ScheduledJobDefinitionsController : ControllerBase
 
     // GET: api/customers/{customerId}/jobs/{jobId}/next
     [HttpGet(GetNextScheduledJobRunRequest.Route)]
-    public async Task<ActionResult<DateTime>> GetNextRun([FromRoute] CustomerId customerId, [FromRoute] ScheduledJobDefinitionId jobId)
+    public async Task<ActionResult<DateTime>> GetNextRun([FromRoute] CustomerId customerId, [FromRoute] ScheduledJobDefinitionId jobDefinitionId)
     {
-        var def = await _repo.GetAsync(jobId);
+        var def = await _repo.GetAsync(jobDefinitionId);
         if (def == null || def.CustomerId != new CustomerId(customerId))
             return NotFound();
 
@@ -71,7 +71,7 @@ public class ScheduledJobDefinitionsController : ControllerBase
     // POST: api/customers/{customerId}/jobs
     [HttpPost(CreateScheduledJobDefinitionRequest.Route)]
     public async Task<ActionResult<CreateScheduledJobDefinitionResponse>> CreateDefinition(
-        [FromRoute] Guid customerId,
+        [FromRoute] CustomerId customerId,
         [FromBody] CreateScheduledJobDefinitionRequest req)
     {
         var def = new ScheduledJobDefinitionDomainModel
@@ -96,14 +96,14 @@ public class ScheduledJobDefinitionsController : ControllerBase
         return new CreateScheduledJobDefinitionResponse(def.ToDto());
     }
 
-    // PATCH: api/customers/{customerId}/jobs/{jobId}
-    [HttpPatch(CreateScheduledJobDefinitionRequest.Route)]
+    // PUG: api/customers/{customerId}/jobs/{jobId}
+    [HttpPut(UpdateScheduledJobDefinitionRequest.Route)]
     public async Task<ActionResult<UpdateScheduledJobDefinitionResponse>> UpdateDefinition(
         [FromRoute] CustomerId customerId,
-        [FromRoute] ScheduledJobDefinitionId jobId,
+        [FromRoute] ScheduledJobDefinitionId jobDefinitionId,
         [FromBody] CreateScheduledJobDefinitionRequest req)
     {
-        var def = await _repo.GetAsync(jobId);
+        var def = await _repo.GetAsync(jobDefinitionId);
         if (def == null || def.CustomerId != customerId)
             return NotFound();
 
@@ -117,7 +117,6 @@ public class ScheduledJobDefinitionsController : ControllerBase
         def.Pattern.DayOfMonth = req.DayOfMonth;
         def.Pattern.CronExpression = req.CronExpression;
 
-        await _repo.UpdateAsync(def);
         await _uow.SaveChangesAsync();
 
         return new UpdateScheduledJobDefinitionResponse(def.ToDto());

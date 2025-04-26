@@ -80,6 +80,7 @@ internal class AuthEndpoint : EndpointBase, IAuthenticationEndpoint
     }
 
     public bool IsAuthenticated => CurrentToken != null;
+    public void SetCurrentToken(TokenInfo tokenInfo) => CurrentToken = tokenInfo;
 
     private TokenInfo? CurrentToken
     {

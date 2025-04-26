@@ -10,6 +10,9 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var url = builder.Configuration.GetSection("BaseUrl").Value;
+builder.WebHost.UseUrls();
+
 builder.Logging.ClearProviders(); // Optional: Clears default providers
 builder.Logging.AddConsole(); // Adds basic console logging
 builder.Logging.AddDebug(); // Useful in Visual Studio output window
@@ -26,6 +29,18 @@ builder.Services.AddConfiguredDbContextAndConventions(builder.Configuration, bui
 builder.Services.AddIdentityServices();
 builder.Services.AddRolePolicies();
 builder.Services.ConfigureAuthentication(builder.Configuration);
+builder.Services.AddHttpContextAccessor();
+builder.WebHost.ConfigureKestrel(options =>
+{
+    // HTTP on 5000 (optional if you still want it)
+    options.ListenLocalhost(5000);
+
+    // HTTPS on 5001 using your dev cert
+    options.ListenLocalhost(5001, listenOptions =>
+    {
+        listenOptions.UseHttps(); 
+    });
+});
 
 var app = builder.Build();
 

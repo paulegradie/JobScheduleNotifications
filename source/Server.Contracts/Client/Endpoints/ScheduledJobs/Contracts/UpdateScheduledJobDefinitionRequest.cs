@@ -24,9 +24,10 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
     public string? Description { get; init; }
     public Frequency? Frequency { get; init; }
     public int? Interval { get; init; }
-    public DayOfWeek[]? DaysOfWeek { get; init; }
+    public WeekDays[]? DaysOfWeek { get; init; }
     public int? DayOfMonth { get; init; }
     public string? CronExpression { get; init; }
+    public DateTime? AnchorDate { get; set; }
 
     private UpdateScheduledJobDefinitionRequest(
         CustomerId customerId,
@@ -35,9 +36,10 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
         string? description = null,
         Frequency? frequency = null,
         int? interval = null,
-        DayOfWeek[]? daysOfWeek = null,
+        WeekDays[]? daysOfWeek = null,
         int? dayOfMonth = null,
-        string? cronExpression = null)
+        string? cronExpression = null,
+        DateTime? anchorDate = null)
         : base(Route)
     {
         CustomerId = customerId;
@@ -49,6 +51,7 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
         DaysOfWeek = daysOfWeek;
         DayOfMonth = dayOfMonth;
         CronExpression = cronExpression;
+        AnchorDate = anchorDate;
     }
 
     public static Builder CreateBuilder(
@@ -64,9 +67,10 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
         private string? _description;
         private Frequency? _frequency;
         private int? _interval;
-        private DayOfWeek[]? _daysOfWeek;
+        private WeekDays[]? _daysOfWeek;
         private int? _dayOfMonth;
         private string? _cronExpression;
+        private DateTime? _anchorDate;
 
         internal Builder(
             CustomerId customerId,
@@ -100,7 +104,7 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
             return this;
         }
 
-        public Builder WithDaysOfWeek(DayOfWeek[] daysOfWeek)
+        public Builder WithWeekDays(WeekDays[] daysOfWeek)
         {
             _daysOfWeek = daysOfWeek;
             return this;
@@ -118,6 +122,12 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
             return this;
         }
 
+        public Builder WithAnchorDate(DateTime anchorDate)
+        {
+            _anchorDate = anchorDate;
+            return this;
+        }
+
         public UpdateScheduledJobDefinitionRequest Build() =>
             new UpdateScheduledJobDefinitionRequest(
                 _customerId,
@@ -128,6 +138,7 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
                 _interval,
                 _daysOfWeek,
                 _dayOfMonth,
-                _cronExpression);
+                _cronExpression,
+                _anchorDate);
     }
 }

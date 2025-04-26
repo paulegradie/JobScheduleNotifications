@@ -1,7 +1,6 @@
 ﻿using Api.Business.Entities.Base;
 using Api.Business.Features.ScheduledJobs;
 using Api.ValueTypes;
-using Server.Contracts.Client.Endpoints.ScheduledJobs;
 using Server.Contracts.Dtos;
 
 namespace Api.Business.Entities;
@@ -19,6 +18,6 @@ public class ScheduledJobDefinitionDomainModel : DomainModelBase<ScheduledJobDef
 
     public override ScheduledJobDefinitionDto ToDto()
     {
-        return new ScheduledJobDefinitionDto(Id, Title, Description, AnchorDate);
+        return new ScheduledJobDefinitionDto(Id, Title, Description, AnchorDate, Pattern.DayOfMonth);
     }
 }

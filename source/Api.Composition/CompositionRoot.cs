@@ -40,7 +40,7 @@ public static class CompositionRoot
             .AddScoped<ICrudRepository<CustomerUser, CustomerId>, CrudRepository<CustomerUser, CustomerId>>()
             .AddScoped<ICrudRepository<CustomerUser, IdentityUserId>, CrudRepository<CustomerUser, IdentityUserId>>()
             .AddScoped<ICrudRepository<JobReminder, JobReminderId>, CrudRepository<JobReminder, JobReminderId>>()
-            .AddScoped<IJobDefinitionRepository, JobDefinitionRepository>()
+            .AddScoped<IScheduledJobDefinitionRepository, ScheduledJobDefinitionRepository>()
             .AddScoped<IJobOccurrenceRepository, JobOccurrenceRepository>()
             .AddScoped<IJobReminderRepository, JobReminderRepository>();
     }

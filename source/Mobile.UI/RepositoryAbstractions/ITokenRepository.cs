@@ -9,5 +9,5 @@ public interface ITokenRepository
     string? RetrieveToken();
     Task ClearTokenAsync();
     Task StoreTokenMeta(TokenInfo tokenInfo);
-    Task<TokenInfo> RetrieveTokenMeta();
+    Task<TokenInfo?> RetrieveTokenMeta();
 }

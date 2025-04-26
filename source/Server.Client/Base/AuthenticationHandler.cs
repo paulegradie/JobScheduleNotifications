@@ -1,34 +1,41 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
+using Server.Contracts.Client;
 using Server.Contracts.Client.Endpoints.Auth;
 
 namespace Server.Client.Base;
 
 public class AuthenticationHandler : DelegatingHandler
 {
-    private readonly IAuthenticationEndpoint _authEndpoint;
+    private readonly IAuthClient _authClient;
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 
-    public AuthenticationHandler(IAuthenticationEndpoint authEndpoint)
+    public AuthenticationHandler(IAuthClient authClient)
     {
-        _authEndpoint = authEndpoint;
+        _authClient = authClient;
     }
 
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override async Task<HttpResponseMessage> SendAsync(
+        HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        // Add token to request
-        var token = await _authEndpoint.GetValidTokenAsync();
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var token = await _authClient.Auth.GetValidTokenAsync();
+        // only set the header if we have one
+        if (!string.IsNullOrEmpty(token))
+        {
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
 
         var response = await base.SendAsync(request, cancellationToken);
 
-        // If unauthorized, token might be expired
-        if (response.StatusCode == HttpStatusCode.Unauthorized)
-        {
-            token = await _authEndpoint.GetValidTokenAsync();
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            response = await base.SendAsync(request, cancellationToken);
-        }
+        // if 401, kick off a refresh and retry once
+        if (response.StatusCode != HttpStatusCode.Unauthorized) return response;
+
+        token = await _authClient.Auth.GetValidTokenAsync();
+
+        if (string.IsNullOrEmpty(token)) return response;
+
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        response = await base.SendAsync(request, cancellationToken);
 
         return response;
     }

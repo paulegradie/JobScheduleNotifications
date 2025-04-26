@@ -10,13 +10,11 @@ namespace Mobile.UI.Pages;
 
 public sealed class HomePage : BasePage<HomePageViewModel>
 {
-    private readonly IServerClient _serverClient;
-    private readonly ITokenRepository _tokenRepository;
+    private readonly HomePageViewModel _vm;
 
-    public HomePage(HomePageViewModel vm, IServerClient serverClient, ITokenRepository tokenRepository) : base(vm)
+    public HomePage(HomePageViewModel vm) : base(vm)
     {
-        _serverClient = serverClient;
-        _tokenRepository = tokenRepository;
+        _vm = vm;
         Title = "Welcome";
 
         /*──────── visual tree ────────*/
@@ -106,39 +104,13 @@ public sealed class HomePage : BasePage<HomePageViewModel>
         Footer
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        var newTestRego = new RegisterNewAdminRequest
-        {
-            Email = "testowner@gmail.com",
-            Password = "TestPassword123!",
-            BusinessName = "Paul",
-            FirstName = "Paul",
-            LastName = "Gradie",
-            PhoneNumber = "860753044",
-            BusinessDescription = "Demo Business"
-        };
-
-        var registered = _serverClient.Auth.RegisterAsync(newTestRego, CancellationToken.None).GetAwaiter().GetResult();
-        if (!registered.IsSuccess)
-        {
-            throw new InvalidOperationException($"User registration failed during test setup - {registered.ErrorMessage}");
-        }
-
-        var token = _serverClient.Auth.LoginAsync(new SignInRequest(newTestRego.Email, newTestRego.Password), CancellationToken.None).GetAwaiter().GetResult();
-        if (!token.IsSuccess)
-        {
-            throw new Exception($"Failed to login! {token.ErrorMessage}");
-        }
-
-        _tokenRepository.StoreTokenMeta(token.Value);
-
-        if (token?.Value is null || string.IsNullOrEmpty(token.Value.AccessToken))
-            throw new InvalidOperationException("Login failed — no token returned");
-
-        _serverClient.Http.DefaultRequestHeaders.Authorization = new("Bearer", token.Value.AccessToken);
-
+#if DEBUG
+        await _vm.AutoLoginForDev();
+#endif
+        
         try
         {
             if (SemanticScreenReader.Default != null)
