@@ -57,7 +57,7 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
             return;
 
         entity.OccurrenceDate = occurrence.OccurrenceDate;
-
+        entity.ScheduledJobDefinitionId = occurrence.ScheduledJobDefinitionId;
         _context.JobOccurrences.Update(entity);
         await _context.SaveChangesAsync();
         occurrence.Id = entity.Id;

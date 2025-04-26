@@ -17,7 +17,6 @@ public record ListJobRemindersRequest(CustomerId CustomerId, ScheduledJobDefinit
         {
             route.AddQueryParam(JobOccurrenceIsSentQueryParam, IsSent?.ToString() ?? string.Empty);
         }
-
         return route;
     }
 }

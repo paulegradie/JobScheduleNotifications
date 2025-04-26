@@ -81,12 +81,19 @@ internal static class JobDefinitionMappings
             JobOccurrences = e.JobOccurrences
                 .Select(o => new JobOccurrenceDomainModel
                 {
+                    Id = o.Id,
+                    ScheduledJobDefinitionId = o.ScheduledJobDefinitionId,
                     OccurrenceDate = o.OccurrenceDate,
                     JobReminders = o.JobReminders
                         .Select(r => new JobReminderDomainModel
                         {
-                            ReminderDateTime = r.ReminderDateTime
-                            // …etc
+                            ReminderDateTime = r.ReminderDateTime,
+                            JobOccurrenceId = o.Id,
+                            ScheduledJobDefinitionId = o.ScheduledJobDefinitionId,
+                            Id = r.Id,
+                            IsSent = r.IsSent,
+                            SentDate = r.SentDate,
+                            Message = r.Message
                         }).ToList()
                 })
                 .ToList()
@@ -110,6 +117,8 @@ internal static class JobDefinitionMappings
             JobOccurrences = d.JobOccurrences
                 .Select(o => new JobOccurrence
                 {
+                    Id = o.Id,
+                    ScheduledJobDefinitionId = d.Id,
                     OccurrenceDate = o.OccurrenceDate,
                     JobReminders = o.JobReminders
                         .Select(r => new JobReminder

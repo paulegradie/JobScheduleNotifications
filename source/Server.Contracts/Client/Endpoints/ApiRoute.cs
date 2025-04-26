@@ -17,12 +17,6 @@ public class ApiRoute
         return this;
     }
 
-    public ApiRoute AddSegment(string segment)
-    {
-        _path = Path.Combine(_path, segment).Replace("\\", "/");
-        return this;
-    }
-
     public ApiRoute AddRouteParam(string key, string value)
     {
         _path = _path.Replace(key, value);

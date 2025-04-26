@@ -15,7 +15,7 @@ public class JobReminderDomainModel : DomainModelBase<JobReminderDto>
     public DateTime? SentDate { get; set; }
 
     public override JobReminderDto ToDto()
-        => new JobReminderDto
+        => new()
         {
             Id = Id,
             ScheduledJobDefinitionId = ScheduledJobDefinitionId,

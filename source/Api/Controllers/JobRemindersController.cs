@@ -55,13 +55,13 @@ public class JobRemindersController : ControllerBase
     public async Task<ActionResult<GetJobReminderByIdResponse>> Get(
         [FromRoute] CustomerId customerId,
         [FromRoute] ScheduledJobDefinitionId jobDefinitionId,
-        [FromRoute] JobReminderId reminderId)
+        [FromRoute] JobReminderId jobReminderId)
     {
         var def = await _scheduledJobDefRepo.GetAsync(jobDefinitionId);
         if (def == null || def.CustomerId != customerId)
             return NotFound();
 
-        var r = await _remRepo.GetByIdAsync(reminderId);
+        var r = await _remRepo.GetByIdAsync(jobReminderId);
         if (r == null || r.ScheduledJobDefinitionId != jobDefinitionId)
             return NotFound();
 
@@ -71,7 +71,9 @@ public class JobRemindersController : ControllerBase
     // POST: …/reminders
     [HttpPost(CreateJobReminderRequest.Route)]
     public async Task<ActionResult<CreateJobReminderResponse>> Create(
-        [FromBody] CreateJobReminderRequest req)
+        [FromBody] CreateJobReminderRequest req,
+        [FromRoute] CustomerId customerId,
+        [FromRoute] ScheduledJobDefinitionId jobDefinitionId)
     {
         // validate definition & customer
         var def = await _scheduledJobDefRepo.GetAsync(req.JobDefinitionId);
@@ -88,7 +90,6 @@ public class JobRemindersController : ControllerBase
 
         var domain = new JobReminderDomainModel
         {
-            Id = new JobReminderId(Guid.NewGuid()),
             JobOccurrenceId = occ.Id,
             ScheduledJobDefinitionId = req.JobDefinitionId,
             ReminderDateTime = req.ReminderDateTime,
@@ -98,7 +99,6 @@ public class JobRemindersController : ControllerBase
         };
 
         await _remRepo.AddAsync(domain);
-        await _uow.SaveChangesAsync();
 
         return Ok(new CreateJobReminderResponse(domain.ToDto()));
     }
@@ -129,13 +129,13 @@ public class JobRemindersController : ControllerBase
     public async Task<IActionResult> Delete(
         [FromRoute] CustomerId customerId,
         [FromRoute] ScheduledJobDefinitionId jobDefinitionId,
-        [FromRoute] JobReminderId reminderId)
+        [FromRoute] JobReminderId jobReminderId)
     {
         var def = await _scheduledJobDefRepo.GetAsync(jobDefinitionId);
         if (def == null || def.CustomerId != customerId)
             return NotFound();
 
-        var r = await _remRepo.GetByIdAsync(reminderId);
+        var r = await _remRepo.GetByIdAsync(jobReminderId);
         if (r == null || r.ScheduledJobDefinitionId != jobDefinitionId)
             return NotFound();
 
@@ -149,13 +149,13 @@ public class JobRemindersController : ControllerBase
     public async Task<ActionResult<AcknowledgeJobReminderResponse>> Acknowledge(
         [FromRoute] CustomerId customerId,
         [FromRoute] ScheduledJobDefinitionId jobDefinitionId,
-        [FromRoute] JobReminderId reminderId)
+        [FromRoute] JobReminderId jobReminderId)
     {
         var def = await _scheduledJobDefRepo.GetAsync(jobDefinitionId);
         if (def == null || def.CustomerId != customerId)
             return NotFound();
 
-        var r = await _remRepo.GetByIdAsync(reminderId);
+        var r = await _remRepo.GetByIdAsync(jobReminderId);
         if (r == null || r.ScheduledJobDefinitionId != jobDefinitionId)
             return NotFound();
 

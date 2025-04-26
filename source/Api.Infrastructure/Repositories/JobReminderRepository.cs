@@ -21,17 +21,13 @@ public class JobReminderRepository : IJobReminderRepository
 
     public JobReminderRepository(
         ICrudRepository<JobReminder, JobReminderId> reminders,
-        ICrudRepository<JobOccurrence, JobOccurrenceId> occurrences)
+        ICrudRepository<JobOccurrence, JobOccurrenceId> occurrences,
+        AppDbContext context)
     {
         _reminders   = reminders;
         _occurrences = occurrences;
-    }
-        
-    public JobReminderRepository(AppDbContext context)
-    {
         _context = context;
     }
-
     public async Task<IEnumerable<JobReminderDomainModel>> ListByOccurrenceAsync(
         JobOccurrenceId occurrenceId,
         bool? isSent = null)
@@ -115,7 +111,6 @@ public class JobReminderRepository : IJobReminderRepository
     {
         var e = new JobReminder
         {
-            Id               = reminder.Id,
             JobOccurrenceId  = reminder.JobOccurrenceId,
             ReminderDateTime = reminder.ReminderDateTime,
             Message          = reminder.Message,
@@ -125,6 +120,9 @@ public class JobReminderRepository : IJobReminderRepository
 
         _context.Add(e);
         await _context.SaveChangesAsync();
+        reminder.Id = e.Id;
+        reminder.JobOccurrenceId = e.JobOccurrenceId;
+        reminder.ScheduledJobDefinitionId = e.JobOccurrence.ScheduledJobDefinitionId;
     }
 
     public async Task UpdateAsync(JobReminderDomainModel reminder)

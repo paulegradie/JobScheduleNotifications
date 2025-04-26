@@ -95,8 +95,11 @@ namespace Api.Controllers
             var occ = await _occRepo.GetByIdAsync(req.JobOccurrenceId);
             if (occ == null || occ.ScheduledJobDefinitionId != req.JobDefinitionId)
                 return NotFound();
-
+            
             occ.OccurrenceDate = req.OccurrenceDate;
+            occ.ScheduledJobDefinitionId = req.JobDefinitionId;
+            await _occRepo.UpdateAsync(occ);
+            
             await _uow.SaveChangesAsync();
             return Ok(new UpdateJobOccurrenceResponse(occ.ToDto()));
         }
