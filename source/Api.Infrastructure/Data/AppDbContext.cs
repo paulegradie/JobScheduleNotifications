@@ -18,7 +18,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
 
 
     // Domain Tables
-    public DbSet<Customer> Customers { get; set; } //=> Set<Customer>();
+    public DbSet<Customer> Customers { get; set; }
     public DbSet<ScheduledJobDefinition> ScheduledJobDefinitions { get; set; }
     public DbSet<JobOccurrence> JobOccurrences { get; set; }
     public DbSet<JobReminder> JobReminders { get; set; }
@@ -43,7 +43,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
         _conventions = conventions;
         _currentUserId = currentUserService.UserId;
     }
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -52,7 +52,25 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
             u
                 .Property(u => u.Id)
                 .HasConversion<IdentityUserIdValueConverter>()
-                .HasValueGenerator<IdentityUserIdValueGenerator>()
+                .HasValueGenerator<IdentityUserIdValueGenerator>();
+        });
+
+
+        modelBuilder.Entity<IdentityRole<IdentityUserId>>(t =>
+        {
+            t.Property(x => x.Id)
+                .HasConversion<IdentityUserIdValueConverter>()
+                .HasValueGenerator<IdentityUserIdValueGenerator>();
+            t.Property(x => x.NormalizedName).HasMaxLength(256);
+        });
+
+
+        modelBuilder.Entity<Organization>(o =>
+        {
+            o.HasKey(b => b.Id);
+            o.Property(p => p.Id)
+                .HasValueGenerator<OrganizationIdValueGenerator>()
+                .HasConversion<OrganizationIdValueConverter>()
                 .ValueGeneratedOnAdd();
         });
 
@@ -128,7 +146,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
                     .WithOne(o => o.ScheduledJobDefinition)
                     .HasForeignKey(o => o.ScheduledJobDefinitionId)
                     .OnDelete(DeleteBehavior.Cascade);
-                    ;
+                ;
             });
 
         // Occurrence → Reminders
@@ -146,7 +164,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
                     .WithOne(r => r.JobOccurrence)
                     .HasForeignKey(r => r.JobOccurrenceId)
                     .OnDelete(DeleteBehavior.Cascade);
-
             });
 
         modelBuilder.Entity<JobReminder>(entity =>

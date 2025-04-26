@@ -28,12 +28,40 @@ namespace Mobile
                     fonts.AddFont("FluentSystemIcons-Regular.ttf", FluentUI.FontFamily);
                 });
 
-#if DEBUG
+// #if DEBUG
             builder.Logging.AddDebug();
-#endif
+            builder.Logging.AddConsole();
+
+// #endif
             builder.Services.ComposeServices();
 
-            return builder.Build();
+            var app =  builder.Build();
+            //  ─── catch WinUI (Windows) XAML exceptions ─────────────────────────────────────────────────
+#if WINDOWS
+            Microsoft.UI.Xaml.Application.Current.UnhandledException += (winSender, winArgs) =>
+            {
+                var log = app.Services.GetRequiredService<ILogger<Program>>();
+                log.LogError(winArgs.Exception, "WinUI UnhandledException");
+                // winArgs.Handled = true;    // if you want to swallow it
+            };
+#endif
+
+            //  ─── catch any AppDomain‐level exceptions (cross‐platform) ────────────────────────────────────
+            AppDomain.CurrentDomain.UnhandledException += (domSender, domArgs) =>
+            {
+                var ex = domArgs.ExceptionObject as Exception;
+                var log = app.Services.GetRequiredService<ILogger<Program>>();
+                log.LogError(ex, "AppDomain UnhandledException");
+            };
+
+            //  ─── catch unobserved Task‐based exceptions ─────────────────────────────────────────────────
+            TaskScheduler.UnobservedTaskException += (tskSender, tskArgs) =>
+            {
+                var log = app.Services.GetRequiredService<ILogger<Program>>();
+                log.LogError(tskArgs.Exception, "UnobservedTaskException");
+                tskArgs.SetObserved();
+            };
+
         }
     }
 }
