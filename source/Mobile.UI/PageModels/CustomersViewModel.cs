@@ -12,14 +12,11 @@ public partial class CustomersViewModel : ObservableObject
     private readonly ICustomerRepository _customerService;
     private readonly INavigationRepository _navigation;
 
-    [ObservableProperty]
-    private bool _isLoading;
+    [ObservableProperty] private bool _isLoading;
 
-    [ObservableProperty]
-    private string _searchText = string.Empty;
+    [ObservableProperty] private string _searchText = string.Empty;
 
-    [ObservableProperty]
-    private ObservableCollection<CustomerDto> _customers = new();
+    [ObservableProperty] private ObservableCollection<CustomerDto> _customers = new();
 
     public CustomersViewModel(
         ICustomerRepository customerService,
@@ -41,10 +38,21 @@ public partial class CustomersViewModel : ObservableObject
             foreach (var c in list.Value)
                 Customers.Add(c);
         }
-        finally { IsLoading = false; }
+        finally
+        {
+            IsLoading = false;
+        }
     }
-    
-    
+
+    [RelayCommand]
+    private async Task ScheduleJobAsync(CustomerDto? customer)
+    {
+        if (customer == null) return;
+        await _navigation.GoToAsync(
+            nameof(AddScheduledJobPage),
+            new Dictionary<string, object> { { "customerId", customer.Id.ToString() } });
+    }
+
     [RelayCommand]
     private async Task AddCustomerAsync()
         => await _navigation.GoToAsync(nameof(CreateCustomerPage));
@@ -55,7 +63,7 @@ public partial class CustomersViewModel : ObservableObject
         if (customer == null) return;
         await _navigation.GoToAsync(
             nameof(CustomerPage),
-            new Dictionary<string, object?> { { "customerId", customer.Id } });
+            new Dictionary<string, object> { { "customerId", customer.Id.ToString() } });
     }
 
     [RelayCommand]

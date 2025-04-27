@@ -67,12 +67,7 @@ public partial class CreateCustomerViewModel : ObservableObject
                 return;
             }
 
-            await _navigation.GoToAsync(
-                nameof(CustomerPage),
-                new Dictionary<string, object?>
-                {
-                    { "customerId", result.Value.Id }
-                });
+            await _navigation.GoToAsync(nameof(CustomersPage));
         }
         catch
         {

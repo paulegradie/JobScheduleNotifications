@@ -2,7 +2,7 @@ namespace Mobile.UI.RepositoryAbstractions;
 
 public interface INavigationRepository
 {
-    Task GoToAsync(string route, IDictionary<string, object>? parameters = null);
+    Task GoToAsync(string route, Dictionary<string, object>? parameters = null);
     Task GoBackAsync();
     Task ShowAlertAsync(string title, string message);
     Task<bool> ShowConfirmationAsync(string title, string message);

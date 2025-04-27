@@ -4,7 +4,7 @@ namespace Mobile.Infrastructure.Repositories;
 
 public class NavigationRepository : INavigationRepository
 {
-    public async Task GoToAsync(string route, IDictionary<string, object>? parameters = null)
+    public async Task GoToAsync(string route, Dictionary<string, object>? parameters = null)
     {
         if (parameters != null)
         {

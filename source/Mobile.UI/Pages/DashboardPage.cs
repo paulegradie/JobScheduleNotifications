@@ -124,7 +124,7 @@ public sealed class DashboardPage : BasePage<DashboardViewModel>
             Children =
             {
                 SolidButton("Manage Customers", nameof(vm.NavigateToCustomersCommand), blue),
-                SolidButton("Schedule New Job", nameof(vm.NavigateToScheduleJobCommand), green),
+                // SolidButton("Schedule New Job", nameof(vm.NavigateToScheduleJobCommand), green),
                 SolidButton("Logout", nameof(vm.LogoutCommand), red)
             }
         };

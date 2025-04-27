@@ -1,5 +1,6 @@
 // CustomerViewModel.cs
 
+using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.Pages;
@@ -12,7 +13,7 @@ public partial class CustomerViewModel : ObservableObject
     private readonly ICustomerRepository _repository;
     private readonly INavigationRepository _navigation;
 
-    [ObservableProperty] private Guid _customerId;
+    [ObservableProperty] private CustomerId _customerId;
 
     [ObservableProperty] private string _firstName = string.Empty;
 
@@ -46,7 +47,7 @@ public partial class CustomerViewModel : ObservableObject
         try
         {
             var result = await _repository.GetCustomerByIdAsync(id);
-            if (result.IsSuccess && result.Value != null)
+            if (result is { IsSuccess: true, Value: not null })
             {
                 CustomerId = result.Value.Id;
                 FirstName = result.Value.FirstName;
@@ -73,12 +74,12 @@ public partial class CustomerViewModel : ObservableObject
     [RelayCommand]
     private async Task EditCustomerAsync()
     {
-        if (CustomerId == Guid.Empty) return;
+        if (CustomerId.Value == Guid.Empty) return;
         await _navigation.GoToAsync(
             nameof(CustomerEditPage),
-            new Dictionary<string, object?>
+            new Dictionary<string, object>
             {
-                { "customerId", CustomerId }
+                { "customerId", CustomerId.Value.ToString() }
             });
     }
 }

@@ -70,11 +70,11 @@ public partial class DashboardViewModel : ObservableObject
         await _navigationUtility.GoToAsync(nameof(CustomersPage));
     }
 
-    [RelayCommand]
-    private async Task NavigateToScheduleJob()
-    {
-        await _navigationUtility.GoToAsync(nameof(ScheduledJobPage));
-    }
+    // [RelayCommand]
+    // private async Task NavigateToScheduleJob()
+    // {
+    //     await _navigationUtility.GoToAsync(nameof(ScheduledJobPage));
+    // }
 
     [RelayCommand]
     private async Task Logout()
