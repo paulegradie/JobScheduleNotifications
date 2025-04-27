@@ -9,10 +9,12 @@ public interface ICurrentUserService
 {
     IdentityUserId? UserId { get; set; }
     CustomerId? CustomerId { get; set; }
+    OrganizationId? OrganizationId { get; set; }
 }
 
 public record CurrentUserService : ICurrentUserService
 {
     public IdentityUserId? UserId { get; set; }
     public CustomerId? CustomerId { get; set; }
+    public OrganizationId? OrganizationId { get; set; }
 }

@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.Pages;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Endpoints.Customers.Contracts;
-using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Mobile.UI.PageModels;
 

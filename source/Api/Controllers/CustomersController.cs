@@ -67,7 +67,9 @@ public class CustomersController : ControllerBase
         var userId = _currentUserService.UserId
                      ?? throw new InvalidOperationException("User not logged in");
 
-        var dto = await _customerService.CreateCustomerAsync(req, userId);
+        var orgId = _currentUserService.OrganizationId ?? throw new InvalidOperationException("User not assigned to an organization.");
+
+        var dto = await _customerService.CreateCustomerAsync(req, userId, orgId);
 
         return Ok(new CreateCustomerResponse(dto));
     }

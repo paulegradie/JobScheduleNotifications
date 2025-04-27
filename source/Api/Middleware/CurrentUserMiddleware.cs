@@ -24,7 +24,15 @@ public class CurrentUserMiddleware
 
             var custIdStr = context.User.FindFirstValue("customer_id");
             if (Guid.TryParse(custIdStr, out var cid))
+            {
                 currentUserService.CustomerId = cid;
+            }
+
+            var orgIdStr = context.User.FindFirstValue("organization_id");
+            if (Guid.TryParse(orgIdStr, out var oid))
+            {
+                currentUserService.OrganizationId = oid;
+            }
         }
 
         await _next(context);

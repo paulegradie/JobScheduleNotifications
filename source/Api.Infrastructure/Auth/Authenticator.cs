@@ -1,8 +1,10 @@
 ﻿using System.Security.Authentication;
+using Api.Infrastructure.Data;
 using Api.Infrastructure.DbTables.OrganizationModels;
 using Api.Infrastructure.Identity;
 using Api.ValueTypes;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Server.Contracts.Endpoints.Auth.Contracts;
 
 namespace Api.Infrastructure.Auth;
@@ -15,15 +17,18 @@ public class Authenticator : IAuthenticator
     private readonly IJwt _jwt;
     private readonly UserManager<ApplicationUserRecord> _userManager;
     private readonly SignInManager<ApplicationUserRecord> _signInManager;
+    private readonly AppDbContext _context;
 
     public Authenticator(
         IJwt jwt,
         UserManager<ApplicationUserRecord> userManager,
-        SignInManager<ApplicationUserRecord> signInManager)
+        SignInManager<ApplicationUserRecord> signInManager,
+        AppDbContext context)
     {
         _jwt = jwt;
         _userManager = userManager;
         _signInManager = signInManager;
+        _context = context;
     }
 
     public async Task<AppSignInResult> SignIn(
@@ -49,8 +54,7 @@ public class Authenticator : IAuthenticator
             throw new AuthenticationException("Invalid login attempt");
         }
 
-        var user = await _userManager.FindByNameAsync(email)
-                   ?? throw new AuthenticationException("User not found after sign-in");
+        var user = await _userManager.FindByNameAsync(email) ?? throw new AuthenticationException("User not found after sign-in");
 
         // fetch all roles for this user
         var roles = await _userManager.GetRolesAsync(user);
@@ -59,8 +63,16 @@ public class Authenticator : IAuthenticator
         CustomerId? custId = null;
         // e.g. if (roles.Contains(Roles.Customer)) { ... lookup from CustomerUsers }
 
+        var orgId = await _context.OrganizationUsers
+            .Where(ou => ou.IdentityUserId == user.Id)
+            .Select(ou => ou.OrganizationId)
+            .SingleOrDefaultAsync(cancellationToken);
+        if (orgId == null)
+            throw new AuthenticationException("User not assigned to an organization");
+
+
         // generate tokens
-        var accessToken = _jwt.GenerateJwtToken(user.Id, user.UserName!, roles, custId);
+        var accessToken = _jwt.GenerateJwtToken(user.Id, user.UserName!, roles, customerId: custId, organizationId: orgId);
         var refreshToken = _jwt.GenerateRefreshToken();
 
         // persist refresh token
@@ -109,7 +121,8 @@ public class Authenticator : IAuthenticator
         await _userManager.AddToRoleAsync(newUser, Roles.OrganizationAdmin);
         await _userManager.AddToRoleAsync(newUser, Roles.OrganizationMember);
 
-        return new RegistrationResult(newUser.UserName!);
+        return new RegistrationResult(newUser.UserName!, newUser.Id);
+        ;
     }
 
     public async Task<AppSignInResult> RefreshToken(

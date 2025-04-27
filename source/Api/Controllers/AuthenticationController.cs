@@ -1,6 +1,9 @@
 using System.Security.Authentication;
 using Api.Controllers.Base;
 using Api.Infrastructure.Auth;
+using Api.Infrastructure.Data;
+using Api.Infrastructure.DbTables.OrganizationModels;
+using Api.Infrastructure.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Server.Contracts.Dtos;
@@ -12,10 +15,12 @@ namespace Api.Controllers;
 public class AuthenticationController : BaseApiController
 {
     private readonly IAuthenticator _authenticator;
+    private readonly AppDbContext _uow;
 
-    public AuthenticationController(IAuthenticator authenticator)
+    public AuthenticationController(IAuthenticator authenticator, AppDbContext uow)
     {
         _authenticator = authenticator;
+        _uow = uow;
     }
 
     [HttpPost(RegisterNewAdminRequest.Route)]
@@ -25,6 +30,21 @@ public class AuthenticationController : BaseApiController
         try
         {
             var result = await _authenticator.Register(request, cancellationToken);
+
+            var org = new Organization()
+            {
+                Customers = { },
+                Name = $"{result.Email}'s Org",
+                OrganizationUsers = { },
+            };
+            org.OrganizationUsers.Add(new OrganizationUser
+            {
+                IdentityUserId = result.IdentityUserId,
+                Role = OrganizationRole.Owner
+            });
+            _uow.Organizations.Add(org);
+            await _uow.SaveChangesAsync(cancellationToken);
+
             return Ok(new RegisterResponse(result.Email));
         }
         catch (InvalidOperationException ex)

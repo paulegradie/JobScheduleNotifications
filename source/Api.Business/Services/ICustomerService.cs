@@ -6,5 +6,5 @@ namespace Api.Business.Services;
 
 public interface ICustomerService
 {
-    Task<CustomerDto> CreateCustomerAsync(CreateCustomerRequest request, IdentityUserId currentUserId);
+    Task<CustomerDto> CreateCustomerAsync(CreateCustomerRequest request, IdentityUserId currentUserId, OrganizationId organizationId);
 }

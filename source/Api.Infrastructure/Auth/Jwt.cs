@@ -14,7 +14,8 @@ public interface IJwt
         IdentityUserId userId,
         string userName,
         IEnumerable<string> roles,
-        CustomerId? customerId = null);
+        CustomerId? customerId = null,
+        OrganizationId? organizationId = null);
 
     RefreshToken GenerateRefreshToken();
     ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
@@ -33,7 +34,8 @@ public class Jwt : IJwt
         IdentityUserId userId,
         string userName,
         IEnumerable<string> roles,
-        CustomerId? customerId = null)
+        CustomerId? customerId = null,
+        OrganizationId? organizationId = null)
     {
         var key = Encoding.UTF8.GetBytes(_opts.Key);
         var creds = new SigningCredentials(
@@ -55,6 +57,11 @@ public class Jwt : IJwt
         if (customerId.HasValue)
         {
             claims.Add(new Claim("customer_id", customerId.Value.ToString()));
+        }
+
+        if (organizationId.HasValue)
+        {
+            claims.Add(new Claim("organization_id", organizationId.Value.ToString()));
         }
 
         var token = new JwtSecurityToken(

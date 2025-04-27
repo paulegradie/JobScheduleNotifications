@@ -1,3 +1,5 @@
-﻿namespace Api.Infrastructure.Auth;
+﻿using Api.ValueTypes;
 
-public record RegistrationResult(string Email);
+namespace Api.Infrastructure.Auth;
+
+public record RegistrationResult(string Email, IdentityUserId IdentityUserId);

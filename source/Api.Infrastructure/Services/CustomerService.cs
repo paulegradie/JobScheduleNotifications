@@ -28,7 +28,7 @@ public class CustomerService : ICustomerService
         _mapper = mapper;
     }
 
-    public async Task<CustomerDto> CreateCustomerAsync(CreateCustomerRequest req, IdentityUserId currentUserId)
+    public async Task<CustomerDto> CreateCustomerAsync(CreateCustomerRequest req, IdentityUserId currentUserId, OrganizationId organizationId)
     {
         // 1) Create the Identity user
         var identityUser = new ApplicationUserRecord(req.Email, req.PhoneNumber);
@@ -46,7 +46,8 @@ public class CustomerService : ICustomerService
             LastName = req.LastName,
             Email = req.Email,
             PhoneNumber = req.PhoneNumber,
-            Notes = req.Notes
+            Notes = req.Notes,
+            OrganizationId = organizationId,
         };
 
         var createdCustomer = await _customerRepo.AddAsync(customer);

@@ -1,4 +1,5 @@
-﻿using Api.ValueTypes;
+﻿using Api.Infrastructure.Identity;
+using Api.ValueTypes;
 
 namespace Api.Infrastructure.DbTables.OrganizationModels;
 

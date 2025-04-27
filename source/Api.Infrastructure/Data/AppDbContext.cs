@@ -87,6 +87,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
 
             b.Property(x => x.IdentityUserId).HasConversion<IdentityUserIdValueConverter>().IsRequired();
             b.Property(x => x.OrganizationId).HasConversion<OrganizationIdValueConverter>().IsRequired();
+
+            b.Property(x => x.Role).HasConversion<OrganizationRoleConverter>().IsRequired();
         });
 
         modelBuilder
