@@ -6,11 +6,8 @@ namespace Mobile.UI.Pages;
 
 public sealed class CreateCustomerPage : BasePage<CreateCustomerViewModel>
 {
-    private readonly CreateCustomerViewModel _vm;
-
     public CreateCustomerPage(CreateCustomerViewModel vm) : base(vm)
     {
-        _vm = vm;
         Title = "Add Customer";
 
         Content = new ScrollView
