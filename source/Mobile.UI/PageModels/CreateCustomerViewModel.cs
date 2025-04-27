@@ -80,6 +80,20 @@ public partial class CreateCustomerViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task CancelCommand()
-        => await _navigation.GoBackAsync();
+    private async Task Cancel()
+    {
+        var cancelled = await _navigation.ShowConfirmationAsync(
+            "You cancelled!",
+            $"Cancelling that shiz"
+        );
+
+        if (cancelled)
+        {
+            await _navigation.GoBackAsync();
+        }
+        else
+        {
+            await _navigation.ShowAlertAsync("You cancelled!", "Thats good!");
+        }
+    }
 }

@@ -55,5 +55,9 @@ public abstract partial class BasePage<TViewModel>(TViewModel vm)
     : BasePage(vm)
     where TViewModel : class
 {
-    protected new TViewModel BindingContext => (TViewModel)base.BindingContext;
+    protected new TViewModel BindingContext
+    {
+        get { return (TViewModel)base.BindingContext; }
+        set { base.BindingContext = value; }
+    }
 }

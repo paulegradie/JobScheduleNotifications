@@ -87,7 +87,7 @@ public partial class HomePageViewModel : ObservableObject
             new AuthenticationHeaderValue("Bearer", token.Value.AccessToken);
 
         // — now navigate to Dashboard —
-        await _navigation.GoToAsync(nameof(DashboardPage));
+        await _navigation.GoToAsync(nameof(CustomersPage));
 #endif
     }
 }

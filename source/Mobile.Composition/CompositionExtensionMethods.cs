@@ -13,42 +13,28 @@ namespace Mobile.Composition;
 
 public static class CompositionExtensionMethods
 {
+    private static void RegisterPageAndModel<TPage, TModel>(this IServiceCollection services) where TModel : class where TPage : class
+    {
+        services.AddSingleton<TPage>();
+        services.AddSingleton<TModel>();
+    }
+
     public static void ComposeServices(this IServiceCollection services)
     {
 #if DEBUG
         services.AddLogging(configure => configure.AddDebug());
 #endif
 
-        // Pages
-        services.AddSingleton<HomePage>();
-        services.AddSingleton<HomePageViewModel>();
-
-        services.AddSingleton<LoginPage>();
-        services.AddSingleton<LoginViewModel>();
-
-        services.AddSingleton<RegisterPage>();
-        services.AddSingleton<RegisterViewModel>();
-
-        services.AddSingleton<DashboardPage>();
-        services.AddSingleton<DashboardViewModel>();
-
-        services.AddSingleton<CustomersPage>();
-        services.AddSingleton<CustomersViewModel>();
-
-        services.AddSingleton<CreateCustomerPage>();
-        services.AddSingleton<CreateCustomerViewModel>();
-
-        services.AddSingleton<CustomerPage>();
-        services.AddSingleton<CustomerViewModel>();
-
-        services.AddSingleton<CustomerEditPage>();
-        services.AddSingleton<CustomerEditViewModel>();
-
-        services.AddSingleton<ScheduledJobPage>();
-        services.AddSingleton<ScheduledJobViewModel>();
-
-        services.AddSingleton<AddScheduledJobPage>();
-        services.AddSingleton<AddScheduledJobViewModel>();
+        services.RegisterPageAndModel<HomePage, HomePageViewModel>();
+        services.RegisterPageAndModel<LoginPage, LoginViewModel>();
+        services.RegisterPageAndModel<RegisterPage, RegisterViewModel>();
+        services.RegisterPageAndModel<DashboardPage, DashboardViewModel>();
+        services.RegisterPageAndModel<CustomersPage, CustomersViewModel>();
+        services.RegisterPageAndModel<CreateCustomerPage, CreateCustomerViewModel>();
+        services.RegisterPageAndModel<CustomerPage, CustomerViewModel>();
+        services.RegisterPageAndModel<CustomerEditPage, CustomerEditViewModel>();
+        services.RegisterPageAndModel<ScheduledJobPage, ScheduledJobViewModel>();
+        services.RegisterPageAndModel<AddScheduledJobPage, AddScheduledJobViewModel>();
 
         // Service
         services.AddDomainServices();

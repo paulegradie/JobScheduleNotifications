@@ -7,8 +7,11 @@ namespace Mobile.UI.Pages;
 
 public sealed class DashboardPage : BasePage<DashboardViewModel>
 {
+    private readonly DashboardViewModel _vm;
+
     public DashboardPage(DashboardViewModel vm) : base(vm)
     {
+        _vm = vm;
         Title = vm.Title;
 
         /* Direct colour constants (no resource lookup) */
@@ -34,11 +37,13 @@ public sealed class DashboardPage : BasePage<DashboardViewModel>
                 {
                     BuildHeader(vm, grayText).Row(Row.Header),
                     BuildStatsGrid(vm).Row(Row.Stats),
-                    BuildActionButtons(vm, blue, green, red).Row(Row.Actions),
+                    BuildActionButtons(blue, green, red).Row(Row.Actions),
                     BuildBusyOverlay(vm, blue).Row(Row.Loader)
                 }
             }
         };
+
+        Loaded += async (sender, args) => { await _vm.LoadDashboardDataCommand.ExecuteAsync(null); };
     }
 
     /* ---------- header block ---------- */
@@ -117,15 +122,14 @@ public sealed class DashboardPage : BasePage<DashboardViewModel>
     }
 
     /* ---------- action buttons ---------- */
-    static VerticalStackLayout BuildActionButtons(DashboardViewModel vm, Color blue, Color green, Color red) =>
+    VerticalStackLayout BuildActionButtons(Color blue, Color green, Color red) =>
         new VerticalStackLayout
         {
             Spacing = 10,
             Children =
             {
-                SolidButton("Manage Customers", nameof(vm.NavigateToCustomersCommand), blue),
-                // SolidButton("Schedule New Job", nameof(vm.NavigateToScheduleJobCommand), green),
-                SolidButton("Logout", nameof(vm.LogoutCommand), red)
+                SolidButton("Manage Customers", nameof(_vm.NavigateToCustomersCommand), blue),
+                SolidButton("Logout", nameof(_vm.LogoutCommand), red)
             }
         };
 

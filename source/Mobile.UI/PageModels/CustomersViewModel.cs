@@ -9,7 +9,7 @@ namespace Mobile.UI.PageModels;
 
 public partial class CustomersViewModel : ObservableObject
 {
-    private readonly ICustomerRepository _customerService;
+    private readonly ICustomerRepository _customerRepository;
     private readonly INavigationRepository _navigation;
 
     [ObservableProperty] private bool _isLoading;
@@ -19,24 +19,29 @@ public partial class CustomersViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<CustomerDto> _customers = new();
 
     public CustomersViewModel(
-        ICustomerRepository customerService,
+        ICustomerRepository customerRepository,
         INavigationRepository navigation)
     {
-        _customerService = customerService;
+        _customerRepository = customerRepository;
         _navigation = navigation;
     }
 
-    [RelayCommand]
+    [RelayCommand(AllowConcurrentExecutions = false)]
     private async Task LoadCustomersAsync()
     {
         if (IsLoading) return;
         IsLoading = true;
+
         try
         {
-            var list = await _customerService.GetCustomersAsync();
-            Customers.Clear();
-            foreach (var c in list.Value)
-                Customers.Add(c);
+            var result = await _customerRepository.GetCustomersAsync();
+            // marshal back to main thread for any UI-bound collection ops
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                Customers.Clear();
+                foreach (var c in result.Value)
+                    Customers.Add(c);
+            });
         }
         finally
         {
@@ -77,8 +82,13 @@ public partial class CustomersViewModel : ObservableObject
         if (!confirm) return;
 
         IsLoading = true;
-        await _customerService.DeleteCustomerAsync(customer.Id);
+        await _customerRepository.DeleteCustomerAsync(customer.Id);
         Customers.Remove(customer);
         IsLoading = false;
+    }
+
+    public async Task NavigateHome()
+    {
+        await _navigation.GoToAsync(nameof(HomePage));   
     }
 }
