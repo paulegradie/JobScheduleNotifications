@@ -33,8 +33,8 @@ public static class CompositionExtensionMethods
         services.AddSingleton<CustomersViewModel>();
 
 
-        services.AddSingleton<ScheduleJobViewModel>();
-        services.AddSingleton<ScheduleJobPage>();
+        services.AddSingleton<ScheduledJobViewModel>();
+        services.AddSingleton<ScheduledJobPage>();
 
 
         // Service

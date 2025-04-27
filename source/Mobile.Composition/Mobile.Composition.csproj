@@ -46,7 +46,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Mobile.Core\Mobile.Core.csproj" />
       <ProjectReference Include="..\Mobile.Infrastructure\Mobile.Infrastructure.csproj" />
       <ProjectReference Include="..\Mobile.UI\Mobile.UI.csproj" />
       <ProjectReference Include="..\Server.Client\Server.Client.csproj" />

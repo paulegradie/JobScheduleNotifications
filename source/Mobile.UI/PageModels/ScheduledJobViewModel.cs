@@ -8,7 +8,7 @@ using Server.Contracts.Dtos;
 
 namespace Mobile.UI.PageModels
 {
-    public partial class ScheduleJobViewModel : ObservableObject
+    public partial class ScheduledJobViewModel : ObservableObject
     {
         private readonly IJobService _jobService;
         private readonly ICustomerService _customerService;
@@ -50,7 +50,7 @@ namespace Mobile.UI.PageModels
         [ObservableProperty]
         private bool _isBusy;
 
-        public ScheduleJobViewModel(
+        public ScheduledJobViewModel(
             IJobService jobService,
             ICustomerService customerService,
             INavigationRepository navigation)

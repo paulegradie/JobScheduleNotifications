@@ -6,11 +6,11 @@ using Mobile.UI.Pages.Base;
 
 namespace Mobile.UI.Pages;
 
-public sealed class ScheduleJobPage : BasePage<ScheduleJobViewModel>
+public sealed class ScheduledJobPage : BasePage<ScheduledJobViewModel>
 {
-    private readonly ScheduleJobViewModel _vm;
+    private readonly ScheduledJobViewModel _vm;
 
-    public ScheduleJobPage(ScheduleJobViewModel vm) : base(vm)
+    public ScheduledJobPage(ScheduledJobViewModel vm) : base(vm)
     {
         _vm = vm;
         Title = "Schedule Job";

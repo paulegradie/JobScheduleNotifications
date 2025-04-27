@@ -73,7 +73,7 @@ public partial class DashboardViewModel : ObservableObject
     [RelayCommand]
     private async Task NavigateToScheduleJob()
     {
-        await _navigationUtility.NavigateToAsync(nameof(ScheduleJobPage));
+        await _navigationUtility.NavigateToAsync(nameof(ScheduledJobPage));
     }
 
     [RelayCommand]

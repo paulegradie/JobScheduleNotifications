@@ -12,14 +12,15 @@ public partial class AppShell : Shell
         InitializeComponent();
 
         // Register routes for navigation
+        Routing.RegisterRoute(nameof(HomePage), typeof(HomePage));
         Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
         Routing.RegisterRoute(nameof(RegisterPage), typeof(RegisterPage));
+        Routing.RegisterRoute(nameof(DashboardPage), typeof(DashboardPage));
         Routing.RegisterRoute(nameof(CustomersPage), typeof(CustomersPage));
         Routing.RegisterRoute(nameof(CustomerPage), typeof(CustomerPage));
         Routing.RegisterRoute(nameof(AddCustomerPage), typeof(AddCustomerPage));
-        Routing.RegisterRoute(nameof(HomePage), typeof(HomePage));
-        Routing.RegisterRoute(nameof(DashboardPage), typeof(DashboardPage));
-        Routing.RegisterRoute(nameof(ScheduleJobPage), typeof(ScheduleJobPage));
+        Routing.RegisterRoute(nameof(ScheduledJobPage), typeof(ScheduledJobPage));
+        Routing.RegisterRoute(nameof(AddScheduledJobPage), typeof(AddScheduledJobPage));
 
         var currentTheme = Application.Current!.UserAppTheme;
         ThemeSegmentedControl.SelectedIndex = currentTheme == AppTheme.Light ? 0 : 1;
