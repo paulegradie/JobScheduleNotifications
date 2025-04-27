@@ -53,7 +53,7 @@ public partial class LoginViewModel : ObservableValidator
             if (true)
             {
                 // The IServerClient will internally handle storing the TokenInfo and managing refreshes
-                await _navigationRepository.NavigateToAsync(nameof(HomePage));
+                await _navigationRepository.GoToAsync(nameof(HomePage));
             }
             else
             {
@@ -74,7 +74,7 @@ public partial class LoginViewModel : ObservableValidator
     [RelayCommand]
     private async Task NavigateToRegister()
     {
-        await _navigationRepository.NavigateToAsync(nameof(RegisterPage));
+        await _navigationRepository.GoToAsync(nameof(RegisterPage));
     }
 
     [RelayCommand]

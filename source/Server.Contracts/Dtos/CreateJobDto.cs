@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Api.ValueTypes;
 
 namespace Server.Contracts.Dtos;

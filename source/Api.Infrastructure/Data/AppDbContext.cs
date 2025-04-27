@@ -1,5 +1,4 @@
 using Api.Infrastructure.Data.TypeConverters;
-using Api.Infrastructure.DbTables;
 using Api.Infrastructure.DbTables.Jobs;
 using Api.Infrastructure.DbTables.OrganizationModels;
 using Api.Infrastructure.EntityFramework;

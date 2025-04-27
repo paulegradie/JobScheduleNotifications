@@ -1,9 +1,7 @@
-using Api.Business.Repositories;
 using Api.Business.Repositories.Internal;
 using Api.Business.Services;
 using Api.Infrastructure.DbTables.OrganizationModels;
 using Api.Infrastructure.Identity;
-using Api.Infrastructure.Repositories;
 using Api.Infrastructure.Repositories.Mapping;
 using Api.Infrastructure.Services;
 using Api.ValueTypes;

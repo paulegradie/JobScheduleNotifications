@@ -1,3 +1,7 @@
+
+
+// CustomerEditViewModel.cs
+
 using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -8,73 +12,77 @@ namespace Mobile.UI.PageModels;
 
 public partial class CustomerEditViewModel : ObservableObject
 {
-    private readonly ICustomerRepository _customerRepository;
-    private readonly INavigationRepository _navigationRepository;
+    private readonly ICustomerRepository _repository;
+    private readonly INavigationRepository _navigation;
     private CustomerId? _customerId;
 
-    [ObservableProperty] private string _firstName = string.Empty;
+    [ObservableProperty] private string _firstName    = string.Empty;
+    [ObservableProperty] private string _lastName     = string.Empty;
+    [ObservableProperty] private string _email        = string.Empty;
+    [ObservableProperty] private string _phoneNumber  = string.Empty;
+    [ObservableProperty] private string _notes        = string.Empty;
+    [ObservableProperty] private bool   _isBusy;
+    [ObservableProperty] private string _errorMessage = string.Empty;
+    [ObservableProperty] private string _title        = "Add Customer";
 
-    [ObservableProperty] private string _lastName;
-
-    [ObservableProperty] private string _email = string.Empty;
-
-    [ObservableProperty] private string _phoneNumber = string.Empty;
-
-    [ObservableProperty] private string _notes = string.Empty;
-
-    [ObservableProperty] private bool _isBusy;
-
-    [ObservableProperty] private string _title = "Add Customer";
-
-    public CustomerEditViewModel(ICustomerRepository customerRepository, INavigationRepository navigationRepository)
+    public CustomerEditViewModel(
+        ICustomerRepository repository,
+        INavigationRepository navigation)
     {
-        _customerRepository = customerRepository;
-        _navigationRepository = navigationRepository;
+        _repository = repository;
+        _navigation = navigation;
     }
 
     public void Initialize(Guid? customerId = null)
     {
         _customerId = customerId;
-        Title = customerId.HasValue ? "Edit Customer" : "Add Customer";
+        Title      = customerId.HasValue ? "Edit Customer" : "Add Customer";
 
         if (customerId.HasValue)
-        {
             MainThread.BeginInvokeOnMainThread(async () => await LoadCustomerAsync(customerId.Value));
-        }
     }
 
     private async Task LoadCustomerAsync(Guid id)
     {
+        IsBusy = true;
         try
         {
-            IsBusy = true;
-            var result = await _customerRepository.GetCustomerByIdAsync(id);
-            var customer = result.Value;
-
-            FirstName = customer.FirstName;
-            LastName = customer.LastName;
-            Email = customer.Email;
-            PhoneNumber = customer.PhoneNumber;
-            Notes = customer.Notes;
+            var result = await _repository.GetCustomerByIdAsync(id);
+            if (result.IsSuccess && result.Value != null)
+            {
+                FirstName   = result.Value.FirstName;
+                LastName    = result.Value.LastName;
+                Email       = result.Value.Email;
+                PhoneNumber = result.Value.PhoneNumber;
+                Notes       = result.Value.Notes;
+            }
+            else
+            {
+                ErrorMessage = "Failed to load customer.";
+            }
         }
-        catch (Exception ex)
+        catch
         {
-            await _navigationRepository.ShowAlertAsync("Error", $"Failed to load customer: {ex.Message}");
-            await _navigationRepository.GoBackAsync();
+            ErrorMessage = "Error loading customer.";
         }
-        finally
-        {
-            IsBusy = false;
-        }
+        finally { IsBusy = false; }
     }
 
-    [RelayCommand]
-    private async Task SaveCustomer()
+    public bool CanSave
+        => !IsBusy
+        && !string.IsNullOrWhiteSpace(FirstName)
+        && !string.IsNullOrWhiteSpace(LastName)
+        && !string.IsNullOrWhiteSpace(Email)
+        && !string.IsNullOrWhiteSpace(PhoneNumber);
+
+    [RelayCommand(CanExecute = nameof(CanSave))]
+    private async Task SaveCustomerAsync()
     {
+        IsBusy = true;
+        ErrorMessage = string.Empty;
+
         try
         {
-            IsBusy = true;
-
             if (_customerId.HasValue)
             {
                 var update = UpdateCustomerRequest.CreateBuilder(_customerId.Value)
@@ -85,37 +93,33 @@ public partial class CustomerEditViewModel : ObservableObject
                     .WithNotes(Notes)
                     .Build();
 
-                await _customerRepository.UpdateCustomerAsync(update, CancellationToken.None);
-                await _navigationRepository.ShowAlertAsync("Success", "Customer updated successfully");
+                await _repository.UpdateCustomerAsync(update, CancellationToken.None);
             }
             else
             {
-                var update = new CreateCustomerRequest(
-                    firstName: FirstName,
-                    lastName: LastName,
-                    email: Email,
+                var createReq = new CreateCustomerRequest(
+                    firstName:   FirstName,
+                    lastName:    LastName,
+                    email:       Email,
                     phoneNumber: PhoneNumber,
-                    notes: Notes);
+                    notes:       Notes);
 
-                await _customerRepository.CreateCustomerAsync(update);
-                await _navigationRepository.ShowAlertAsync("Success", "Customer created successfully");
+                var result = await _repository.CreateCustomerAsync(createReq);
+                if (result.IsSuccess)
+                    _customerId = result.Value.Id;
             }
 
-            await _navigationRepository.GoBackAsync();
+            // After save, navigate back to detail page
+            await _navigation.GoBackAsync();
         }
-        catch (Exception ex)
+        catch
         {
-            await _navigationRepository.ShowAlertAsync("Error", $"Failed to save customer: {ex.Message}");
+            ErrorMessage = "Failed to save customer.";
         }
-        finally
-        {
-            IsBusy = false;
-        }
+        finally { IsBusy = false; }
     }
 
     [RelayCommand]
-    private async Task Cancel()
-    {
-        await _navigationRepository.GoBackAsync();
-    }
+    private async Task CancelAsync()
+        => await _navigation.GoBackAsync();
 }

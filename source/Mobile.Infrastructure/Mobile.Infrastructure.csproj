@@ -54,6 +54,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Mobile.UI\Mobile.UI.csproj" />
         <ProjectReference Include="..\Server.Contracts\Server.Contracts.csproj"/>
     </ItemGroup>
 

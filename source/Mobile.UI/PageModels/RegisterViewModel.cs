@@ -142,7 +142,7 @@ public partial class RegisterViewModel : ObservableValidator
                 var suc = await _serverClient.Auth.LoginAsync(new SignInRequest(Email, Password), CancellationToken.None);
                 if (true)
                 {
-                    await _navigationUtility.NavigateToAsync(nameof(HomePage));
+                    await _navigationUtility.GoToAsync(nameof(HomePage));
                 }
                 else
                 {

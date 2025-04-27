@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.Pages;
@@ -10,124 +9,68 @@ namespace Mobile.UI.PageModels;
 
 public partial class CustomersViewModel : ObservableObject
 {
-    public const string Title = "OMG TODO";
     private readonly ICustomerRepository _customerService;
-    private readonly INavigationRepository _navigationUtility;
+    private readonly INavigationRepository _navigation;
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsNotLoading))]
+    [ObservableProperty]
     private bool _isLoading;
 
-    [ObservableProperty] private string _searchText = string.Empty;
+    [ObservableProperty]
+    private string _searchText = string.Empty;
 
-    [ObservableProperty] private CustomerDto? _selectedCustomer;
+    [ObservableProperty]
+    private ObservableCollection<CustomerDto> _customers = new();
 
-    public bool IsNotLoading => !IsLoading;
-
-    [ObservableProperty] private ObservableCollection<CustomerDto> _customers = new();
-
-    public CustomersViewModel(ICustomerRepository customerService, INavigationRepository navigationUtility)
+    public CustomersViewModel(
+        ICustomerRepository customerService,
+        INavigationRepository navigation)
     {
         _customerService = customerService;
-        _navigationUtility = navigationUtility;
+        _navigation = navigation;
     }
 
     [RelayCommand]
-    private async Task LoadCustomers()
+    private async Task LoadCustomersAsync()
     {
         if (IsLoading) return;
-
+        IsLoading = true;
         try
         {
-            IsLoading = true;
-            var customers = await _customerService.GetCustomersAsync();
+            var list = await _customerService.GetCustomersAsync();
             Customers.Clear();
-            foreach (var customer in customers.Value)
-            {
-                Customers.Add(customer);
-            }
+            foreach (var c in list.Value)
+                Customers.Add(c);
         }
-        catch (Exception ex)
-        {
-            await _navigationUtility.ShowAlertAsync("Error", $"Failed to load customers: {ex.Message}");
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        finally { IsLoading = false; }
     }
+    
+    
+    [RelayCommand]
+    private async Task AddCustomerAsync()
+        => await _navigation.GoToAsync(nameof(CreateCustomerPage));
 
     [RelayCommand]
-    private async Task AddCustomer()
-    {
-        await _navigationUtility.NavigateToAsync(nameof(AddCustomerPage));
-    }
-
-    [RelayCommand]
-    private async Task EditCustomer(CustomerDto? customer)
+    private async Task EditCustomerAsync(CustomerDto? customer)
     {
         if (customer == null) return;
-        var parameters = new Dictionary<string, object> { { nameof(CustomerId), customer.Id } };
-        await _navigationUtility.NavigateToAsync("EditCustomerPage", parameters);
+        await _navigation.GoToAsync(
+            nameof(CustomerPage),
+            new Dictionary<string, object?> { { "customerId", customer.Id } });
     }
 
     [RelayCommand]
-    private async Task DeleteCustomer(CustomerDto? customer)
+    private async Task DeleteCustomerAsync(CustomerDto? customer)
     {
         if (customer == null) return;
-
-        var result = await _navigationUtility.ShowConfirmationAsync(
+        var confirm = await _navigation.ShowConfirmationAsync(
             "Delete Customer",
-            $"Are you sure you want to delete {customer.FirstName} {customer.LastName}?");
+            $"Delete {customer.FirstName} {customer.LastName}?"
+        );
+        if (!confirm) return;
 
-        if (result)
-        {
-            try
-            {
-                IsLoading = true;
-                await _customerService.DeleteCustomerAsync(customer.Id);
-                Customers.Remove(customer);
-                await _navigationUtility.ShowAlertAsync("Success", "Customer deleted successfully");
-            }
-            catch (Exception ex)
-            {
-                await _navigationUtility.ShowAlertAsync("Error", $"Failed to delete customer: {ex.Message}");
-            }
-            finally
-            {
-                IsLoading = false;
-            }
-        }
-    }
-
-    partial void OnSearchTextChanged(string value)
-    {
-        FilterCustomers();
-    }
-
-    [RelayCommand]
-    public void Refresh()
-    {
-        Console.WriteLine("Refreshed!");
-    }
-
-    private void FilterCustomers()
-    {
-        if (string.IsNullOrWhiteSpace(SearchText))
-        {
-            LoadCustomersCommand.Execute(null);
-            return;
-        }
-
-        var filteredCustomers = Customers.Where(c =>
-            c.FirstName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-            c.LastName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-            c.Email.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-            c.PhoneNumber.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
-
-        Customers.Clear();
-        foreach (var customer in filteredCustomers)
-        {
-            Customers.Add(customer);
-        }
+        IsLoading = true;
+        await _customerService.DeleteCustomerAsync(customer.Id);
+        Customers.Remove(customer);
+        IsLoading = false;
     }
 }

@@ -1,106 +1,68 @@
-using System.Collections.ObjectModel;
-using Api.ValueTypes;
+// CustomerViewModel.cs
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Mobile.UI.Pages;
 using Mobile.UI.RepositoryAbstractions;
-using Server.Contracts.Dtos;
-using Server.Contracts.Endpoints.Customers.Contracts;
 
 namespace Mobile.UI.PageModels;
 
-public partial class CustomerViewModel : ObservableValidator
+public partial class CustomerViewModel : ObservableObject
 {
-    private readonly ICustomerRepository _customerRepository;
-    private readonly INavigationRepository _navigationUtility;
+    private readonly ICustomerRepository _repository;
+    private readonly INavigationRepository _navigation;
 
-    [ObservableProperty] private ObservableCollection<CustomerDto> _customers = new();
+    [ObservableProperty] private Guid _customerId;
 
-    [ObservableProperty] private string _searchQuery = string.Empty;
+    [ObservableProperty] private string _firstName = string.Empty;
 
-    [ObservableProperty] private bool _isRefreshing;
+    [ObservableProperty] private string _lastName = string.Empty;
 
-    [ObservableProperty] private bool _isEditing;
+    [ObservableProperty] private string _email = string.Empty;
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsNotBusy))] [NotifyPropertyChangedFor(nameof(CanSave))]
-    private bool _isBusy;
+    [ObservableProperty] private string _phoneNumber = string.Empty;
 
-    [ObservableProperty] private string _title = "Customers";
+    [ObservableProperty] private string _notes = string.Empty;
 
-    [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(SaveCustomerCommand))]
-    private CustomerDto? _selectedCustomer;
+    [ObservableProperty] private bool _isBusy;
 
-    [ObservableProperty] private string? _validationMessage;
+    [ObservableProperty] private string _title = "Customer Details";
 
-    [ObservableProperty] private bool _hasValidationError;
+    [ObservableProperty] private string _errorMessage = string.Empty;
 
-    public bool IsNotBusy => !IsBusy;
-
-    public bool CanSave => !IsBusy && SelectedCustomer != null && !HasValidationError;
-
-    public CustomerViewModel(ICustomerRepository customerRepository, INavigationRepository navigationUtility)
+    public CustomerViewModel(
+        ICustomerRepository repository,
+        INavigationRepository navigation)
     {
-        _customerRepository = customerRepository;
-        _navigationUtility = navigationUtility;
+        _repository = repository;
+        _navigation = navigation;
     }
 
-
-    // Updated SaveCustomer command with validation
-    [RelayCommand(CanExecute = nameof(CanSave))]
-    public async Task SaveCustomer()
+    [RelayCommand]
+    private async Task LoadCustomerAsync(Guid id)
     {
-        if (SelectedCustomer == null) return;
-
-        // Validate the customer
-        if (!ValidateCustomer())
-        {
-            return;
-        }
-
+        if (IsBusy) return;
+        IsBusy = true;
         try
         {
-            IsBusy = true;
-            if (IsEditing)
+            var result = await _repository.GetCustomerByIdAsync(id);
+            if (result.IsSuccess && result.Value != null)
             {
-                var update = UpdateCustomerRequest.CreateBuilder(CustomerId)
-                    .WithFirstName(SelectedCustomer.FirstName)
-                    .WithLastName(SelectedCustomer.LastName)
-                    .WithPhoneNumber(SelectedCustomer.PhoneNumber)
-                    .WithNotes(SelectedCustomer.Notes)
-                    .Build();
-
-                await _customerRepository.UpdateCustomerAsync(update, CancellationToken.None);
-                var existingCustomer = Customers.FirstOrDefault<CustomerDto>(c => c.Id == SelectedCustomer.Id);
-                if (existingCustomer != null)
-                {
-                    var index = Customers.IndexOf(existingCustomer);
-                    Customers[index] = SelectedCustomer;
-                }
+                CustomerId = result.Value.Id;
+                FirstName = result.Value.FirstName;
+                LastName = result.Value.LastName;
+                Email = result.Value.Email;
+                PhoneNumber = result.Value.PhoneNumber;
+                Notes = result.Value.Notes;
             }
             else
             {
-                var createCustomer = new CreateCustomerRequest(
-                    firstName: SelectedCustomer.FirstName,
-                    lastName: SelectedCustomer.LastName,
-                    email: SelectedCustomer.Email,
-                    phoneNumber: SelectedCustomer.PhoneNumber,
-                    notes: SelectedCustomer.Notes);
-
-                var newCustomer = await _customerRepository.CreateCustomerAsync(createCustomer);
-
-                if (!newCustomer.IsSuccess) throw new Exception("Couldn't create customer");
-                Customers.Add(newCustomer.Value);
+                ErrorMessage = "Failed to load customer.";
             }
-
-            HasValidationError = false;
-            ValidationMessage = string.Empty;
-            IsEditing = false;
-            SelectedCustomer = null;
-            await _navigationUtility.GoBackAsync();
         }
-        catch (Exception ex)
+        catch
         {
-            await _navigationUtility.ShowAlertAsync("Error", "Failed to save customer");
-            System.Diagnostics.Debug.WriteLine($"Save Customer Error: {ex.Message}");
+            ErrorMessage = "Error loading customer.";
         }
         finally
         {
@@ -108,64 +70,15 @@ public partial class CustomerViewModel : ObservableValidator
         }
     }
 
-    private bool ValidateCustomer()
-    {
-        if (SelectedCustomer == null)
-        {
-            HasValidationError = true;
-            ValidationMessage = "Customer information is missing";
-            return false;
-        }
-
-        if (string.IsNullOrWhiteSpace(SelectedCustomer.FirstName) ||
-            string.IsNullOrWhiteSpace(SelectedCustomer.LastName) ||
-            string.IsNullOrWhiteSpace(SelectedCustomer.Email) ||
-            string.IsNullOrWhiteSpace(SelectedCustomer.PhoneNumber))
-        {
-            HasValidationError = true;
-            ValidationMessage = "Please fill in all required fields";
-            return false;
-        }
-
-        HasValidationError = false;
-        ValidationMessage = string.Empty;
-        return true;
-    }
-
-
     [RelayCommand]
-    public async Task Cancel()
+    private async Task EditCustomerAsync()
     {
-        IsEditing = false;
-        SelectedCustomer = null;
-        await _navigationUtility.GoBackAsync();
-    }
-
-    [RelayCommand]
-    public async Task LoadCustomer(Guid customerId)
-    {
-        try
-        {
-            IsBusy = true;
-            var customer = await _customerRepository.GetCustomerByIdAsync(customerId);
-            if (customer is { IsSuccess: true, Value: not null })
+        if (CustomerId == Guid.Empty) return;
+        await _navigation.GoToAsync(
+            nameof(CustomerEditPage),
+            new Dictionary<string, object?>
             {
-                SelectedCustomer = customer.Value;
-                IsEditing = true;
-                Title = "Edit Customer";
-            }
-        }
-        catch (Exception ex)
-        {
-            await _navigationUtility.ShowAlertAsync("Error", "Failed to load customer");
-            System.Diagnostics.Debug.WriteLine($"Load Customer Error: {ex.Message}");
-        }
-        finally
-        {
-            IsBusy = false;
-        }
+                { "customerId", CustomerId }
+            });
     }
-
-    public string Name { get; set; } = "Not Set Yet";
-    public CustomerId CustomerId { get; set; }
 }

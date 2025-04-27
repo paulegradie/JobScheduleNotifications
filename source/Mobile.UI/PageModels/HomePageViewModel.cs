@@ -53,7 +53,7 @@ public partial class HomePageViewModel : ObservableObject
     [RelayCommand]
     private async Task NavigateToCustomers()
     {
-        await _navigation.NavigateToAsync(nameof(CustomersPage));
+        await _navigation.GoToAsync(nameof(CustomersPage));
     }
 
     [RelayCommand]
@@ -87,7 +87,7 @@ public partial class HomePageViewModel : ObservableObject
             new AuthenticationHeaderValue("Bearer", token.Value.AccessToken);
 
         // — now navigate to Dashboard —
-        await _navigation.NavigateToAsync(nameof(DashboardPage));
+        await _navigation.GoToAsync(nameof(DashboardPage));
 #endif
     }
 }

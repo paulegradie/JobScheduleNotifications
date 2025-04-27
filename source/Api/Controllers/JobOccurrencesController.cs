@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Api.Business.Repositories;
 using Api.Business.Entities;
 using Api.Infrastructure.Data;
-using Api.Infrastructure.DbTables.Jobs;
 using Api.ValueTypes;
 using Server.Contracts.Endpoints.JobOccurence.Contracts;
 

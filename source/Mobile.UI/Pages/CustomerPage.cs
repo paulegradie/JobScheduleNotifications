@@ -5,40 +5,67 @@ using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace Mobile.UI.Pages;
 
-public sealed class CustomerPage : BasePage<CustomerViewModel>
+public sealed class CustomerPage : BasePage<CustomerViewModel>, IQueryAttributable
 {
     private readonly CustomerViewModel _vm;
 
     public CustomerPage(CustomerViewModel vm) : base(vm)
     {
         _vm = vm;
-        Title = "Customer";
+        Title = vm.Title;
 
         Content = new Grid
         {
-            RowDefinitions = Rows.Define((Row.Form, Star), (Row.Buttons, Auto)),
+            RowDefinitions = Rows.Define(
+                (Row.Details, Star),
+                (Row.Buttons, Auto)
+            ),
             Children =
             {
-                new Entry().Placeholder("Name")
-                    .Bind(Entry.TextProperty, nameof(vm.Name)),
-                new Button { Text = "Save" }
-                    .BindCommand(nameof(vm.SaveCustomer))
+                // Details section
+                new VerticalStackLayout
+                {
+                    Padding = 20,
+                    Spacing = 10,
+                    Children =
+                    {
+                        new Label().Text("Name").Font(size:14, bold:true),
+                        new Label().Bind(Label.TextProperty, nameof(vm.FirstName)),
+
+                        new Label().Text("Email").Font(size:14, bold:true),
+                        new Label().Bind(Label.TextProperty, nameof(vm.Email)),
+
+                        new Label().Text("Phone").Font(size:14, bold:true),
+                        new Label().Bind(Label.TextProperty, nameof(vm.PhoneNumber)),
+
+                        new Label().Text("Notes").Font(size:14, bold:true),
+                        new Label().Bind(Label.TextProperty, nameof(vm.Notes)),
+
+                        new Label()
+                            .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
+                            .TextColor(Colors.Red)
+                            .Bind(IsVisibleProperty, nameof(vm.ErrorMessage))
+                    }
+                }.Row(Row.Details),
+
+                // Edit button
+                new Button { Text = "Edit" }
+                    .BindCommand(nameof(vm.EditCustomerCommand))
                     .Row(Row.Buttons)
             }
         };
     }
 
-    public Guid? CustomerId => BindingContext.CustomerId;
-
-    protected override void OnAppearing()
+    // Receive customerId via Shell query
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
-        base.OnAppearing();
-        _vm.LoadCustomerCommand.Execute(CustomerId);
+        if (query.TryGetValue("customerId", out var raw)
+            && raw is string sid
+            && Guid.TryParse(sid, out var id))
+        {
+            _vm.LoadCustomerCommand.Execute(id);
+        }
     }
 
-    private enum Row
-    {
-        Form,
-        Buttons
-    }
+    private enum Row { Details, Buttons }
 }

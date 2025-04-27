@@ -67,13 +67,13 @@ public partial class DashboardViewModel : ObservableObject
     [RelayCommand]
     private async Task NavigateToCustomers()
     {
-        await _navigationUtility.NavigateToAsync(nameof(CustomersPage));
+        await _navigationUtility.GoToAsync(nameof(CustomersPage));
     }
 
     [RelayCommand]
     private async Task NavigateToScheduleJob()
     {
-        await _navigationUtility.NavigateToAsync(nameof(ScheduledJobPage));
+        await _navigationUtility.GoToAsync(nameof(ScheduledJobPage));
     }
 
     [RelayCommand]
@@ -88,7 +88,7 @@ public partial class DashboardViewModel : ObservableObject
             if (token == null) throw new Exception("No token found");
             await _serverClient.Auth.LogoutAsync(new SignOutRequest(token.Email), CancellationToken.None);
 
-            await _navigationUtility.NavigateToAsync(nameof(LoginPage));
+            await _navigationUtility.GoToAsync(nameof(LoginPage));
         }
         catch (Exception ex)
         {

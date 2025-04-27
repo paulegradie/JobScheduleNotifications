@@ -11,19 +11,24 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
 
-        // Register routes for navigation
-        Routing.RegisterRoute(nameof(HomePage), typeof(HomePage));
-        Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
-        Routing.RegisterRoute(nameof(RegisterPage), typeof(RegisterPage));
-        Routing.RegisterRoute(nameof(DashboardPage), typeof(DashboardPage));
-        Routing.RegisterRoute(nameof(CustomersPage), typeof(CustomersPage));
-        Routing.RegisterRoute(nameof(CustomerPage), typeof(CustomerPage));
-        Routing.RegisterRoute(nameof(AddCustomerPage), typeof(AddCustomerPage));
-        Routing.RegisterRoute(nameof(ScheduledJobPage), typeof(ScheduledJobPage));
-        Routing.RegisterRoute(nameof(AddScheduledJobPage), typeof(AddScheduledJobPage));
+        RegisterPage<HomePage>();
+        RegisterPage<LoginPage>();
+        RegisterPage<RegisterPage>();
+        RegisterPage<DashboardPage>();
+        RegisterPage<CustomersPage>();
+        RegisterPage<CreateCustomerPage>();
+        RegisterPage<CustomerPage>();
+        RegisterPage<CustomerEditPage>();
+        RegisterPage<ScheduledJobPage>();
+        RegisterPage<AddScheduledJobPage>();
 
         var currentTheme = Application.Current!.UserAppTheme;
         ThemeSegmentedControl.SelectedIndex = currentTheme == AppTheme.Light ? 0 : 1;
+    }
+
+    private void RegisterPage<TPage>()
+    {
+        Routing.RegisterRoute(nameof(TPage), typeof(TPage));
     }
 
     public static async Task DisplaySnackbarAsync(string message)

@@ -16,17 +16,13 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
             Text = "Add",
             IconImageSource = "plus.png",
             Command = vm.AddCustomerCommand
+
         });
-        ToolbarItems.Add(new ToolbarItem
-        {
-            Text = "Home",
-            IconImageSource = "home.png",
-            Command = new Command(async () => await Shell.Current.GoToAsync("///MainPage"))
-        });
+
         Content = new Grid
         {
             Padding = 20,
-            RowDefinitions = Rows.Define((Row.Header, Auto), (Row.Body, Star)),
+            RowDefinitions = GridRowsColumns.Rows.Define((Row.Header, Auto), (Row.Body, Star)),
             Children =
             {
                 BuildHeader(vm).Row(Row.Header),
@@ -35,26 +31,23 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
             }
         };
 
-        /* first load */
         Loaded += async (_, _) => await vm.LoadCustomersCommand.ExecuteAsync(null);
     }
 
-    /* header = SearchBar + Add button */
     private static Grid BuildHeader(CustomersViewModel vm) =>
         new Grid
         {
             ColumnSpacing = 10,
-            ColumnDefinitions = Columns.Define((Col.Search, Star), (Col.Add, Auto)),
-
+            ColumnDefinitions = GridRowsColumns.Columns.Define((Col.Search, Star), (Col.Add, Auto)),
             Children =
             {
                 new SearchBar()
                     .Placeholder("Search customers…")
                     .Bind(SearchBar.TextProperty, nameof(vm.SearchText), BindingMode.TwoWay)
                     .Bind(SearchBar.SearchCommandProperty, nameof(vm.LoadCustomersCommand))
-                    .Column(Col.Search), // ← no generic type
-                new Button()
-                    .Text("Add")
+                    .Column(Col.Search),
+
+                new Button { Text = "Add" }
                     .Bind(Button.CommandProperty, nameof(vm.AddCustomerCommand))
                     .BackgroundColor(Colors.CadetBlue)
                     .TextColor(Colors.White)
@@ -63,7 +56,6 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
             }
         };
 
-    /* body = RefreshView → CollectionView with Swipe actions */
     private static RefreshView BuildBody(CustomersViewModel vm) =>
         new RefreshView
             {
@@ -76,16 +68,14 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
                     .Bind(CollectionView.ItemsSourceProperty, nameof(vm.Customers))
             }
             .Bind(RefreshView.IsRefreshingProperty, nameof(vm.IsLoading))
-            .Bind(RefreshView.CommandProperty, nameof(vm.RefreshCommand));
+            .Bind(RefreshView.CommandProperty, nameof(vm.LoadCustomersCommand));
 
-    /* busy overlay */
     private static ActivityIndicator BuildBusyIndicator(CustomersViewModel vm) =>
         new ActivityIndicator()
             .Center()
             .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsLoading))
             .Bind(IsVisibleProperty, nameof(vm.IsLoading));
 
-    /* swipe template */
     private static SwipeView BuildSwipeTemplate(CustomersViewModel vm)
     {
         var swipeItems = new SwipeItems
@@ -97,6 +87,7 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
                 }
                 .Bind(SwipeItem.CommandProperty, nameof(vm.EditCustomerCommand), source: vm)
                 .Bind(SwipeItem.CommandParameterProperty, "."),
+
             new SwipeItem
                 {
                     Text = "Delete",
@@ -113,7 +104,6 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
         };
     }
 
-    /* row content */
     private static Grid BuildRowContent() =>
         new Grid
         {
@@ -126,9 +116,9 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
                     Spacing = 4,
                     Children =
                     {
-                        new Label().Font(size: 16, bold: true)
+                        new Label().Font(size:16, bold:true)
                             .Bind(Label.TextProperty, nameof(CustomerDto.FirstName)),
-                        new Label().Font(size: 16, bold: true)
+                        new Label().Font(size:16, bold:true)
                             .Bind(Label.TextProperty, nameof(CustomerDto.LastName)),
                         new Label().FontSize(14)
                             .TextColor(Colors.Gray)
@@ -149,21 +139,7 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
             }
         };
 
-    private enum Row
-    {
-        Header,
-        Body
-    }
-
-    private enum Col
-    {
-        Search,
-        Add
-    }
-
-    private enum CustCol
-    {
-        Info,
-        Chevron
-    }
+    private enum Row { Header, Body }
+    private enum Col { Search, Add }
+    private enum CustCol { Info, Chevron }
 }
