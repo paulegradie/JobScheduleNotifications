@@ -75,7 +75,7 @@ public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepositor
         await _context.SaveChangesAsync();
         def.ScheduledJobDefinitionId = entity.Id;
         def.CustomerId = entity.CustomerId;
-        def.Pattern.Id = entity.Pattern.Id;
+        def.Pattern.RecurrencePatternId = entity.Pattern.RecurrencePatternId;
     }
 }
 

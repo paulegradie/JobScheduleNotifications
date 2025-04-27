@@ -22,15 +22,8 @@ public class ScheduledJobDefinitionDomainModel : DomainModelBase<ScheduledJobDef
             CustomerId,
             ScheduledJobDefinitionId,
             AnchorDate,
-            new RecurrencePatternDto
-            {
-                Id = Pattern.Id,
-                WeekDays = Pattern.WeekDays,
-                CronExpression = Pattern.CronExpression,
-                DayOfMonth = Pattern.DayOfMonth,
-                Frequency = Pattern.Frequency,
-                Interval = Pattern.Interval
-            },
+            Pattern.ToDto(),
+            JobOccurrences.Select(o => o.ToDto()).ToList(),
             Title,
             Description);
     }
