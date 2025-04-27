@@ -11,24 +11,24 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
 
-        RegisterPage<HomePage>();
-        RegisterPage<LoginPage>();
-        RegisterPage<RegisterPage>();
-        RegisterPage<DashboardPage>();
-        RegisterPage<CustomersPage>();
-        RegisterPage<CreateCustomerPage>();
-        RegisterPage<CustomerPage>();
-        RegisterPage<CustomerEditPage>();
-        RegisterPage<ScheduledJobPage>();
-        RegisterPage<AddScheduledJobPage>();
+        AddPageToApp<HomePage>();
+        AddPageToApp<LoginPage>();
+        AddPageToApp<RegisterPage>();
+        AddPageToApp<DashboardPage>();
+        AddPageToApp<CustomersPage>();
+        AddPageToApp<CreateCustomerPage>();
+        AddPageToApp<CustomerPage>();
+        AddPageToApp<CustomerEditPage>();
+        AddPageToApp<ScheduledJobPage>();
+        AddPageToApp<AddScheduledJobPage>();
 
         var currentTheme = Application.Current!.UserAppTheme;
         ThemeSegmentedControl.SelectedIndex = currentTheme == AppTheme.Light ? 0 : 1;
     }
 
-    private void RegisterPage<TPage>()
+    private void AddPageToApp<TPage>()
     {
-        Routing.RegisterRoute(nameof(TPage), typeof(TPage));
+        Routing.RegisterRoute(typeof(TPage).Name, typeof(TPage));
     }
 
     public static async Task DisplaySnackbarAsync(string message)

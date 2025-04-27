@@ -23,19 +23,32 @@ public static class CompositionExtensionMethods
         services.AddSingleton<HomePage>();
         services.AddSingleton<HomePageViewModel>();
 
+        services.AddSingleton<LoginPage>();
+        services.AddSingleton<LoginViewModel>();
+
+        services.AddSingleton<RegisterPage>();
+        services.AddSingleton<RegisterViewModel>();
+
         services.AddSingleton<DashboardPage>();
         services.AddSingleton<DashboardViewModel>();
-
-        services.AddSingleton<CustomerPage>();
-        services.AddSingleton<CustomerViewModel>();
 
         services.AddSingleton<CustomersPage>();
         services.AddSingleton<CustomersViewModel>();
 
+        services.AddSingleton<CreateCustomerPage>();
+        services.AddSingleton<CreateCustomerViewModel>();
 
-        services.AddSingleton<ScheduledJobViewModel>();
+        services.AddSingleton<CustomerPage>();
+        services.AddSingleton<CustomerViewModel>();
+
+        services.AddSingleton<CustomerEditPage>();
+        services.AddSingleton<CustomerEditViewModel>();
+
         services.AddSingleton<ScheduledJobPage>();
+        services.AddSingleton<ScheduledJobViewModel>();
 
+        services.AddSingleton<AddScheduledJobPage>();
+        services.AddSingleton<AddScheduledJobViewModel>();
 
         // Service
         services.AddDomainServices();
