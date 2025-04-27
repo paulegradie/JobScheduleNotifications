@@ -1,5 +1,5 @@
 ﻿using Mobile.UI.RepositoryAbstractions;
-using Server.Contracts.Client.Endpoints.Auth.Contracts;
+using Server.Contracts.Endpoints.Auth.Contracts;
 
 namespace Mobile.Infrastructure.Persistence;
 

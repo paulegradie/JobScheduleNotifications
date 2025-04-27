@@ -3,8 +3,8 @@ using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.RepositoryAbstractions;
-using Server.Contracts.Client.Endpoints.Customers.Contracts;
 using Server.Contracts.Dtos;
+using Server.Contracts.Endpoints.Customers.Contracts;
 
 namespace Mobile.UI.PageModels;
 

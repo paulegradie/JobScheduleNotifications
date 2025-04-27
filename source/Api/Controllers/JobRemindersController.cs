@@ -4,7 +4,7 @@ using Api.Business.Repositories;
 using Api.Business.Entities;
 using Api.Infrastructure.Data;
 using Api.ValueTypes;
-using Server.Contracts.Client.Endpoints.Reminders.Contracts;
+using Server.Contracts.Endpoints.Reminders.Contracts;
 
 namespace Api.Controllers;
 

@@ -1,5 +1,4 @@
-﻿using Server.Contracts.Client.Endpoints.Auth;
-using Server.Contracts.Client.Endpoints.Auth.Contracts;
+﻿using Server.Contracts.Endpoints.Auth.Contracts;
 
 namespace Api.Infrastructure.Auth;
 

@@ -9,7 +9,7 @@ using Api.Infrastructure.Services;
 using Api.ValueTypes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Server.Contracts.Client.Endpoints.Customers.Contracts;
+using Server.Contracts.Endpoints.Customers.Contracts;
 
 namespace Api.Controllers;
 
@@ -49,9 +49,9 @@ public class CustomersController : ControllerBase
     [Authorize(Policy = PolicyNames.AdminPolicy)]
     [Authorize(Policy = PolicyNames.MemberPolicy)]
     [HttpGet(GetCustomerByIdRequest.Route)]
-    public async Task<ActionResult<GetCustomerByIdResponse>> GetById([FromRoute] CustomerId id)
+    public async Task<ActionResult<GetCustomerByIdResponse>> GetById([FromRoute] CustomerId customerId)
     {
-        var customer = await _customerCrudRepository.GetByIdAsync(id);
+        var customer = await _customerCrudRepository.GetByIdAsync(customerId);
         if (customer == null)
         {
             return NotFound();
@@ -71,18 +71,14 @@ public class CustomersController : ControllerBase
 
         var dto = await _customerService.CreateCustomerAsync(req, userId);
 
-        return CreatedAtAction(
-            nameof(GetById),
-            new { id = dto.Id },
-            new CreateCustomerResponse(dto)
-        );
+        return Ok(new CreateCustomerResponse(dto));
     }
 
     [Authorize(Policy = PolicyNames.OwnerPolicy)]
     [Authorize(Policy = PolicyNames.AdminPolicy)]
     [Authorize(Policy = PolicyNames.MemberPolicy)]
     [HttpPut(UpdateCustomerRequest.Route)]
-    public async Task<ActionResult<UpdateCustomerResponse>> Update([FromRoute] CustomerId id, [FromBody] UpdateCustomerRequest request)
+    public async Task<ActionResult<UpdateCustomerResponse>> Update([FromRoute] CustomerId customerId, [FromBody] UpdateCustomerRequest request)
     {
         var updatedCustomer = await _mapper.MapAsync<UpdateCustomerRequest, Customer>(request);
         await _customerCrudRepository.UpdateAsync(updatedCustomer);
@@ -94,9 +90,9 @@ public class CustomersController : ControllerBase
     [Authorize(Policy = PolicyNames.AdminPolicy)]
     [Authorize(Policy = PolicyNames.MemberPolicy)]
     [HttpDelete(DeleteCustomerRequest.Route)]
-    public async Task<IActionResult> Delete([FromRoute] CustomerId id)
+    public async Task<IActionResult> Delete([FromRoute] CustomerId customerId)
     {
-        var customer = await _customerCrudRepository.GetByIdAsync(id);
+        var customer = await _customerCrudRepository.GetByIdAsync(customerId);
         if (customer == null)
         {
             return NotFound();

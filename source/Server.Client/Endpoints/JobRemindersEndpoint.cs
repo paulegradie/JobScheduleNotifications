@@ -1,8 +1,8 @@
 ﻿using Server.Client.Base;
-using Server.Contracts.Client.Endpoints;
-using Server.Contracts.Client.Endpoints.Reminders;
-using Server.Contracts.Client.Endpoints.Reminders.Contracts;
 using Server.Contracts.Common;
+using Server.Contracts.Endpoints;
+using Server.Contracts.Endpoints.Reminders;
+using Server.Contracts.Endpoints.Reminders.Contracts;
 
 namespace Server.Client.Endpoints;
 

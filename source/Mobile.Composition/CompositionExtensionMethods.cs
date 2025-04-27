@@ -1,15 +1,13 @@
 ﻿using System.Net.Http.Headers;
 using Microsoft.Extensions.Logging;
-using Mobile.Core.Domain.Repositories;
-using Mobile.Core.Errors;
-using Mobile.Core.Utilities;
 using Mobile.Infrastructure.Persistence;
+using Mobile.Infrastructure.Services;
 using Mobile.UI.PageModels;
 using Mobile.UI.Pages;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Client;
 using Server.Client.Base;
-using Server.Contracts.Client;
+using Server.Contracts;
 
 namespace Mobile.Composition;
 
@@ -22,8 +20,6 @@ public static class CompositionExtensionMethods
 #endif
 
         // Pages
-        services.AddSingleton<ModalErrorHandler>();
-
         services.AddSingleton<HomePage>();
         services.AddSingleton<HomePageViewModel>();
 
@@ -40,14 +36,12 @@ public static class CompositionExtensionMethods
         services.AddSingleton<ScheduleJobViewModel>();
         services.AddSingleton<ScheduleJobPage>();
 
-        // Repositories
-        services.AddTransient<INavigationRepository, NavigationRepository>();
-        services.AddTransient<IJobRepository, JobRepository>();
-        services.AddSingleton<ITokenRepository, InMemoryTokenRepository>();
-        services.AddScoped<ICustomerRepository, CustomerRepository>();
 
         // Service
-        services.AddTransient<IJobRepository, JobRepository>();
+        services.AddDomainServices();
+
+        // Infra
+        services.RegisterInfrastructure();
 
         // Clients
         services.AddTransient<AuthenticationHandler>();

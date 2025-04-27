@@ -1,7 +1,7 @@
 using Api.ValueTypes;
-using Server.Contracts.Client.Endpoints;
-using Server.Contracts.Client.Endpoints.Customers.Contracts;
 using Server.Contracts.Dtos;
+using Server.Contracts.Endpoints;
+using Server.Contracts.Endpoints.Customers.Contracts;
 
 namespace Mobile.UI.RepositoryAbstractions;
 

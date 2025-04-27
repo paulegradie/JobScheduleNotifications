@@ -1,8 +1,8 @@
 ﻿using Server.Client.Base;
-using Server.Contracts.Client.Endpoints;
-using Server.Contracts.Client.Endpoints.Auth;
-using Server.Contracts.Client.Endpoints.Auth.Contracts;
 using Server.Contracts.Common;
+using Server.Contracts.Endpoints;
+using Server.Contracts.Endpoints.Auth;
+using Server.Contracts.Endpoints.Auth.Contracts;
 
 namespace Server.Client.Endpoints;
 

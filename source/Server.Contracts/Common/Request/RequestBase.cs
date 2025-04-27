@@ -1,4 +1,4 @@
-﻿using Server.Contracts.Client.Endpoints;
+﻿using Server.Contracts.Endpoints;
 
 namespace Server.Contracts.Common.Request;
 
@@ -11,7 +11,6 @@ public abstract record RequestBase(string RouteInternal)
 
     public string ApiRoute => GetApiRoute().ToString();
 
-    protected const string IdSegmentParam = "{id}";
     protected const string CustomerIdSegmentParam = "{customerId}";
     protected const string JobDefinitionIdSegmentParam = "{jobDefinitionId}";
     protected const string JobOccurenceIdSegmentParam = "{jobOccurenceId}";

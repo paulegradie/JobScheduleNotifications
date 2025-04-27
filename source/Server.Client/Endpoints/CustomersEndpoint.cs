@@ -1,7 +1,7 @@
 ﻿using Server.Client.Base;
-using Server.Contracts.Client.Endpoints;
-using Server.Contracts.Client.Endpoints.Customers;
-using Server.Contracts.Client.Endpoints.Customers.Contracts;
+using Server.Contracts.Endpoints;
+using Server.Contracts.Endpoints.Customers;
+using Server.Contracts.Endpoints.Customers.Contracts;
 
 namespace Server.Client.Endpoints;
 

@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
-using Server.Contracts.Client;
-using Server.Contracts.Client.Endpoints.Auth;
+using Server.Contracts;
 
 namespace Server.Client.Base;
 

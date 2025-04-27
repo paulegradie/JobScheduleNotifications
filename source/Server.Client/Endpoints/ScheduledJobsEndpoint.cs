@@ -1,7 +1,7 @@
 ﻿using Server.Client.Base;
-using Server.Contracts.Client.Endpoints;
-using Server.Contracts.Client.Endpoints.ScheduledJobs;
-using Server.Contracts.Client.Endpoints.ScheduledJobs.Contracts;
+using Server.Contracts.Endpoints;
+using Server.Contracts.Endpoints.ScheduledJobs;
+using Server.Contracts.Endpoints.ScheduledJobs.Contracts;
 
 namespace Server.Client.Endpoints;
 

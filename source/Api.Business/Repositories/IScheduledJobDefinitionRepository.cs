@@ -10,5 +10,5 @@ public interface IScheduledJobDefinitionRepository
     Task<List<ScheduledJobDefinitionDomainModel>> ListByCustomerAsync(CustomerId customerId);
     Task<List<ScheduledJobDefinitionDomainModel>> ListAllAsync();
     Task AddAsync(ScheduledJobDefinitionDomainModel def);
-    Task<bool> UpdateAsync(ScheduledJobDefinitionDomainModel def);
+    Task UpdateAsync(ScheduledJobDefinitionDomainModel def);
 }

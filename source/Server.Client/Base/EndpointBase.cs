@@ -1,9 +1,9 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using Server.Client.Exceptions;
-using Server.Contracts.Client.Endpoints;
 using Server.Contracts.Common;
 using Server.Contracts.Common.Request;
+using Server.Contracts.Endpoints;
 
 namespace Server.Client.Base;
 

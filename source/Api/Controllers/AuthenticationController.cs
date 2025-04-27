@@ -3,9 +3,8 @@ using Api.Controllers.Base;
 using Api.Infrastructure.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Server.Contracts.Client.Endpoints.Auth;
-using Server.Contracts.Client.Endpoints.Auth.Contracts;
 using Server.Contracts.Dtos;
+using Server.Contracts.Endpoints.Auth.Contracts;
 
 namespace Api.Controllers;
 

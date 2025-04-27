@@ -1,6 +1,6 @@
 using Api.ValueTypes;
-using Server.Contracts.Client.Endpoints;
 using Server.Contracts.Dtos;
+using Server.Contracts.Endpoints;
 
 namespace Mobile.UI.RepositoryAbstractions;
 

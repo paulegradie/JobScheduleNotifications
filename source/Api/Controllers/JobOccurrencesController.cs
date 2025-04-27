@@ -5,7 +5,7 @@ using Api.Business.Entities;
 using Api.Infrastructure.Data;
 using Api.Infrastructure.DbTables.Jobs;
 using Api.ValueTypes;
-using Server.Contracts.Client.Endpoints.JobOccurence.Contracts;
+using Server.Contracts.Endpoints.JobOccurence.Contracts;
 
 namespace Api.Controllers
 {
@@ -100,7 +100,6 @@ namespace Api.Controllers
             occ.ScheduledJobDefinitionId = req.JobDefinitionId;
             await _occRepo.UpdateAsync(occ);
             
-            await _uow.SaveChangesAsync();
             return Ok(new UpdateJobOccurrenceResponse(occ.ToDto()));
         }
 

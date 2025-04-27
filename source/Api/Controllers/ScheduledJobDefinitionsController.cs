@@ -7,7 +7,7 @@ using Api.ValueTypes;
 using Api.ValueTypes.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Server.Contracts.Client.Endpoints.ScheduledJobs.Contracts;
+using Server.Contracts.Endpoints.ScheduledJobs.Contracts;
 
 namespace Api.Controllers;
 
@@ -15,18 +15,18 @@ namespace Api.Controllers;
 [ApiController]
 public class ScheduledJobDefinitionsController : ControllerBase
 {
-    private readonly IScheduledJobDefinitionRepository _repo;
+    private readonly IScheduledJobDefinitionRepository _scheduledJobDefinitionRepository;
     private readonly IRecurrenceCalculator _calculator;
     private readonly IJobSchedulingService _scheduler;
     private readonly AppDbContext _uow;
 
     public ScheduledJobDefinitionsController(
-        IScheduledJobDefinitionRepository repo,
+        IScheduledJobDefinitionRepository scheduledJobDefinitionRepository,
         IRecurrenceCalculator calculator,
         IJobSchedulingService scheduler,
         AppDbContext uow)
     {
-        _repo = repo;
+        _scheduledJobDefinitionRepository = scheduledJobDefinitionRepository;
         _calculator = calculator;
         _scheduler = scheduler;
         _uow = uow;
@@ -35,7 +35,7 @@ public class ScheduledJobDefinitionsController : ControllerBase
     [HttpGet(ListJobDefinitionsByCustomerIdRequest.Route)]
     public async Task<ActionResult<ListJobDefinitionsByCustomerIdResponse>> ListDefinitions([FromRoute] CustomerId customerId)
     {
-        var defs = await _repo.ListByCustomerAsync(customerId);
+        var defs = await _scheduledJobDefinitionRepository.ListByCustomerAsync(customerId);
         var dtos = defs.Select(d => d.ToDto());
         return Ok(new ListJobDefinitionsByCustomerIdResponse(dtos));
     }
@@ -44,7 +44,7 @@ public class ScheduledJobDefinitionsController : ControllerBase
     [HttpGet(GetScheduledJobDefinitionByIdRequest.Route)]
     public async Task<ActionResult<GetScheduledJobDefinitionByIdResponse>> GetDefinition([FromRoute] CustomerId customerId, [FromRoute] ScheduledJobDefinitionId jobDefinitionId)
     {
-        var def = await _repo.GetAsync(jobDefinitionId);
+        var def = await _scheduledJobDefinitionRepository.GetAsync(jobDefinitionId);
         if (def == null || def.CustomerId != customerId)
             return NotFound();
 
@@ -55,7 +55,7 @@ public class ScheduledJobDefinitionsController : ControllerBase
     [HttpGet(GetNextScheduledJobRunRequest.Route)]
     public async Task<ActionResult<DateTime>> GetNextRun([FromRoute] CustomerId customerId, [FromRoute] ScheduledJobDefinitionId jobDefinitionId)
     {
-        var def = await _repo.GetAsync(jobDefinitionId);
+        var def = await _scheduledJobDefinitionRepository.GetAsync(jobDefinitionId);
         if (def == null || def.CustomerId != new CustomerId(customerId))
             return NotFound();
 
@@ -90,20 +90,19 @@ public class ScheduledJobDefinitionsController : ControllerBase
             JobOccurrences = new List<JobOccurrenceDomainModel>()
         };
 
-        await _repo.AddAsync(def);
+        await _scheduledJobDefinitionRepository.AddAsync(def);
         await _uow.SaveChangesAsync();
 
         return new CreateScheduledJobDefinitionResponse(def.ToDto());
     }
 
-    // PUG: api/customers/{customerId}/jobs/{jobId}
     [HttpPut(UpdateScheduledJobDefinitionRequest.Route)]
-    public async Task<ActionResult<UpdateScheduledJobDefinitionResponse>> UpdateDefinition(
+    public async Task<ActionResult<UpdateScheduledJobDefinitionResponse>> Update(
         [FromRoute] CustomerId customerId,
         [FromRoute] ScheduledJobDefinitionId jobDefinitionId,
         [FromBody] CreateScheduledJobDefinitionRequest req)
     {
-        var def = await _repo.GetAsync(jobDefinitionId);
+        var def = await _scheduledJobDefinitionRepository.GetAsync(jobDefinitionId);
         if (def == null || def.CustomerId != customerId)
             return NotFound();
 
@@ -117,7 +116,7 @@ public class ScheduledJobDefinitionsController : ControllerBase
         def.Pattern.DayOfMonth = req.DayOfMonth;
         def.Pattern.CronExpression = req.CronExpression;
 
-        await _uow.SaveChangesAsync();
+        await _scheduledJobDefinitionRepository.UpdateAsync(def);
 
         return new UpdateScheduledJobDefinitionResponse(def.ToDto());
     }

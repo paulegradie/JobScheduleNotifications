@@ -133,7 +133,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
                     d => d.Pattern,
                     rp =>
                     {
-                        rp.Property(p => p.Id).HasConversion<RecurrencePatternIdConverter>().HasValueGenerator<RecurrencePatternIdValueGenerator>().ValueGeneratedOnAdd();
+                        rp.Property(p => p.RecurrencePatternId).HasConversion<RecurrencePatternIdConverter>().HasValueGenerator<RecurrencePatternIdValueGenerator>().ValueGeneratedOnAdd();
                         rp.Property(p => p.Frequency).HasColumnName("Frequency").IsRequired();
                         rp.Property(p => p.Interval).HasColumnName("Interval").IsRequired();
                         rp.Property(p => p.WeekDays).HasColumnName("DaysOfWeek");

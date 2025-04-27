@@ -1,15 +1,15 @@
 using System.Runtime.CompilerServices;
 using Server.Client.Endpoints;
-using Server.Contracts.Client;
-using Server.Contracts.Client.Endpoints.Auth;
-using Server.Contracts.Client.Endpoints.Customers;
-using Server.Contracts.Client.Endpoints.Home;
-using Server.Contracts.Client.Endpoints.JobOccurence;
-using Server.Contracts.Client.Endpoints.Reminders;
-using Server.Contracts.Client.Endpoints.ScheduledJobs;
+using Server.Contracts;
+using Server.Contracts.Endpoints.Auth;
+using Server.Contracts.Endpoints.Customers;
+using Server.Contracts.Endpoints.Home;
+using Server.Contracts.Endpoints.JobOccurence;
+using Server.Contracts.Endpoints.Reminders;
+using Server.Contracts.Endpoints.ScheduledJobs;
 
 [assembly: InternalsVisibleTo("Mobile.Composition")]
-[assembly: InternalsVisibleTo("IntegrationTests")]
+[assembly: InternalsVisibleTo("Tests.IntegrationTests")]
 
 namespace Server.Client;
 

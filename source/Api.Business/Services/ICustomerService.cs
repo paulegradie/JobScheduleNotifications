@@ -1,6 +1,6 @@
 ﻿using Api.ValueTypes;
-using Server.Contracts.Client.Endpoints.Customers.Contracts;
 using Server.Contracts.Dtos;
+using Server.Contracts.Endpoints.Customers.Contracts;
 
 namespace Api.Business.Services;
 

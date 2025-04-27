@@ -52,17 +52,30 @@ public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepositor
         // copy the generated Id back if you need it: def.Id = entity.Id;
     }
 
-    public async Task<bool> UpdateAsync(ScheduledJobDefinitionDomainModel def)
+    public async Task UpdateAsync(ScheduledJobDefinitionDomainModel def)
     {
         var entity = await _context.ScheduledJobDefinitions
             .Include(d => d.JobOccurrences)
             .ThenInclude(o => o.JobReminders)
             .FirstOrDefaultAsync(d => d.Id == def.ScheduledJobDefinitionId);
 
-        if (entity == null) return false;
+        if (entity == null)
+            return;
 
-        _context.ScheduledJobDefinitions.Update(def.ToEntity());
-        return true;
+        entity.Title = def.Title;
+        entity.Description = def.Description;
+        entity.AnchorDate = def.AnchorDate;
+        entity.Pattern.Frequency = def.Pattern.Frequency;
+        entity.Pattern.Interval = def.Pattern.Interval;
+        entity.Pattern.WeekDays = def.Pattern.WeekDays;
+        entity.Pattern.DayOfMonth = def.Pattern.DayOfMonth;
+
+        _context.ScheduledJobDefinitions.Update(entity);
+
+        await _context.SaveChangesAsync();
+        def.ScheduledJobDefinitionId = entity.Id;
+        def.CustomerId = entity.CustomerId;
+        def.Pattern.Id = entity.Pattern.Id;
     }
 }
 

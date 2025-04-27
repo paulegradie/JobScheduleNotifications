@@ -1,8 +1,8 @@
 ﻿using Server.Client.Base;
-using Server.Contracts.Client.Endpoints;
-using Server.Contracts.Client.Endpoints.JobOccurence;
-using Server.Contracts.Client.Endpoints.JobOccurence.Contracts;
 using Server.Contracts.Common;
+using Server.Contracts.Endpoints;
+using Server.Contracts.Endpoints.JobOccurence;
+using Server.Contracts.Endpoints.JobOccurence.Contracts;
 
 namespace Server.Client.Endpoints;
 
