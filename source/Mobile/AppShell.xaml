@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
+
 <Shell
     x:Class="Mobile.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -7,7 +8,10 @@
     xmlns:pages1="clr-namespace:Mobile.UI.Pages;assembly=Mobile.UI"
     Shell.FlyoutBehavior="Flyout"
     Title="Mobile">
-
+    <Shell.FlyoutIcon>
+        <FontImageSource Glyph="&#xE10F;"
+                         Color="{StaticResource IconLight}" />
+    </Shell.FlyoutIcon>
     <ShellContent
         Title="Home-Test-Page"
         Icon="{StaticResource IconDashboard}"
@@ -16,13 +20,14 @@
 
     <Shell.FlyoutFooter>
         <Grid Padding="15">
-            <sf:SfSegmentedControl x:Name="ThemeSegmentedControl" 
-                VerticalOptions="Center" HorizontalOptions="Center" SelectionChanged="SfSegmentedControl_SelectionChanged"
-                SegmentWidth="40" SegmentHeight="40">
+            <sf:SfSegmentedControl x:Name="ThemeSegmentedControl"
+                                   VerticalOptions="Center" HorizontalOptions="Center"
+                                   SelectionChanged="SfSegmentedControl_SelectionChanged"
+                                   SegmentWidth="40" SegmentHeight="40">
                 <sf:SfSegmentedControl.ItemsSource>
                     <x:Array Type="{x:Type sf:SfSegmentItem}">
-                        <sf:SfSegmentItem ImageSource="{StaticResource IconLight}"/>
-                        <sf:SfSegmentItem ImageSource="{StaticResource IconDark}"/>
+                        <sf:SfSegmentItem ImageSource="{StaticResource IconLightGlyph}" />
+                        <sf:SfSegmentItem ImageSource="{StaticResource IconDarkGlyph}" />
                     </x:Array>
                 </sf:SfSegmentedControl.ItemsSource>
             </sf:SfSegmentedControl>

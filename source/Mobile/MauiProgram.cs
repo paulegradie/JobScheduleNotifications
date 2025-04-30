@@ -5,6 +5,9 @@ using Microsoft.Extensions.Logging;
 using Mobile.Composition;
 using Syncfusion.Maui.Toolkit.Hosting;
 
+// for AppWindow APIs
+
+// for SizeInt32
 namespace Mobile;
 
 public static class MauiProgram
@@ -17,7 +20,6 @@ public static class MauiProgram
             .UseMauiCommunityToolkit()
             .UseMauiCommunityToolkitMarkup()
             .ConfigureSyncfusionToolkit()
-            .ConfigureMauiHandlers(handlers => { })
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -25,7 +27,6 @@ public static class MauiProgram
                 fonts.AddFont("SegoeUI-Semibold.ttf", "SegoeSemibold");
                 fonts.AddFont("FluentSystemIcons-Regular.ttf", FluentUI.FontFamily);
             });
-
 
 // #if DEBUG
         builder.Logging.AddDebug();

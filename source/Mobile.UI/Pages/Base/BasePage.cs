@@ -51,13 +51,12 @@ public abstract class BasePage : ContentPage // ContentPage is MAUI’s root pag
 
 /// Strongly‑typed wrapper so derived pages can access their
 /// view‑model without casting.
-public abstract partial class BasePage<TViewModel>(TViewModel vm)
-    : BasePage(vm)
+public abstract partial class BasePage<TViewModel>(TViewModel vm) : BasePage(vm)
     where TViewModel : class
 {
     protected new TViewModel BindingContext
     {
-        get { return (TViewModel)base.BindingContext; }
-        set { base.BindingContext = value; }
+        get => (TViewModel)base.BindingContext;
+        set => base.BindingContext = value;
     }
 }

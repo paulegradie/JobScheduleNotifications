@@ -13,9 +13,7 @@ public partial class CustomersViewModel : ObservableObject
     private readonly INavigationRepository _navigation;
 
     [ObservableProperty] private bool _isLoading;
-
     [ObservableProperty] private string _searchText = string.Empty;
-
     [ObservableProperty] private ObservableCollection<CustomerDto> _customers = new();
 
     public CustomersViewModel(
@@ -31,11 +29,9 @@ public partial class CustomersViewModel : ObservableObject
     {
         if (IsLoading) return;
         IsLoading = true;
-
         try
         {
             var result = await _customerRepository.GetCustomersAsync();
-            // marshal back to main thread for any UI-bound collection ops
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 Customers.Clear();
@@ -50,15 +46,6 @@ public partial class CustomersViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task ScheduleJobAsync(CustomerDto? customer)
-    {
-        if (customer == null) return;
-        await _navigation.GoToAsync(
-            nameof(AddScheduledJobPage),
-            new Dictionary<string, object> { { "customerId", customer.Id.ToString() } });
-    }
-
-    [RelayCommand]
     private async Task AddCustomerAsync()
         => await _navigation.GoToAsync(nameof(CreateCustomerPage));
 
@@ -67,7 +54,7 @@ public partial class CustomersViewModel : ObservableObject
     {
         if (customer == null) return;
         await _navigation.GoToAsync(
-            nameof(CustomerPage),
+            nameof(CustomerEditPage),
             new Dictionary<string, object> { { "customerId", customer.Id.ToString() } });
     }
 
@@ -87,8 +74,25 @@ public partial class CustomersViewModel : ObservableObject
         IsLoading = false;
     }
 
-    public async Task NavigateHome()
+    [RelayCommand]
+    private async Task CreateJobAsync(CustomerDto? customer)
     {
-        await _navigation.GoToAsync(nameof(HomePage));   
+        if (customer == null) return;
+        await _navigation.GoToAsync(
+            nameof(AddScheduledJobPage),
+            new Dictionary<string, object> { { "customerId", customer.Id.ToString() } });
     }
+
+    [RelayCommand]
+    private async Task ViewJobsAsync(CustomerDto? customer)
+    {
+        if (customer == null) return;
+        await _navigation.GoToAsync(
+            nameof(ScheduledJobPage),
+            new Dictionary<string, object> { { "customerId", customer.Id.ToString() } });
+    }
+
+    [RelayCommand]
+    public async Task NavigateHomeAsync()
+        => await _navigation.GoToAsync(nameof(HomePage));
 }

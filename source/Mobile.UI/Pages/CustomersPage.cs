@@ -11,6 +11,7 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
     public CustomersPage(CustomersViewModel vm) : base(vm)
     {
         Title = "Customers";
+
         ToolbarItems.Add(new ToolbarItem
         {
             Text = "Add",
@@ -21,8 +22,9 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
         {
             Text = "Home",
             IconImageSource = "home.png",
-            Command = new Command(async () => await vm.NavigateHome())
+            // Command = vm.NavigateHomeCommand
         });
+
         Content = new Grid
         {
             Padding = 20,
@@ -39,31 +41,26 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
         Loaded += async (_, _) => await vm.LoadCustomersCommand.ExecuteAsync(null);
     }
 
-    /* header = SearchBar + Add button */
     private static Grid BuildHeader(CustomersViewModel vm) =>
         new Grid
         {
             ColumnSpacing = 10,
             ColumnDefinitions = Columns.Define((Col.Search, Star), (Col.Add, Auto)),
-
             Children =
             {
                 new SearchBar()
                     .Placeholder("Search customers…")
                     .Bind(SearchBar.TextProperty, nameof(vm.SearchText), BindingMode.TwoWay)
                     .Bind(SearchBar.SearchCommandProperty, nameof(vm.LoadCustomersCommand))
-                    .Column(Col.Search), // ← no generic type
+                    .Column(Col.Search),
+
                 new Button()
                     .Text("Add")
                     .Bind(Button.CommandProperty, nameof(vm.AddCustomerCommand))
-                    .BackgroundColor(Colors.CadetBlue)
-                    .TextColor(Colors.White)
-                    .Size(80, 40)
                     .Column(Col.Add)
             }
         };
 
-    /* body = RefreshView → CollectionView with Swipe actions */
     private static RefreshView BuildBody(CustomersViewModel vm) =>
         new RefreshView
             {
@@ -71,83 +68,66 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
                     {
                         SelectionMode = SelectionMode.None,
                         EmptyView = "No customers found",
-                        ItemTemplate = new DataTemplate(() => BuildSwipeTemplate(vm))
+                        ItemTemplate = new DataTemplate(() => BuildCustomerTemplate(vm))
                     }
                     .Bind(CollectionView.ItemsSourceProperty, nameof(vm.Customers))
             }
-            .Bind(RefreshView.IsRefreshingProperty, nameof(vm.IsLoading));
-    // .Bind(RefreshView.CommandProperty, nameof(vm.RefreshCommand));
+            .Bind(RefreshView.IsRefreshingProperty, nameof(vm.IsLoading))
+            .Bind(RefreshView.CommandProperty, nameof(vm.LoadCustomersCommand));
 
-    /* busy overlay */
     private static ActivityIndicator BuildBusyIndicator(CustomersViewModel vm) =>
         new ActivityIndicator()
             .Center()
             .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsLoading))
             .Bind(IsVisibleProperty, nameof(vm.IsLoading));
 
-    /* swipe template */
-    private static SwipeView BuildSwipeTemplate(CustomersViewModel vm)
+    private static Frame BuildCustomerTemplate(CustomersViewModel vm)
     {
-        var swipeItems = new SwipeItems
-        {
-            new SwipeItem
-                {
-                    Text = "Edit",
-                    BackgroundColor = Colors.CadetBlue
-                }
-                .Bind(SwipeItem.CommandProperty, nameof(vm.EditCustomerCommand), source: vm)
-                .Bind(SwipeItem.CommandParameterProperty, "."),
-            new SwipeItem
-                {
-                    Text = "Delete",
-                    BackgroundColor = Colors.IndianRed
-                }
-                .Bind(SwipeItem.CommandProperty, nameof(vm.DeleteCustomerCommand), source: vm)
-                .Bind(SwipeItem.CommandParameterProperty, ".")
-        };
-
-        return new SwipeView
-        {
-            RightItems = swipeItems,
-            Content = BuildRowContent()
-        };
-    }
-
-    /* row content */
-    private static Grid BuildRowContent() =>
-        new Grid
+        // Card-like container
+        return new Frame
         {
             Padding = 10,
-            ColumnDefinitions = Columns.Define((CustCol.Info, Star), (CustCol.Chevron, Auto)),
-            Children =
+            Margin = new Thickness(0, 0, 0, 10),
+            Content = new VerticalStackLayout
             {
-                new VerticalStackLayout
+                Spacing = 8,
+                Children =
                 {
-                    Spacing = 4,
-                    Children =
-                    {
-                        new Label().Font(size: 16, bold: true)
-                            .Bind(Label.TextProperty, nameof(CustomerDto.FirstName)),
-                        new Label().Font(size: 16, bold: true)
-                            .Bind(Label.TextProperty, nameof(CustomerDto.LastName)),
-                        new Label().FontSize(14)
-                            .TextColor(Colors.Gray)
-                            .Bind(Label.TextProperty, nameof(CustomerDto.Email)),
-                        new Label().FontSize(14)
-                            .TextColor(Colors.Gray)
-                            .Bind(Label.TextProperty, nameof(CustomerDto.PhoneNumber))
-                    }
-                }.Column(CustCol.Info),
+                    new Label().Font(size: 16, bold: true)
+                        .Bind(Label.TextProperty, nameof(CustomerDto.FirstName)),
+                    new Label().Font(size: 16, bold: true)
+                        .Bind(Label.TextProperty, nameof(CustomerDto.LastName)),
+                    new Label().FontSize(14)
+                        .TextColor((Color)Application.Current.Resources["TextSecondary"])
+                        .Bind(Label.TextProperty, nameof(CustomerDto.Email)),
+                    new Label().FontSize(14)
+                        .TextColor((Color)Application.Current.Resources["TextSecondary"])
+                        .Bind(Label.TextProperty, nameof(CustomerDto.PhoneNumber)),
 
-                new Image
-                {
-                    Source = "chevron_right.png",
-                    HeightRequest = 20,
-                    WidthRequest = 20,
-                    VerticalOptions = LayoutOptions.Center
-                }.Column(CustCol.Chevron)
+                    // Buttons row
+                    new HorizontalStackLayout
+                    {
+                        Spacing = 10,
+                        Children =
+                        {
+                            new Button { Text = "Edit" }
+                                .Bind(Button.CommandProperty, nameof(vm.EditCustomerCommand), source: vm)
+                                .Bind(Button.CommandParameterProperty, "."),
+                            new Button { Text = "Delete" }
+                                .Bind(Button.CommandProperty, nameof(vm.DeleteCustomerCommand), source: vm)
+                                .Bind(Button.CommandParameterProperty, "."),
+                            new Button { Text = "New Job" }
+                                .Bind(Button.CommandProperty, nameof(vm.CreateJobCommand), source: vm)
+                                .Bind(Button.CommandParameterProperty, "."),
+                            new Button { Text = "View Jobs" }
+                                .Bind(Button.CommandProperty, nameof(vm.ViewJobsCommand), source: vm)
+                                .Bind(Button.CommandParameterProperty, ".")
+                        }
+                    }
+                }
             }
         };
+    }
 
     private enum Row
     {
@@ -159,11 +139,5 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
     {
         Search,
         Add
-    }
-
-    private enum CustCol
-    {
-        Info,
-        Chevron
     }
 }
