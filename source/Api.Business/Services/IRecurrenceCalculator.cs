@@ -1,4 +1,5 @@
-﻿using Api.Business.Features.ScheduledJobs;
+﻿
+using Api.Business.Entities;
 
 namespace Api.Business.Services;
 
@@ -9,7 +10,7 @@ public interface IRecurrenceCalculator
     /// return the next DateTime (in UTC).
     /// </summary>
     DateTime GetNextOccurrence(
-        RecurrencePattern pattern,
+        RecurrencePatternDomainModel pattern,
         DateTime anchorDateUtc,
         DateTime afterUtc);
 }

@@ -5,7 +5,7 @@ namespace Api.Infrastructure.DbTables.Jobs;
 
 public class JobOccurrence
 {
-    public JobOccurrenceId Id { get; set; }
+    public JobOccurrenceId JobOccurrenceId { get; set; }
     public DateTime OccurrenceDate { get; set; }
     public DateTime? CompletedDate { get; set; }
 

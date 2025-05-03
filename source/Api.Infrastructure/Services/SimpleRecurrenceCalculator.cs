@@ -1,5 +1,6 @@
-﻿using Api.Business.Features.ScheduledJobs;
+﻿using Api.Business.Entities;
 using Api.Business.Services;
+using Api.Infrastructure.DbTables.Jobs;
 using Api.ValueTypes.Enums;
 using NCrontab;
 
@@ -8,7 +9,7 @@ namespace Api.Infrastructure.Services;
 public class SimpleRecurrenceCalculator : IRecurrenceCalculator
 {
     public DateTime GetNextOccurrence(
-        RecurrencePattern pat,
+        RecurrencePatternDomainModel pat,
         DateTime anchorDateUtc,
         DateTime afterUtc)
     {
@@ -24,14 +25,14 @@ public class SimpleRecurrenceCalculator : IRecurrenceCalculator
         };
     }
 
-    private DateTime NextDaily(RecurrencePattern pat, DateTime afterUtc)
+    private DateTime NextDaily(RecurrencePatternDomainModel pat, DateTime afterUtc)
         => afterUtc
             .Date
             .AddDays(pat.Interval)
             .Add(afterUtc.TimeOfDay);
 
     private DateTime NextWeekly(
-        RecurrencePattern pat,
+        RecurrencePatternDomainModel pat,
         DateTime anchorDateUtc,
         DateTime afterUtc)
     {
@@ -44,7 +45,7 @@ public class SimpleRecurrenceCalculator : IRecurrenceCalculator
             var inCorrectInterval = (weeksSinceAnchor % pat.Interval) == 0;
 
             // map DayOfWeek → WeekDays mask
-            var dowFlag = (WeekDays)(1 << (int)candidate.DayOfWeek);
+            var dowFlag = (WeekDay)(1 << (int)candidate.DayOfWeek);
             var isCorrectDay = pat.WeekDays.Any(x => x.HasFlag(dowFlag));
 
             if (inCorrectInterval && isCorrectDay)
@@ -54,7 +55,7 @@ public class SimpleRecurrenceCalculator : IRecurrenceCalculator
         }
     }
 
-    private DateTime NextMonthly(RecurrencePattern pat, DateTime afterUtc)
+    private DateTime NextMonthly(RecurrencePatternDomainModel pat, DateTime afterUtc)
     {
         if (!pat.DayOfMonth.HasValue)
             throw new ArgumentException(
@@ -75,11 +76,11 @@ public class SimpleRecurrenceCalculator : IRecurrenceCalculator
             DateTimeKind.Utc);
     }
 
-    private DateTime NextYearly(RecurrencePattern pat, DateTime afterUtc)
+    private DateTime NextYearly(RecurrencePatternDomainModel pat, DateTime afterUtc)
         => afterUtc
             .AddYears(pat.Interval);
 
-    private DateTime NextCron(RecurrencePattern pat, DateTime afterUtc)
+    private DateTime NextCron(RecurrencePatternDomainModel pat, DateTime afterUtc)
     {
         if (string.IsNullOrWhiteSpace(pat.CronExpression))
             throw new ArgumentException(

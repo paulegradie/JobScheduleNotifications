@@ -11,4 +11,6 @@ public class CustomerDto
     public string? Email { get; init; }
     public string? Notes { get; init; }
     public DateTime CreatedAt { get; set; }
+
+    public string FullName => $"{FirstName} {LastName}";
 }

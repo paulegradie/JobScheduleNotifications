@@ -14,41 +14,29 @@ namespace Mobile.UI.PageModels
         private readonly ICustomerService _customerService;
         private readonly INavigationRepository _navigation;
 
-        [ObservableProperty]
-        private ObservableCollection<CustomerDto> _customers = new();
+        [ObservableProperty] private ObservableCollection<CustomerDto> _customers = new();
 
-        [ObservableProperty]
-        private CustomerDto _selectedCustomer;
+        [ObservableProperty] private CustomerDto _selectedCustomer;
 
-        [ObservableProperty]
-        private string _title = "Schedule Job";
+        [ObservableProperty] private string _title = "Schedule Job";
 
-        [ObservableProperty]
-        private DateTime _anchorDate = DateTime.Now;
+        [ObservableProperty] private DateTime _anchorDate = DateTime.Now;
 
-        [ObservableProperty]
-        private Frequency _frequency = Frequency.Daily;
+        [ObservableProperty] private Frequency _frequency = Frequency.Daily;
 
-        [ObservableProperty]
-        private int _interval = 1;
+        [ObservableProperty] private int _interval = 1;
 
-        [ObservableProperty]
-        private ObservableCollection<WeekDays> _selectedWeekDays = new();
+        [ObservableProperty] private ObservableCollection<WeekDay> _selectedWeekDays = new();
 
-        [ObservableProperty]
-        private int? _dayOfMonth;
+        [ObservableProperty] private int? _dayOfMonth;
 
-        [ObservableProperty]
-        private string _cronExpression;
+        [ObservableProperty] private string _cronExpression;
 
-        [ObservableProperty]
-        private string _description = string.Empty;
+        [ObservableProperty] private string _description = string.Empty;
 
-        [ObservableProperty]
-        private string _errorMessage = string.Empty;
+        [ObservableProperty] private string _errorMessage = string.Empty;
 
-        [ObservableProperty]
-        private bool _isBusy;
+        [ObservableProperty] private bool _isBusy;
 
         public ScheduledJobViewModel(
             IJobService jobService,
@@ -77,7 +65,10 @@ namespace Mobile.UI.PageModels
             {
                 ErrorMessage = "Unable to load customers.";
             }
-            finally { IsBusy = false; }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         [RelayCommand]
@@ -90,17 +81,22 @@ namespace Mobile.UI.PageModels
             if (SelectedCustomer == null)
             {
                 ErrorMessage = "Select a customer.";
-                IsBusy = false; return;
+                IsBusy = false;
+                return;
             }
+
             if (string.IsNullOrWhiteSpace(Title))
             {
                 ErrorMessage = "Enter a title.";
-                IsBusy = false; return;
+                IsBusy = false;
+                return;
             }
+
             if (string.IsNullOrWhiteSpace(Description))
             {
                 ErrorMessage = "Enter a description.";
-                IsBusy = false; return;
+                IsBusy = false;
+                return;
             }
 
             try
@@ -125,7 +121,10 @@ namespace Mobile.UI.PageModels
             {
                 ErrorMessage = "Failed to schedule job.";
             }
-            finally { IsBusy = false; }
+            finally
+            {
+                IsBusy = false;
+            }
         }
     }
 }

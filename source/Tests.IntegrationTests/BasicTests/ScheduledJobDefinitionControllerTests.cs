@@ -72,7 +72,7 @@ public class ScheduledJobDefinitionControllerTests : AuthenticatedIntegrationTes
             Description: "DescX",
             Frequency: Frequency.Weekly,
             Interval: 2,
-            WeekDays: new[] { WeekDays.Monday, WeekDays.Wednesday },
+            WeekDays: new[] { WeekDay.Monday, WeekDay.Wednesday },
             DayOfMonth: null,
             CronExpression: null,
             AnchorDate: DateTime.UtcNow
@@ -116,7 +116,7 @@ public class ScheduledJobDefinitionControllerTests : AuthenticatedIntegrationTes
             .WithDescription("NewDesc")
             .WithFrequency(Frequency.Monthly)
             .WithInterval(1)
-            .WithWeekDays([WeekDays.Monday])
+            .WithWeekDays([WeekDay.Monday])
             .WithDayOfMonth(20)
             .WithCronExpression(null!)
             .WithAnchorDate(updatedAnchor)

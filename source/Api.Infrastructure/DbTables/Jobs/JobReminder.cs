@@ -4,7 +4,7 @@ namespace Api.Infrastructure.DbTables.Jobs;
 
 public class JobReminder
 {
-    public JobReminderId Id { get; set; }
+    public JobReminderId JobReminderId { get; set; }
     public DateTime ReminderDateTime { get; set; }
     public string Message { get; set; } = string.Empty;
     public bool IsSent { get; set; }

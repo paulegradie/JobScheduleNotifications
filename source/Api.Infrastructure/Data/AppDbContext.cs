@@ -1,9 +1,11 @@
+using System.Text.Json;
 using Api.Infrastructure.Data.TypeConverters;
 using Api.Infrastructure.DbTables.Jobs;
 using Api.Infrastructure.DbTables.OrganizationModels;
 using Api.Infrastructure.EntityFramework;
 using Api.Infrastructure.Services;
 using Api.ValueTypes;
+using Api.ValueTypes.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +21,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
     // Domain Tables
     public DbSet<Customer> Customers { get; set; }
     public DbSet<ScheduledJobDefinition> ScheduledJobDefinitions { get; set; }
+    public DbSet<RecurrencePattern> RecurrencePatterns { get; set; }
     public DbSet<JobOccurrence> JobOccurrences { get; set; }
     public DbSet<JobReminder> JobReminders { get; set; }
 
@@ -94,7 +97,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
         modelBuilder
             .Entity<Customer>(b =>
             {
-                b.Property(c => c.Id)
+                b.HasKey(x => x.CustomerId);
+                b.Property(c => c.CustomerId)
                     .HasValueGenerator<CustomerIdValueGenerator>()
                     .HasConversion<CustomerIdConverter>()
                     .ValueGeneratedOnAdd();
@@ -129,32 +133,47 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
         modelBuilder
             .Entity<ScheduledJobDefinition>(def =>
             {
-                def.Property(p => p.Id).HasConversion<ScheduledJobDefinitionIdConverter>().HasValueGenerator<ScheduledJobDefinitionIdValueGenerator>().ValueGeneratedOnAdd();
-                def.OwnsOne(
-                    d => d.Pattern,
-                    rp =>
-                    {
-                        rp.Property(p => p.RecurrencePatternId).HasConversion<RecurrencePatternIdConverter>().HasValueGenerator<RecurrencePatternIdValueGenerator>().ValueGeneratedOnAdd();
-                        rp.Property(p => p.Frequency).HasColumnName("Frequency").IsRequired();
-                        rp.Property(p => p.Interval).HasColumnName("Interval").IsRequired();
-                        rp.Property(p => p.WeekDays).HasColumnName("DaysOfWeek");
-                        rp.Property(p => p.DayOfMonth).HasColumnName("DayOfMonth");
-                        rp.Property(p => p.CronExpression).HasColumnName("CronExpression");
-                    });
+                def.HasKey(d => d.ScheduledJobDefinitionId);
+                def.Property(p => p.ScheduledJobDefinitionId)
+                    .HasConversion<ScheduledJobDefinitionIdConverter>()
+                    .HasValueGenerator<ScheduledJobDefinitionIdValueGenerator>()
+                    .ValueGeneratedOnAdd();
 
-                // Definition → Occurrences
+                def.HasOne(d => d.Pattern)
+                    .WithOne(p => p.ScheduledJobDefinition)
+                    .HasForeignKey<RecurrencePattern>(p => p.ScheduledJobDefinitionId)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                def.Property(x => x.CustomerId).HasConversion<CustomerIdConverter>();
+
                 def.HasMany(d => d.JobOccurrences)
                     .WithOne(o => o.ScheduledJobDefinition)
                     .HasForeignKey(o => o.ScheduledJobDefinitionId)
                     .OnDelete(DeleteBehavior.Cascade);
-                ;
             });
+
+        modelBuilder.Entity<RecurrencePattern>(b =>
+        {
+            b.HasKey(p => p.RecurrencePatternId);
+            b.Property(p => p.RecurrencePatternId)
+                .HasConversion<RecurrencePatternIdConverter>()
+                .HasValueGenerator<RecurrencePatternIdValueGenerator>()
+                .ValueGeneratedOnAdd();
+
+            b.Property(p => p.ScheduledJobDefinitionId).HasConversion<ScheduledJobDefinitionIdConverter>();
+            b.Property(p => p.WeekDays)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<WeekDay[]>(v, (JsonSerializerOptions?)null)!);
+        });
 
         // Occurrence → Reminders
         modelBuilder
             .Entity<JobOccurrence>(oc =>
             {
-                oc.Property(o => o.Id)
+                oc.HasKey(x => x.JobOccurrenceId);
+                oc.Property(o => o.JobOccurrenceId)
                     .HasConversion<JobOccurrenceIdConverter>()
                     .HasValueGenerator<JobOccurrenceIdValueGenerator>()
                     .ValueGeneratedOnAdd();
@@ -169,8 +188,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
 
         modelBuilder.Entity<JobReminder>(entity =>
         {
+            entity.HasKey(e => e.JobReminderId);
             entity.Property(e => e.ReminderDateTime).IsRequired();
-            entity.Property(c => c.Id)
+            entity.Property(c => c.JobReminderId)
                 .HasConversion<JobReminderIdConverter>()
                 .HasValueGenerator<JobReminderIdValueGenerator>()
                 .ValueGeneratedOnAdd();

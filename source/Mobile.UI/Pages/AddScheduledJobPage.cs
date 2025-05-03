@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
 using Mobile.UI.PageModels;
 using Mobile.UI.Pages.Base;
+using Server.Contracts.Dtos;
 
 namespace Mobile.UI.Pages;
 
@@ -25,6 +26,11 @@ namespace Mobile.UI.Pages;
                     {
                         Section("Customer",
                             new Picker()
+                                {
+                                    Title = "Where does this go",
+                                    ItemDisplayBinding = new Binding(nameof(CustomerDto.FullName)),
+                                }
+                                .TextColor(Colors.White)
                                 .Bind(Picker.ItemsSourceProperty, nameof(vm.Customers))
                                 .Bind(Picker.SelectedItemProperty, nameof(vm.SelectedCustomer))),
 

@@ -49,7 +49,7 @@ public class JobReminderRepository : IJobReminderRepository
         // load all occurrences for that definition
         var occIds = await _occurrences.Query()
             .Where(o => o.ScheduledJobDefinitionId == jobDefinitionId)
-            .Select(o => o.Id)
+            .Select(o => o.JobOccurrenceId)
             .ToArrayAsync();
 
         var q = _reminders.Query()
@@ -102,7 +102,7 @@ public class JobReminderRepository : IJobReminderRepository
     {
         var e = await _context.Set<JobReminder>()
             .Include(r => r.JobOccurrence)
-            .FirstOrDefaultAsync(r => r.Id == id);
+            .FirstOrDefaultAsync(r => r.JobReminderId == id);
 
         return e == null ? null : ToDomain(e);
     }
@@ -120,7 +120,7 @@ public class JobReminderRepository : IJobReminderRepository
 
         _context.Add(e);
         await _context.SaveChangesAsync();
-        reminder.Id = e.Id;
+        reminder.Id = e.JobReminderId;
         reminder.JobOccurrenceId = e.JobOccurrenceId;
         reminder.ScheduledJobDefinitionId = e.JobOccurrence.ScheduledJobDefinitionId;
     }
@@ -128,7 +128,7 @@ public class JobReminderRepository : IJobReminderRepository
     public async Task UpdateAsync(JobReminderDomainModel reminder)
     {
         var e = await _context.Set<JobReminder>()
-                    .FirstOrDefaultAsync(r => r.Id == reminder.Id)
+                    .FirstOrDefaultAsync(r => r.JobReminderId == reminder.Id)
                 ?? throw new InvalidOperationException($"Reminder {reminder.Id} not found");
 
         e.ReminderDateTime = reminder.ReminderDateTime;
@@ -142,7 +142,7 @@ public class JobReminderRepository : IJobReminderRepository
     public async Task DeleteAsync(JobReminderDomainModel reminder)
     {
         var e = await _context.Set<JobReminder>()
-                    .FirstOrDefaultAsync(r => r.Id == reminder.Id)
+                    .FirstOrDefaultAsync(r => r.JobReminderId == reminder.Id)
                 ?? throw new InvalidOperationException($"Reminder {reminder.Id} not found");
 
         _context.Remove(e);
@@ -152,7 +152,7 @@ public class JobReminderRepository : IJobReminderRepository
     private static JobReminderDomainModel ToDomain(JobReminder e)
         => new JobReminderDomainModel
         {
-            Id                       = e.Id,
+            Id                       = e.JobReminderId,
             JobOccurrenceId          = e.JobOccurrenceId,
             ScheduledJobDefinitionId = e.JobOccurrence.ScheduledJobDefinitionId,
             ReminderDateTime         = e.ReminderDateTime,

@@ -68,7 +68,7 @@ public class JobSchedulingService : IJobSchedulingService
 
     private DateTime GetNextWeekly(
         DateTime anchor,
-        WeekDays daysOfWeek,
+        WeekDay dayOfWeek,
         int intervalWeeks,
         DateTime afterUtc)
     {
@@ -81,7 +81,7 @@ public class JobSchedulingService : IJobSchedulingService
         {
             var weeksFromAnchor = (int)((candidate - anchor.Date).TotalDays / 7);
             var inCorrectInterval = (weeksFromAnchor % intervalWeeks) == 0;
-            var isCorrectDay = daysOfWeek.HasFlag((WeekDays)(1 << (int)candidate.DayOfWeek));
+            var isCorrectDay = dayOfWeek.HasFlag((WeekDay)(1 << (int)candidate.DayOfWeek));
 
             if (inCorrectInterval && isCorrectDay)
                 return candidate.Add(afterUtc.TimeOfDay);

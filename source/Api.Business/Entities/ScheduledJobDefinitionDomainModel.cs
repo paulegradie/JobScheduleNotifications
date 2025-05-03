@@ -1,5 +1,4 @@
 ﻿using Api.Business.Entities.Base;
-using Api.Business.Features.ScheduledJobs;
 using Api.ValueTypes;
 using Server.Contracts.Dtos;
 
@@ -10,7 +9,7 @@ public class ScheduledJobDefinitionDomainModel : DomainModelBase<ScheduledJobDef
     public ScheduledJobDefinitionId ScheduledJobDefinitionId { get; set; }
     public CustomerId CustomerId { get; set; }
     public DateTime AnchorDate { get; set; }
-    public RecurrencePattern Pattern { get; set; }
+    public RecurrencePatternDomainModel Pattern { get; set; }
     public List<JobOccurrenceDomainModel> JobOccurrences { get; set; } = new();
 
     public string Title { get; set; }

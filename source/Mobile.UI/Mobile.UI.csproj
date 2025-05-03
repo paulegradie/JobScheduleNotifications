@@ -19,6 +19,7 @@
         <!-- https://github.com/CommunityToolkit/Maui/issues/2205 -->
         <NoWarn>XC0103</NoWarn>
         <MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
+        <EnablePreviewFeatures>true</EnablePreviewFeatures>
 
         <!-- Display name -->
         <ApplicationTitle>MobileApp</ApplicationTitle>

@@ -34,7 +34,7 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
     {
         var entity = await _context.JobOccurrences
             .Include(o => o.JobReminders)
-            .FirstOrDefaultAsync(o => o.Id == occurrenceId);
+            .FirstOrDefaultAsync(o => o.JobOccurrenceId == occurrenceId);
 
         return entity is null ? null : ToDomain(entity);
     }
@@ -42,16 +42,16 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
     public async Task AddAsync(JobOccurrenceDomainModel occurrence)
     {
         var entity = occurrence.ToEntity();
-        var def = await _context.ScheduledJobDefinitions.SingleAsync(x => x.Id == occurrence.ScheduledJobDefinitionId);
+        var def = await _context.ScheduledJobDefinitions.SingleAsync(x => x.ScheduledJobDefinitionId == occurrence.ScheduledJobDefinitionId);
         def.JobOccurrences.Add(entity);
         await _context.SaveChangesAsync();
-        occurrence.Id = entity.Id;
-        occurrence.ScheduledJobDefinitionId = def.Id;
+        occurrence.Id = entity.JobOccurrenceId;
+        occurrence.ScheduledJobDefinitionId = def.ScheduledJobDefinitionId;
     }
 
     public async Task UpdateAsync(JobOccurrenceDomainModel occurrence)
     {
-        var entity = await _context.JobOccurrences.FirstOrDefaultAsync(o => o.Id == occurrence.Id);
+        var entity = await _context.JobOccurrences.FirstOrDefaultAsync(o => o.JobOccurrenceId == occurrence.Id);
 
         if (entity == null)
             return;
@@ -60,13 +60,13 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
         entity.ScheduledJobDefinitionId = occurrence.ScheduledJobDefinitionId;
         _context.JobOccurrences.Update(entity);
         await _context.SaveChangesAsync();
-        occurrence.Id = entity.Id;
+        occurrence.Id = entity.JobOccurrenceId;
     }
 
     public async Task DeleteAsync(JobOccurrenceDomainModel occurrence)
     {
         var entity = await _context.JobOccurrences
-            .FirstOrDefaultAsync(o => o.Id == occurrence.Id);
+            .FirstOrDefaultAsync(o => o.JobOccurrenceId == occurrence.Id);
 
         if (entity == null)
             return;
@@ -78,13 +78,13 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
     private static JobOccurrenceDomainModel ToDomain(JobOccurrence e)
         => new JobOccurrenceDomainModel
         {
-            Id = e.Id,
+            Id = e.JobOccurrenceId,
             ScheduledJobDefinitionId = e.ScheduledJobDefinitionId,
             OccurrenceDate = e.OccurrenceDate,
             JobReminders = e.JobReminders
                 .Select(r => new JobReminderDomainModel
                 {
-                    Id = r.Id,
+                    Id = r.JobReminderId,
                     JobOccurrenceId = r.JobOccurrenceId,
                     ScheduledJobDefinitionId = e.ScheduledJobDefinitionId,
                     ReminderDateTime = r.ReminderDateTime,
@@ -104,13 +104,13 @@ internal static class JobOccurrenceMappings
     public static JobOccurrenceDomainModel ToDomain(this JobOccurrence e)
         => new()
         {
-            Id = e.Id,
+            Id = e.JobOccurrenceId,
             ScheduledJobDefinitionId = e.ScheduledJobDefinitionId,
             OccurrenceDate = e.OccurrenceDate,
             JobReminders = e.JobReminders
                 .Select(r => new JobReminderDomainModel
                 {
-                    Id = r.Id,
+                    Id = r.JobReminderId,
                     JobOccurrenceId = r.JobOccurrenceId,
                     ScheduledJobDefinitionId = e.ScheduledJobDefinitionId,
                     ReminderDateTime = r.ReminderDateTime,
@@ -127,13 +127,13 @@ internal static class JobOccurrenceMappings
     public static JobOccurrence ToEntity(this JobOccurrenceDomainModel d)
         => new()
         {
-            Id = d.Id,
+            JobOccurrenceId = d.Id,
             ScheduledJobDefinitionId = d.ScheduledJobDefinitionId,
             OccurrenceDate = d.OccurrenceDate,
             JobReminders = d.JobReminders
                 .Select(r => new JobReminder
                 {
-                    Id = r.Id,
+                    JobReminderId = r.Id,
                     JobOccurrenceId = r.JobOccurrenceId,
                     ReminderDateTime = r.ReminderDateTime,
                     Message = r.Message,

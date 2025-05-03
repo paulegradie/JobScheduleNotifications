@@ -10,7 +10,7 @@ public sealed record CreateScheduledJobDefinitionRequest(
     string Description,
     Frequency Frequency,
     int Interval,
-    WeekDays[]? WeekDays,
+    WeekDay[]? WeekDays,
     int? DayOfMonth,
     string? CronExpression,
     DateTime AnchorDate) : RequestBase(Route)

@@ -1,7 +1,7 @@
 ﻿namespace Api.ValueTypes.Enums;
 
 [Flags]
-public enum WeekDays
+public enum WeekDay
 {
     None = 0,
     Sunday = 1 << 0,

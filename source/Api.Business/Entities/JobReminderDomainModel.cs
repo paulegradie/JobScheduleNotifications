@@ -6,6 +6,16 @@ namespace Api.Business.Entities;
 
 public class JobReminderDomainModel : DomainModelBase<JobReminderDto>
 {
+    public JobReminderDomainModel()
+    {
+        
+    }
+    public JobReminderDomainModel(DateTime reminderDateTime, string message)
+    {
+        ReminderDateTime = reminderDateTime;
+        Message = message;
+    }
+
     public JobReminderId Id { get; set; }
     public JobOccurrenceId JobOccurrenceId { get; set; } // ← newly surfaced
     public ScheduledJobDefinitionId ScheduledJobDefinitionId { get; set; }

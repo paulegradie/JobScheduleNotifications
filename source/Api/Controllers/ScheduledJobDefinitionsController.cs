@@ -1,12 +1,14 @@
 ﻿using Api.Business.Entities;
-using Api.Business.Features.ScheduledJobs;
 using Api.Business.Repositories;
 using Api.Business.Services;
 using Api.Infrastructure.Data;
+using Api.Infrastructure.DbTables.Jobs;
 using Api.ValueTypes;
 using Api.ValueTypes.Enums;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Server.Contracts.Dtos;
 using Server.Contracts.Endpoints.ScheduledJobs.Contracts;
 
 namespace Api.Controllers;
@@ -18,17 +20,20 @@ public class ScheduledJobDefinitionsController : ControllerBase
     private readonly IScheduledJobDefinitionRepository _scheduledJobDefinitionRepository;
     private readonly IRecurrenceCalculator _calculator;
     private readonly IJobSchedulingService _scheduler;
+    private readonly IMapper _mapper;
     private readonly AppDbContext _uow;
 
     public ScheduledJobDefinitionsController(
         IScheduledJobDefinitionRepository scheduledJobDefinitionRepository,
         IRecurrenceCalculator calculator,
         IJobSchedulingService scheduler,
+        IMapper mapper,
         AppDbContext uow)
     {
         _scheduledJobDefinitionRepository = scheduledJobDefinitionRepository;
         _calculator = calculator;
         _scheduler = scheduler;
+        _mapper = mapper;
         _uow = uow;
     }
 
@@ -81,19 +86,20 @@ public class ScheduledJobDefinitionsController : ControllerBase
             Title = req.Title,
             Description = req.Description,
             AnchorDate = req.AnchorDate,
-            Pattern = new RecurrencePattern(
+            Pattern = new RecurrencePatternDomainModel(
                 req.Frequency,
                 req.Interval,
-                req.WeekDays ?? [WeekDays.Monday],
-                req.DayOfMonth,
-                req.CronExpression),
+                req.WeekDays ?? [WeekDay.Monday],
+                req.DayOfMonth ?? 1,
+                req.CronExpression ?? string.Empty),
             JobOccurrences = new List<JobOccurrenceDomainModel>()
         };
 
         await _scheduledJobDefinitionRepository.AddAsync(def);
         await _uow.SaveChangesAsync();
-
-        return new CreateScheduledJobDefinitionResponse(def.ToDto());
+        
+        var dto = def.ToDto();
+        return new CreateScheduledJobDefinitionResponse(dto);
     }
 
     [HttpPut(UpdateScheduledJobDefinitionRequest.Route)]
@@ -112,9 +118,9 @@ public class ScheduledJobDefinitionsController : ControllerBase
         def.AnchorDate = req.AnchorDate;
         def.Pattern.Frequency = req.Frequency;
         def.Pattern.Interval = req.Interval;
-        def.Pattern.WeekDays = req.WeekDays ?? [WeekDays.Monday];
-        def.Pattern.DayOfMonth = req.DayOfMonth;
-        def.Pattern.CronExpression = req.CronExpression;
+        def.Pattern.WeekDays = req.WeekDays ?? [WeekDay.Monday];
+        def.Pattern.DayOfMonth = req.DayOfMonth ?? 1;
+        def.Pattern.CronExpression = req.CronExpression ?? string.Empty;
 
         await _scheduledJobDefinitionRepository.UpdateAsync(def);
 

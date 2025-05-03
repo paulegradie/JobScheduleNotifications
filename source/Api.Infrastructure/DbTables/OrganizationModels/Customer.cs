@@ -1,4 +1,3 @@
-using Api.Business.Features.ScheduledJobs;
 using Api.Infrastructure.DbTables.Jobs;
 using Api.ValueTypes;
 using Server.Contracts.Dtos;
@@ -7,7 +6,7 @@ namespace Api.Infrastructure.DbTables.OrganizationModels;
 
 public class Customer
 {
-    public CustomerId Id { get; set; }
+    public CustomerId CustomerId { get; set; }
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
@@ -38,8 +37,8 @@ public class Customer
     {
         ScheduledJobDefinitions.Add(new ScheduledJobDefinition
         {
-            Id = id,
-            CustomerId = Id,
+            ScheduledJobDefinitionId = id,
+            CustomerId = CustomerId,
             Pattern = pattern,
             AnchorDate = anchorDate,
             Title = title,
@@ -55,7 +54,7 @@ public class Customer
             Email = Email,
             FirstName = FirstName,
             LastName = LastName,
-            Id = Id,
+            Id = CustomerId,
             PhoneNumber = PhoneNumber,
             Notes = Notes
         };

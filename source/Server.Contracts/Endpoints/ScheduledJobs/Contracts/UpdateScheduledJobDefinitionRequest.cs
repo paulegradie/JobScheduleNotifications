@@ -24,7 +24,7 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
     public string? Description { get; init; }
     public Frequency? Frequency { get; init; }
     public int? Interval { get; init; }
-    public WeekDays[]? DaysOfWeek { get; init; }
+    public WeekDay[]? DaysOfWeek { get; init; }
     public int? DayOfMonth { get; init; }
     public string? CronExpression { get; init; }
     public DateTime? AnchorDate { get; set; }
@@ -36,7 +36,7 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
         string? description = null,
         Frequency? frequency = null,
         int? interval = null,
-        WeekDays[]? daysOfWeek = null,
+        WeekDay[]? daysOfWeek = null,
         int? dayOfMonth = null,
         string? cronExpression = null,
         DateTime? anchorDate = null)
@@ -67,7 +67,7 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
         private string? _description;
         private Frequency? _frequency;
         private int? _interval;
-        private WeekDays[]? _daysOfWeek;
+        private WeekDay[]? _daysOfWeek;
         private int? _dayOfMonth;
         private string? _cronExpression;
         private DateTime? _anchorDate;
@@ -104,7 +104,7 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
             return this;
         }
 
-        public Builder WithWeekDays(WeekDays[] daysOfWeek)
+        public Builder WithWeekDays(WeekDay[] daysOfWeek)
         {
             _daysOfWeek = daysOfWeek;
             return this;
