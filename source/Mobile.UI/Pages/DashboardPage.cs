@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Maui.Markup;
-using Mobile.UI.PageModels;
+
 using Mobile.UI.Pages.Base;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 

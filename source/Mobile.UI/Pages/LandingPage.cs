@@ -1,15 +1,15 @@
 ﻿using CommunityToolkit.Maui.Markup;
-using Mobile.UI.PageModels;
+
 using Mobile.UI.Pages.Base;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace Mobile.UI.Pages;
 
-public sealed class HomePage : BasePage<HomePageViewModel>
+public sealed class LandingPage : BasePage<LandingPageModel>
 {
-    private readonly HomePageViewModel _vm;
+    private readonly LandingPageModel _vm;
 
-    public HomePage(HomePageViewModel vm) : base(vm)
+    public LandingPage(LandingPageModel vm) : base(vm)
     {
         _vm = vm;
         Title = "Welcome";
@@ -62,19 +62,19 @@ public sealed class HomePage : BasePage<HomePageViewModel>
                         {
                             new Button()
                                 .Text("Sign In")
-                                .BindCommand((HomePageViewModel vm) => vm.NavigateToLoginCommand)
+                                .BindCommand((LandingPageModel vm) => vm.NavigateToLoginCommand)
                                 .BackgroundColor(Colors.CadetBlue)
                                 .TextColor(Colors.White)
                                 .Height(50),
                             new Button()
                                 .Text("Create Account")
-                                .BindCommand((HomePageViewModel vm) => vm.NavigateToRegisterCommand)
+                                .BindCommand((LandingPageModel vm) => vm.NavigateToRegisterCommand)
                                 .BackgroundColor(Colors.ForestGreen)
                                 .TextColor(Colors.CadetBlue)
                                 .Height(50),
                             new Button()
                                 .Text("View Customers")
-                                .BindCommand((HomePageViewModel vm) => vm.NavigateToCustomersCommand)
+                                .BindCommand((LandingPageModel vm) => vm.NavigateToCustomersCommand)
                                 .BackgroundColor(Colors.SteelBlue)
                                 .TextColor(Colors.White)
                                 .Height(50)

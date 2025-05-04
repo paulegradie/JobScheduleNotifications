@@ -105,7 +105,12 @@ internal static class JobDefinitionMappings
             AnchorDate = e.AnchorDate,
             Title = e.Title,
             Description = e.Description,
-            Pattern = new RecurrencePatternDomainModel(e.Pattern.Frequency, e.Pattern.Interval, e.Pattern.WeekDays),
+            Pattern = new RecurrencePatternDomainModel(e.Pattern.Frequency, e.Pattern.Interval, e.Pattern.WeekDays)
+            {
+                Id = e.Pattern.RecurrencePatternId,
+                CronExpression = e.Pattern.CronExpression,
+                
+            },
             JobOccurrences = e.JobOccurrences
                 .Select(o => new JobOccurrenceDomainModel
                 {

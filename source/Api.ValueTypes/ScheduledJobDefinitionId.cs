@@ -1,5 +1,9 @@
-﻿namespace Api.ValueTypes;
+﻿using System.ComponentModel;
+using System.Globalization;
 
+namespace Api.ValueTypes;
+
+// [TypeConverter(typeof(ScheduledJobDefinitionIdTypeConverter))]
 public readonly record struct ScheduledJobDefinitionId(Guid Value) : IComparable
 {
     public override string ToString() => Value.ToString();
@@ -16,4 +20,17 @@ public readonly record struct ScheduledJobDefinitionId(Guid Value) : IComparable
             ? CompareTo(other)
             : throw new ArgumentException(
                 $"Cannot compare UserId to {obj?.GetType().Name}", nameof(obj));
+}
+
+public class ScheduledJobDefinitionIdTypeConverter : TypeConverter
+{
+    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+
+    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+    {
+        if (value is string s && Guid.TryParse(s, out var g))
+            return new ScheduledJobDefinitionId(g);
+        throw new FormatException($"Cannot convert '{value}' to CustomerId");
+    }
 }

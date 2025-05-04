@@ -2,6 +2,7 @@ using System.Reflection;
 using Api.Business.Repositories;
 using Api.Business.Repositories.Internal;
 using Api.Business.Services;
+using Api.Composition.AutomapperProfiles;
 using Api.Infrastructure.Data;
 using Api.Infrastructure.DbTables.Jobs;
 using Api.Infrastructure.DbTables.OrganizationModels;

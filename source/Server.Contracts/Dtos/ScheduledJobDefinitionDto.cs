@@ -4,7 +4,7 @@ namespace Server.Contracts.Dtos;
 
 public record ScheduledJobDefinitionDto(
     CustomerId CustomerId,
-    ScheduledJobDefinitionId Id,
+    ScheduledJobDefinitionId ScheduledJobDefinitionId,
     DateTime AnchorDate,
     RecurrencePatternDto Pattern,
     List<JobOccurrenceDto> JobOccurrences,

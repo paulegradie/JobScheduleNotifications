@@ -1,13 +1,13 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.UI.Pages;
+using Mobile.UI.Pages.Customers.ScheduledJobs;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Dtos;
 
-namespace Mobile.UI.PageModels;
+namespace Mobile.UI.Pages.Customers;
 
-public partial class CustomersViewModel : ObservableObject
+public partial class CustomerListModel : ObservableObject
 {
     private readonly ICustomerRepository _customerRepository;
     private readonly INavigationRepository _navigation;
@@ -16,7 +16,7 @@ public partial class CustomersViewModel : ObservableObject
     [ObservableProperty] private string _searchText = string.Empty;
     [ObservableProperty] private ObservableCollection<CustomerDto> _customers = new();
 
-    public CustomersViewModel(
+    public CustomerListModel(
         ICustomerRepository customerRepository,
         INavigationRepository navigation)
     {
@@ -47,7 +47,7 @@ public partial class CustomersViewModel : ObservableObject
 
     [RelayCommand]
     private async Task AddCustomerAsync()
-        => await _navigation.GoToAsync(nameof(CreateCustomerPage));
+        => await _navigation.GoToAsync(nameof(CustomerCreatePage));
 
     [RelayCommand]
     private async Task EditCustomerAsync(CustomerDto? customer)
@@ -79,7 +79,7 @@ public partial class CustomersViewModel : ObservableObject
     {
         if (customer == null) return;
         await _navigation.GoToAsync(
-            nameof(AddScheduledJobPage),
+            nameof(ScheduledJobCreatePage),
             new Dictionary<string, object> { { "customerId", customer.Id.ToString() } });
     }
 
@@ -88,11 +88,11 @@ public partial class CustomersViewModel : ObservableObject
     {
         if (customer == null) return;
         await _navigation.GoToAsync(
-            nameof(ScheduledJobPage),
+            nameof(ScheduledJobListPage),
             new Dictionary<string, object> { { "customerId", customer.Id.ToString() } });
     }
 
     [RelayCommand]
     public async Task NavigateHomeAsync()
-        => await _navigation.GoToAsync(nameof(HomePage));
+        => await _navigation.GoToAsync(nameof(LandingPage));
 }

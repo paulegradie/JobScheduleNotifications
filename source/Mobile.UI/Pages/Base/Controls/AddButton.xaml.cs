@@ -1,4 +1,4 @@
-namespace Mobile.UI.Pages.Controls;
+namespace Mobile.UI.Pages.Base.Controls;
 
 public partial class AddButton
 {

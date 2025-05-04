@@ -59,7 +59,7 @@ public class ScheduledJobDefinitionControllerTests : AuthenticatedIntegrationTes
 
         listResp.Value.ScheduledJobDefinitions.Count().ShouldBe(1);
         var def = listResp.Value.ScheduledJobDefinitions.First();
-        def.Id.ShouldBe(createResp.Value.JobDefinition.Id);
+        def.ScheduledJobDefinitionId.ShouldBe(createResp.Value.JobDefinition.ScheduledJobDefinitionId);
     }
 
     [Fact]
@@ -79,14 +79,14 @@ public class ScheduledJobDefinitionControllerTests : AuthenticatedIntegrationTes
         );
         var createResp = await Client.ScheduledJobs.CreateScheduledJobDefinitionAsync(createReq, CancellationToken);
         createResp.IsSuccess.ShouldBeTrue();
-        var id = createResp.Value.JobDefinition.Id;
+        var id = createResp.Value.JobDefinition.ScheduledJobDefinitionId;
 
         // Get
         var getReq = new GetScheduledJobDefinitionByIdRequest(_customerId, id);
         var getResp = await Client.ScheduledJobs.GetScheduledJobDefinitionByIdAsync(getReq, CancellationToken);
 
         getResp.IsSuccess.ShouldBeTrue();
-        getResp.Value.ScheduledJobDefinitionDto.Id.ShouldBe(id);
+        getResp.Value.ScheduledJobDefinitionDto.ScheduledJobDefinitionId.ShouldBe(id);
         getResp.Value.ScheduledJobDefinitionDto.Title.ShouldBe("JobX");
     }
 
@@ -106,7 +106,7 @@ public class ScheduledJobDefinitionControllerTests : AuthenticatedIntegrationTes
             AnchorDate: DateTime.UtcNow
         );
         var createResp = await Client.ScheduledJobs.CreateScheduledJobDefinitionAsync(createReq, CancellationToken);
-        var id = createResp.Value.JobDefinition.Id;
+        var id = createResp.Value.JobDefinition.ScheduledJobDefinitionId;
 
         // Update
         var updatedAnchor = createReq.AnchorDate.AddHours(5);
@@ -147,7 +147,7 @@ public class ScheduledJobDefinitionControllerTests : AuthenticatedIntegrationTes
             AnchorDate: anchor
         );
         var createResp = await Client.ScheduledJobs.CreateScheduledJobDefinitionAsync(createReq, CancellationToken);
-        var id = createResp.Value.JobDefinition.Id;
+        var id = createResp.Value.JobDefinition.ScheduledJobDefinitionId;
 
         var nextReq = new GetNextScheduledJobRunRequest(_customerId, id);
         var nextResp = await Client.ScheduledJobs.GetNextScheduledJobRunAsync(nextReq, CancellationToken);

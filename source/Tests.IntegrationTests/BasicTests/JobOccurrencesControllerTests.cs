@@ -38,7 +38,7 @@ public class JobOccurrencesControllerTests : AuthenticatedIntegrationTest
 
         var defResp = await Client.ScheduledJobs.CreateScheduledJobDefinitionAsync(defReq, CancellationToken);
         defResp.IsSuccess.ShouldBeTrue();
-        _jobDefinitionId = defResp.Value.JobDefinition.Id;
+        _jobDefinitionId = defResp.Value.JobDefinition.ScheduledJobDefinitionId;
     }
 
     [Fact]

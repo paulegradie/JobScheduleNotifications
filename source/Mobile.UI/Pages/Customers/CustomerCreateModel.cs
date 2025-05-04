@@ -1,12 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.UI.Pages;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Endpoints.Customers.Contracts;
 
-namespace Mobile.UI.PageModels;
+namespace Mobile.UI.Pages.Customers;
 
-public partial class CreateCustomerViewModel : ObservableObject
+public partial class CustomerCreateModel : ObservableObject
 {
     private readonly ICustomerRepository _repository;
     private readonly INavigationRepository _navigation;
@@ -30,7 +29,7 @@ public partial class CreateCustomerViewModel : ObservableObject
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private string _errorMessage = string.Empty;
 
-    public CreateCustomerViewModel(
+    public CustomerCreateModel(
         ICustomerRepository repository,
         INavigationRepository navigation)
     {
@@ -67,7 +66,7 @@ public partial class CreateCustomerViewModel : ObservableObject
                 return;
             }
 
-            await _navigation.GoToAsync(nameof(CustomersPage));
+            await _navigation.GoToAsync(nameof(CustomerListPage));
         }
         catch
         {

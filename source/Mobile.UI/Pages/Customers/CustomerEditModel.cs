@@ -8,9 +8,9 @@ using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Endpoints.Customers.Contracts;
 
-namespace Mobile.UI.PageModels;
+namespace Mobile.UI.Pages.Customers;
 
-public partial class CustomerEditViewModel : ObservableObject
+public partial class CustomerEditModel : ObservableObject
 {
     private readonly ICustomerRepository _repository;
     private readonly INavigationRepository _navigation;
@@ -25,7 +25,7 @@ public partial class CustomerEditViewModel : ObservableObject
     [ObservableProperty] private string _errorMessage = string.Empty;
     [ObservableProperty] private string _title        = "Add Customer";
 
-    public CustomerEditViewModel(
+    public CustomerEditModel(
         ICustomerRepository repository,
         INavigationRepository navigation)
     {
@@ -42,6 +42,7 @@ public partial class CustomerEditViewModel : ObservableObject
             MainThread.BeginInvokeOnMainThread(async () => await LoadCustomerAsync(customerId.Value));
     }
 
+    [RelayCommand]
     private async Task LoadCustomerAsync(Guid id)
     {
         IsBusy = true;

@@ -1,4 +1,5 @@
-﻿using Mobile.UI.RepositoryAbstractions;
+﻿using Api.ValueTypes;
+using Mobile.UI.RepositoryAbstractions;
 using Mobile.UI.Services;
 using Server.Contracts.Dtos;
 
@@ -20,5 +21,16 @@ internal class CustomerService : ICustomerService
             return result.Value;
 
         throw new Exception(result.ErrorMessage ?? "Failed to load customers.");
+    }
+
+    public async Task<CustomerDto> GetCustomerAsync(CustomerId customerId)
+    {
+        var result = await _customerRepository.GetCustomerByIdAsync(customerId);
+        if (result.IsSuccess)
+        {
+            return result.Value;
+        }
+
+        throw new Exception(result.ErrorMessage ?? "Failed to load customer.");
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using Api.ValueTypes;
 using Api.ValueTypes.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -6,9 +7,9 @@ using Mobile.UI.RepositoryAbstractions;
 using Mobile.UI.Services;
 using Server.Contracts.Dtos;
 
-namespace Mobile.UI.PageModels;
+namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
-public partial class AddScheduledJobViewModel : ObservableObject
+public partial class ScheduledJobCreateModel : BaseViewModel
 {
     private readonly IJobService _jobService;
     private readonly ICustomerService _customerService;
@@ -34,11 +35,8 @@ public partial class AddScheduledJobViewModel : ObservableObject
 
     [ObservableProperty] private string _cronExpression = string.Empty;
 
-    [ObservableProperty] private string _errorMessage = string.Empty;
 
-    [ObservableProperty] private bool _isBusy;
-
-    public AddScheduledJobViewModel(
+    public ScheduledJobCreateModel(
         IJobService jobService,
         ICustomerService customerService,
         INavigationRepository navigation)
@@ -48,8 +46,9 @@ public partial class AddScheduledJobViewModel : ObservableObject
         _navigation = navigation;
     }
 
+
     [RelayCommand]
-    private async Task LoadCustomersAsync()
+    private async Task LoadCustomersAsync(string customerId) // from the route!
     {
         if (IsBusy) return;
         IsBusy = true;
@@ -62,9 +61,7 @@ public partial class AddScheduledJobViewModel : ObservableObject
                 Customers.Add(customerDto);
             }
 
-            // pick the first if none selected yet
-            // TODO: Pick the one that comes from the route if available - for when navigating from the customer page
-            SelectedCustomer = customerDtos.First();
+            SelectedCustomer = customerDtos.FirstOrDefault(x => x.Id.Value.ToString() == customerId) ?? customerDtos.First();
 
             // TODO: Load up the rest of the properties too?
         }
@@ -77,8 +74,6 @@ public partial class AddScheduledJobViewModel : ObservableObject
             IsBusy = false;
         }
     }
-
-    // private readonly Dictionary<Guid, string> _customerNameMap = new();
 
     [RelayCommand]
     private async Task CreateJobAsync()
@@ -118,7 +113,7 @@ public partial class AddScheduledJobViewModel : ObservableObject
 
                 await _jobService.CreateJobAsync(dto);
                 await Shell.Current.DisplayAlert("Success", "Job scheduled!", "OK");
-                await _navigation.GoBackAsync();
+                await _navigation.GoToAsync(nameof(CustomerListPage));
             }
             catch
             {

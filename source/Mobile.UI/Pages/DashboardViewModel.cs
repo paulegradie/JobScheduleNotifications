@@ -1,11 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.UI.Pages;
+using Mobile.UI.Pages.Customers;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts;
 using Server.Contracts.Endpoints.Auth.Contracts;
 
-namespace Mobile.UI.PageModels;
+namespace Mobile.UI.Pages;
 
 public partial class DashboardViewModel : ObservableObject
 {
@@ -67,7 +67,7 @@ public partial class DashboardViewModel : ObservableObject
     [RelayCommand]
     private async Task NavigateToCustomers()
     {
-        await _navigationUtility.GoToAsync(nameof(CustomersPage));
+        await _navigationUtility.GoToAsync(nameof(CustomerListPage));
     }
     
 

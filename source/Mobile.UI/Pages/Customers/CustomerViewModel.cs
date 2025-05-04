@@ -3,10 +3,9 @@
 using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.UI.Pages;
 using Mobile.UI.RepositoryAbstractions;
 
-namespace Mobile.UI.PageModels;
+namespace Mobile.UI.Pages.Customers;
 
 public partial class CustomerViewModel : ObservableObject
 {

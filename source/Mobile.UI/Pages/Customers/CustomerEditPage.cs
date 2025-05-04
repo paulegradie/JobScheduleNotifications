@@ -2,16 +2,16 @@
 // CustomerEditPage.cs
 
 using CommunityToolkit.Maui.Markup;
-using Mobile.UI.PageModels;
+
 using Mobile.UI.Pages.Base;
 
-namespace Mobile.UI.Pages;
+namespace Mobile.UI.Pages.Customers;
 
-public sealed class CustomerEditPage : BasePage<CustomerEditViewModel>, IQueryAttributable
+public sealed class CustomerEditPage : BasePage<CustomerEditModel>, IQueryAttributable
 {
-    private readonly CustomerEditViewModel _vm;
+    private readonly CustomerEditModel _vm;
 
-    public CustomerEditPage(CustomerEditViewModel vm) : base(vm)
+    public CustomerEditPage(CustomerEditModel vm) : base(vm)
     {
         _vm = vm;
         Title = vm.Title;

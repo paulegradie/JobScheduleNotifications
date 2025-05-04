@@ -2,6 +2,7 @@
 using Api.Infrastructure.DbTables.Jobs;
 using AutoMapper;
 
+namespace Api.Composition.AutomapperProfiles;
 
 public class JobMappingProfile : Profile
 {

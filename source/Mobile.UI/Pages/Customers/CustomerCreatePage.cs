@@ -1,12 +1,12 @@
 ﻿using CommunityToolkit.Maui.Markup;
-using Mobile.UI.PageModels;
+
 using Mobile.UI.Pages.Base;
 
-namespace Mobile.UI.Pages;
+namespace Mobile.UI.Pages.Customers;
 
-public sealed class CreateCustomerPage : BasePage<CreateCustomerViewModel>
+public sealed class CustomerCreatePage : BasePage<CustomerCreateModel>
 {
-    public CreateCustomerPage(CreateCustomerViewModel vm) : base(vm)
+    public CustomerCreatePage(CustomerCreateModel vm) : base(vm)
     {
         Title = "Add Customer";
 

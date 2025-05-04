@@ -13,7 +13,6 @@ public abstract class BasePage : ContentPage // ContentPage is MAUI’s root pag
     {
         Padding = 12;
         BindingContext = viewModel;
-
         RegisterMessengerRecipients(viewModel);
     }
 
@@ -51,9 +50,18 @@ public abstract class BasePage : ContentPage // ContentPage is MAUI’s root pag
 
 /// Strongly‑typed wrapper so derived pages can access their
 /// view‑model without casting.
-public abstract partial class BasePage<TViewModel>(TViewModel vm) : BasePage(vm)
+public abstract partial class BasePage<TViewModel> : BasePage
     where TViewModel : class
 {
+    /// Strongly‑typed wrapper so derived pages can access their
+    /// view‑model without casting.
+    protected BasePage(TViewModel vm) : base(vm)
+    {
+        ViewModel = vm;
+    }
+
+    protected TViewModel ViewModel { get; set; }
+
     protected new TViewModel BindingContext
     {
         get => (TViewModel)base.BindingContext;

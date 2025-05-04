@@ -15,7 +15,7 @@
     <ShellContent
         Title="Home-Test-Page"
         Icon="{StaticResource IconDashboard}"
-        ContentTemplate="{DataTemplate pages1:HomePage}"
+        ContentTemplate="{DataTemplate pages1:LandingPage}"
         Route="main" />
 
     <Shell.FlyoutFooter>

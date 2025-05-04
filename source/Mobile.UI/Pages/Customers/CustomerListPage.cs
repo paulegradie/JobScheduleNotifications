@@ -1,14 +1,13 @@
 ﻿using CommunityToolkit.Maui.Markup;
-using Mobile.UI.PageModels;
 using Mobile.UI.Pages.Base;
 using Server.Contracts.Dtos;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
-namespace Mobile.UI.Pages;
+namespace Mobile.UI.Pages.Customers;
 
-public sealed class CustomersPage : BasePage<CustomersViewModel>
+public sealed class CustomerListPage : BasePage<CustomerListModel>
 {
-    public CustomersPage(CustomersViewModel vm) : base(vm)
+    public CustomerListPage(CustomerListModel vm) : base(vm)
     {
         Title = "Customers";
 
@@ -16,13 +15,13 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
         {
             Text = "Add",
             IconImageSource = "plus.png",
-            Command = vm.AddCustomerCommand
+            Command = ViewModel.AddCustomerCommand
         });
         ToolbarItems.Add(new ToolbarItem
         {
             Text = "Home",
             IconImageSource = "home.png",
-            // Command = vm.NavigateHomeCommand
+            Command = ViewModel.NavigateHomeCommand
         });
 
         Content = new Grid
@@ -31,17 +30,17 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
             RowDefinitions = Rows.Define((Row.Header, Auto), (Row.Body, Star)),
             Children =
             {
-                BuildHeader(vm).Row(Row.Header),
-                BuildBody(vm).Row(Row.Body),
-                BuildBusyIndicator(vm).Row(Row.Body)
+                BuildHeader(ViewModel).Row(Row.Header),
+                BuildBody(ViewModel).Row(Row.Body),
+                BuildBusyIndicator(ViewModel).Row(Row.Body)
             }
         };
 
         /* first load */
-        Loaded += async (_, _) => await vm.LoadCustomersCommand.ExecuteAsync(null);
+        Loaded += async (_, _) => await ViewModel.LoadCustomersCommand.ExecuteAsync(null);
     }
 
-    private static Grid BuildHeader(CustomersViewModel vm) =>
+    private static Grid BuildHeader(CustomerListModel vm) =>
         new Grid
         {
             ColumnSpacing = 10,
@@ -61,7 +60,7 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
             }
         };
 
-    private static RefreshView BuildBody(CustomersViewModel vm) =>
+    private static RefreshView BuildBody(CustomerListModel vm) =>
         new RefreshView
             {
                 Content = new CollectionView
@@ -75,13 +74,13 @@ public sealed class CustomersPage : BasePage<CustomersViewModel>
             .Bind(RefreshView.IsRefreshingProperty, nameof(vm.IsLoading))
             .Bind(RefreshView.CommandProperty, nameof(vm.LoadCustomersCommand));
 
-    private static ActivityIndicator BuildBusyIndicator(CustomersViewModel vm) =>
+    private static ActivityIndicator BuildBusyIndicator(CustomerListModel vm) =>
         new ActivityIndicator()
             .Center()
             .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsLoading))
             .Bind(IsVisibleProperty, nameof(vm.IsLoading));
 
-    private static Frame BuildCustomerTemplate(CustomersViewModel vm)
+    private static Frame BuildCustomerTemplate(CustomerListModel vm)
     {
         // Card-like container
         return new Frame

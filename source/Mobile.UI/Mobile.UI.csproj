@@ -64,4 +64,52 @@
         </Reference>
     </ItemGroup>
 
+    <ItemGroup>
+      <AdditionalFiles Include="Pages\Base\Controls\AddButton.xaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Pages\Customers\ScheduledJobs\ScheduledJobListModel.cs">
+        <DependentUpon>ScheduledJobListPage.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\DashboardViewModel.cs">
+        <DependentUpon>DashboardPage.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\Customers\ScheduledJobs\ScheduledJobCreateModel.cs">
+        <DependentUpon>ScheduledJobCreatePage.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\Customers\ScheduledJobs\ScheduledJobViewModel.cs">
+        <DependentUpon>ScheduledJobViewPage.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\Customers\ScheduledJobs\ScheduledJobEditModel.cs">
+        <DependentUpon>ScheduledJobEditPage.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\Customers\CustomerCreateModel.cs">
+        <DependentUpon>CustomerCreatePage.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\Customers\CustomerEditModel.cs">
+        <DependentUpon>CustomerEditPage.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\Customers\CustomerListModel.cs">
+        <DependentUpon>CustomerListPage.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\Customers\CustomerViewModel.cs">
+        <DependentUpon>CustomerViewPage.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\LandingPageModel.cs">
+        <DependentUpon>LandingPage.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\LoginViewModel.cs">
+        <DependentUpon>LoginPage.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\RegisterViewModel.cs">
+        <DependentUpon>RegisterPage.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Entry\" />
+      <Folder Include="Pages\Customers\ScheduledJobs\JobOccurrences\JobReminders\" />
+    </ItemGroup>
+
 </Project>

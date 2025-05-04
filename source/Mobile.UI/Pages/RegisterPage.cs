@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
-using Mobile.UI.PageModels;
+
 using Mobile.UI.Pages.Base;
 
 namespace Mobile.UI.Pages;

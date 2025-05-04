@@ -1,12 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.UI.Pages;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts;
 using Server.Contracts.Endpoints.Auth.Contracts;
 
-namespace Mobile.UI.PageModels;
+namespace Mobile.UI.Pages;
 
 public partial class LoginViewModel : ObservableValidator
 {
@@ -53,7 +52,7 @@ public partial class LoginViewModel : ObservableValidator
             if (true)
             {
                 // The IServerClient will internally handle storing the TokenInfo and managing refreshes
-                await _navigationRepository.GoToAsync(nameof(HomePage));
+                await _navigationRepository.GoToAsync(nameof(LandingPage));
             }
             else
             {

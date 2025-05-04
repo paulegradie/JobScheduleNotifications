@@ -1,5 +1,9 @@
-﻿namespace Api.ValueTypes;
+﻿using System.ComponentModel;
+using System.Globalization;
 
+namespace Api.ValueTypes;
+
+// [TypeConverter(typeof(CustomerIdTypeConverter))]
 public readonly record struct CustomerId(Guid Value) : IComparable
 {
     public override string ToString() => Value.ToString();
@@ -16,4 +20,17 @@ public readonly record struct CustomerId(Guid Value) : IComparable
             ? CompareTo(other)
             : throw new ArgumentException(
                 $"Cannot compare UserId to {obj?.GetType().Name}", nameof(obj));
+}
+
+public class CustomerIdTypeConverter : TypeConverter
+{
+    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+
+    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+    {
+        if (value is string s && Guid.TryParse(s, out var g))
+            return new CustomerId(g);
+        throw new FormatException($"Cannot convert '{value}' to CustomerId");
+    }
 }

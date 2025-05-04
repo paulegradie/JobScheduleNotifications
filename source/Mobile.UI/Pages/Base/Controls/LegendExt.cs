@@ -1,6 +1,6 @@
 using Syncfusion.Maui.Toolkit.Charts;
 
-namespace Mobile.UI.Pages.Controls;
+namespace Mobile.UI.Pages.Base.Controls;
 
 public class LegendExt : ChartLegend
 {

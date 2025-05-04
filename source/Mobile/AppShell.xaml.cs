@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using Mobile.UI.Pages;
+using Mobile.UI.Pages.Customers;
+using Mobile.UI.Pages.Customers.ScheduledJobs;
 using Font = Microsoft.Maui.Font;
 
 namespace Mobile;
@@ -11,16 +13,20 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
 
-        AddPageToApp<HomePage>();
+        AddPageToApp<LandingPage>();
         AddPageToApp<LoginPage>();
         AddPageToApp<RegisterPage>();
         AddPageToApp<DashboardPage>();
-        AddPageToApp<CustomersPage>();
-        AddPageToApp<CreateCustomerPage>();
-        AddPageToApp<CustomerPage>();
+
+        AddPageToApp<CustomerListPage>();
+        AddPageToApp<CustomerCreatePage>();
+        AddPageToApp<CustomerViewPage>();
         AddPageToApp<CustomerEditPage>();
-        AddPageToApp<ScheduledJobPage>();
-        AddPageToApp<AddScheduledJobPage>();
+
+        AddPageToApp<ScheduledJobViewPage>();
+        AddPageToApp<ScheduledJobListPage>();
+        AddPageToApp<ScheduledJobEditPage>();
+        AddPageToApp<ScheduledJobCreatePage>();
 
         var currentTheme = Application.Current!.UserAppTheme;
         ThemeSegmentedControl.SelectedIndex = currentTheme == AppTheme.Light ? 0 : 1;

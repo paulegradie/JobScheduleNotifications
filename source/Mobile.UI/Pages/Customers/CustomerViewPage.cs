@@ -1,15 +1,14 @@
 ﻿using CommunityToolkit.Maui.Markup;
-using Mobile.UI.PageModels;
 using Mobile.UI.Pages.Base;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
-namespace Mobile.UI.Pages;
+namespace Mobile.UI.Pages.Customers;
 
-public sealed class CustomerPage : BasePage<CustomerViewModel>, IQueryAttributable
+public sealed class CustomerViewPage : BasePage<CustomerViewModel>, IQueryAttributable
 {
     private readonly CustomerViewModel _vm;
 
-    public CustomerPage(CustomerViewModel vm) : base(vm)
+    public CustomerViewPage(CustomerViewModel vm) : base(vm)
     {
         _vm = vm;
         Title = vm.Title;
@@ -29,16 +28,16 @@ public sealed class CustomerPage : BasePage<CustomerViewModel>, IQueryAttributab
                     Spacing = 10,
                     Children =
                     {
-                        new Label().Text("Name").Font(size:14, bold:true),
+                        new Label().Text("Name").Font(size: 14, bold: true),
                         new Label().Bind(Label.TextProperty, nameof(vm.FirstName)),
 
-                        new Label().Text("Email").Font(size:14, bold:true),
+                        new Label().Text("Email").Font(size: 14, bold: true),
                         new Label().Bind(Label.TextProperty, nameof(vm.Email)),
 
-                        new Label().Text("Phone").Font(size:14, bold:true),
+                        new Label().Text("Phone").Font(size: 14, bold: true),
                         new Label().Bind(Label.TextProperty, nameof(vm.PhoneNumber)),
 
-                        new Label().Text("Notes").Font(size:14, bold:true),
+                        new Label().Text("Notes").Font(size: 14, bold: true),
                         new Label().Bind(Label.TextProperty, nameof(vm.Notes)),
 
                         new Label()
@@ -67,5 +66,9 @@ public sealed class CustomerPage : BasePage<CustomerViewModel>, IQueryAttributab
         }
     }
 
-    private enum Row { Details, Buttons }
+    private enum Row
+    {
+        Details,
+        Buttons
+    }
 }

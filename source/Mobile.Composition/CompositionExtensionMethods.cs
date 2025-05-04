@@ -2,8 +2,9 @@
 using Microsoft.Extensions.Logging;
 using Mobile.Infrastructure.Persistence;
 using Mobile.Infrastructure.Services;
-using Mobile.UI.PageModels;
 using Mobile.UI.Pages;
+using Mobile.UI.Pages.Customers;
+using Mobile.UI.Pages.Customers.ScheduledJobs;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Client;
 using Server.Client.Base;
@@ -25,16 +26,20 @@ public static class CompositionExtensionMethods
         services.AddLogging(configure => configure.AddDebug());
 #endif
 
-        services.RegisterPageAndModel<HomePage, HomePageViewModel>();
+        services.RegisterPageAndModel<LandingPage, LandingPageModel>();
         services.RegisterPageAndModel<LoginPage, LoginViewModel>();
         services.RegisterPageAndModel<RegisterPage, RegisterViewModel>();
         services.RegisterPageAndModel<DashboardPage, DashboardViewModel>();
-        services.RegisterPageAndModel<CustomersPage, CustomersViewModel>();
-        services.RegisterPageAndModel<CreateCustomerPage, CreateCustomerViewModel>();
-        services.RegisterPageAndModel<CustomerPage, CustomerViewModel>();
-        services.RegisterPageAndModel<CustomerEditPage, CustomerEditViewModel>();
-        services.RegisterPageAndModel<ScheduledJobPage, ScheduledJobViewModel>();
-        services.RegisterPageAndModel<AddScheduledJobPage, AddScheduledJobViewModel>();
+
+        services.RegisterPageAndModel<CustomerListPage, CustomerListModel>();
+        services.RegisterPageAndModel<CustomerCreatePage, CustomerCreateModel>();
+        services.RegisterPageAndModel<CustomerViewPage, CustomerViewModel>();
+        services.RegisterPageAndModel<CustomerEditPage, CustomerEditModel>();
+
+        services.RegisterPageAndModel<ScheduledJobEditPage, ScheduledJobEditModel>();
+        services.RegisterPageAndModel<ScheduledJobCreatePage, ScheduledJobCreateModel>();
+        services.RegisterPageAndModel<ScheduledJobListPage, ScheduledJobListModel>();
+        services.RegisterPageAndModel<ScheduledJobViewPage, ScheduledJobViewModel>();
 
         // Service
         services.AddDomainServices();

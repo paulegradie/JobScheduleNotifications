@@ -1,21 +1,21 @@
 using System.Net.Http.Headers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.UI.Pages;
+using Mobile.UI.Pages.Customers;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts;
 using Server.Contracts.Endpoints.Auth.Contracts;
 
-namespace Mobile.UI.PageModels;
+namespace Mobile.UI.Pages;
 
-public partial class HomePageViewModel : ObservableObject
+public partial class LandingPageModel : BaseViewModel
 {
     private readonly INavigationRepository _navigation;
     private readonly IServerClient _serverClient;
     private readonly IAuthClient _authClient;
     private readonly ITokenRepository _tokenRepository;
 
-    public HomePageViewModel(
+    public LandingPageModel(
         INavigationRepository navigation,
         IServerClient serverClient,
         IAuthClient authClient,
@@ -53,7 +53,7 @@ public partial class HomePageViewModel : ObservableObject
     [RelayCommand]
     private async Task NavigateToCustomers()
     {
-        await _navigation.GoToAsync(nameof(CustomersPage));
+        await _navigation.GoToAsync(nameof(CustomerListPage));
     }
 
     [RelayCommand]
@@ -87,7 +87,7 @@ public partial class HomePageViewModel : ObservableObject
             new AuthenticationHeaderValue("Bearer", token.Value.AccessToken);
 
         // — now navigate to Dashboard —
-        await _navigation.GoToAsync(nameof(CustomersPage));
+        await _navigation.GoToAsync(nameof(CustomerListPage));
 #endif
     }
 }
