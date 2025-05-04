@@ -13,7 +13,7 @@ public sealed class ScheduledJobViewPage : BasePage<ScheduledJobViewModel>
 
     public ScheduledJobViewPage(ScheduledJobViewModel vm) : base(vm)
     {
-        Title = "Job Details";
+        Title = "View Details for a Scheduled Job:";
 
         // Define UI layout
         Content = new ScrollView

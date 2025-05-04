@@ -6,14 +6,25 @@ using Mobile.UI.Pages.Base;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
+public record Details(CustomerId CustomerId, ScheduledJobDefinitionId ScheduledJobDefinitionId);
+
 [QueryProperty(nameof(CustomerId), "customerId")]
+[QueryProperty(nameof(ScheduledJobDefinitionId), "scheduledJobDefinitionId")]
 public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
 {
+    public string ScheduledJobDefinitionId { get; set; }
     public string CustomerId { get; set; }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        ViewModel.LoadForEditCommand.Execute(new Details(
+            new CustomerId(Guid.Parse(CustomerId)), new ScheduledJobDefinitionId(Guid.Parse(ScheduledJobDefinitionId))));
+    }
 
     public ScheduledJobEditPage(ScheduledJobEditModel vm) : base(vm)
     {
-        Title = "Schedule Job";
+        Title = "Edit a Scheduled Job:";
         Content = new ScrollView
         {
             Content = new VerticalStackLayout
@@ -37,7 +48,9 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
 
                     Section("Frequency",
                         new Picker { ItemsSource = Enum.GetValues<Frequency>() }
-                            .Bind(Picker.SelectedItemProperty, nameof(ViewModel.Frequency))),
+                            .Bind(Picker.SelectedItemProperty,
+                                nameof(ViewModel.Frequency),
+                                mode: BindingMode.TwoWay)),
 
                     Section("Interval",
                         new Stepper { Minimum = 1, Maximum = 30 }

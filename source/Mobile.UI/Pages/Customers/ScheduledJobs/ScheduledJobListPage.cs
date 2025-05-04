@@ -12,7 +12,7 @@ public sealed class ScheduledJobListPage : BasePage<ScheduledJobListModel>
 
     public ScheduledJobListPage(ScheduledJobListModel vm) : base(vm)
     {
-        Title = "Scheduled Jobs";
+        Title = "List All Scheduled Jobs for this Customer:";
         Content = new RefreshView()
             {
                 Content = new CollectionView()

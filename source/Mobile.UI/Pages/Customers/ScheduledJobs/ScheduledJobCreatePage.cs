@@ -14,7 +14,7 @@ public partial class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
 
     public ScheduledJobCreatePage(ScheduledJobCreateModel vm) : base(vm)
     {
-        Title = "Add Scheduled Job";
+        Title = "Create a Scheduled Job for this Customer:";
         Content = new ScrollView
         {
             Content = new VerticalStackLayout

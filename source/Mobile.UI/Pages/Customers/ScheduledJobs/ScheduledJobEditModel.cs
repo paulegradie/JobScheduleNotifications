@@ -9,8 +9,6 @@ using Server.Contracts.Dtos;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
-[QueryProperty(nameof(CustomerId), "customerId")]
-[QueryProperty(nameof(ScheduledJobDefinitionId), "scheduledJobDefinitionId")]
 public partial class ScheduledJobEditModel : BaseViewModel
 {
     private readonly IJobService _jobService;
@@ -39,14 +37,14 @@ public partial class ScheduledJobEditModel : BaseViewModel
 
 
     [RelayCommand]
-    private async Task LoadForEditAsync()
+    private async Task LoadForEditAsync(Details details)
     {
         if (IsBusy) return;
 
         await RunSafeAsync(async () =>
         {
             // fetch the existing record
-            var dto = await _jobService.GetJobAsync(CustomerId, ScheduledJobDefinitionId);
+            var dto = await _jobService.GetJobAsync(details.CustomerId, details.ScheduledJobDefinitionId);
             ScheduledJobDefinitionDtoItem = dto;
 
             // push all the fields into your bindable props:
@@ -58,7 +56,8 @@ public partial class ScheduledJobEditModel : BaseViewModel
             DayOfMonth = dto.Pattern.DayOfMonth?.ToString() ?? string.Empty;
             CronExpression = dto.Pattern.CronExpression ?? string.Empty;
 
-            SelectedWeekDays.Clear();
+            if (SelectedWeekDays is not null)
+                SelectedWeekDays.Clear();
             foreach (var wd in dto.Pattern.WeekDays)
                 SelectedWeekDays.Add(wd);
         });
@@ -97,10 +96,10 @@ public partial class ScheduledJobEditModel : BaseViewModel
             {
                 Frequency = freq,
                 Interval = interval,
-                WeekDays = SelectedWeekDays.ToArray(),
-                DayOfMonth = dayOfMonthParsed,
+                WeekDays = SelectedWeekDays?.ToArray() ?? [],
+                DayOfMonth = dayOfMonthParsed ?? 1,
                 CronExpression = string.IsNullOrWhiteSpace(CronExpression)
-                    ? null
+                    ? string.Empty
                     : CronExpression
             };
 

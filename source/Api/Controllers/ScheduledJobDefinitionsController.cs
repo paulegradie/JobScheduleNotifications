@@ -106,7 +106,7 @@ public class ScheduledJobDefinitionsController : ControllerBase
     public async Task<ActionResult<UpdateScheduledJobDefinitionResponse>> Update(
         [FromRoute] CustomerId customerId,
         [FromRoute] ScheduledJobDefinitionId jobDefinitionId,
-        [FromBody] CreateScheduledJobDefinitionRequest req)
+        [FromBody] UpdateScheduledJobDefinitionRequest req)
     {
         var def = await _scheduledJobDefinitionRepository.GetAsync(jobDefinitionId);
         if (def == null || def.CustomerId != customerId)
@@ -115,9 +115,9 @@ public class ScheduledJobDefinitionsController : ControllerBase
         // apply changes
         def.Title = req.Title;
         def.Description = req.Description;
-        def.AnchorDate = req.AnchorDate;
-        def.Pattern.Frequency = req.Frequency;
-        def.Pattern.Interval = req.Interval;
+        def.AnchorDate = req.AnchorDate ?? DateTime.UtcNow;
+        def.Pattern.Frequency = req.Frequency ?? Frequency.Weekly;
+        def.Pattern.Interval = req.Interval ?? 1;
         def.Pattern.WeekDays = req.WeekDays ?? [WeekDay.Monday];
         def.Pattern.DayOfMonth = req.DayOfMonth ?? 1;
         def.Pattern.CronExpression = req.CronExpression ?? string.Empty;

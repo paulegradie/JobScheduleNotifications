@@ -24,10 +24,14 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
     public string? Description { get; init; }
     public Frequency? Frequency { get; init; }
     public int? Interval { get; init; }
-    public WeekDay[]? DaysOfWeek { get; init; }
+    public WeekDay[]? WeekDays { get; init; }
     public int? DayOfMonth { get; init; }
     public string? CronExpression { get; init; }
     public DateTime? AnchorDate { get; set; }
+
+    public UpdateScheduledJobDefinitionRequest() : base(Route)
+    {
+    }
 
     private UpdateScheduledJobDefinitionRequest(
         CustomerId customerId,
@@ -36,7 +40,7 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
         string? description = null,
         Frequency? frequency = null,
         int? interval = null,
-        WeekDay[]? daysOfWeek = null,
+        WeekDay[]? weekDays = null,
         int? dayOfMonth = null,
         string? cronExpression = null,
         DateTime? anchorDate = null)
@@ -48,7 +52,7 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
         Description = description;
         Frequency = frequency;
         Interval = interval;
-        DaysOfWeek = daysOfWeek;
+        WeekDays = weekDays;
         DayOfMonth = dayOfMonth;
         CronExpression = cronExpression;
         AnchorDate = anchorDate;
