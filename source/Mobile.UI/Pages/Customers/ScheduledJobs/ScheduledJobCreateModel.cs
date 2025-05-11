@@ -161,4 +161,19 @@ public partial class ScheduledJobCreateModel : BaseViewModel
             IsBusy = false;
         }
     }
+
+    partial void OnTitleChanged(string oldValue, string newValue)
+        => SaveCommand.NotifyCanExecuteChanged();
+
+    partial void OnDescriptionChanged(string oldValue, string newValue)
+        => SaveCommand.NotifyCanExecuteChanged();
+
+    partial void OnFrequencyChanged(Frequency oldValue, Frequency newValue)
+        => SaveCommand.NotifyCanExecuteChanged();
+
+    partial void OnIntervalChanged(int oldValue, int newValue)
+        => SaveCommand.NotifyCanExecuteChanged();
+
+    partial void OnCronExpressionChanged(string oldValue, string newValue)
+        => SaveCommand.NotifyCanExecuteChanged();
 }

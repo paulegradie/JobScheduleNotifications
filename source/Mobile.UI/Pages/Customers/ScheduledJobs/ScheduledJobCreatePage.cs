@@ -100,7 +100,10 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
                 CornerRadius = 20,
                 Padding = new Thickness(16, 8)
             }
-            .BindCommand(nameof(ScheduledJobCreateModel.SelectFrequencyCommand), source: freq)
+            .BindCommand(
+                nameof(ScheduledJobCreateModel.SelectFrequencyCommand),
+                parameterSource: freq
+            )
             .Bind(Button.StyleProperty, nameof(ViewModel.ChipStyle), converterParameter: freq);
 
     static View Section(string label, View control) =>
