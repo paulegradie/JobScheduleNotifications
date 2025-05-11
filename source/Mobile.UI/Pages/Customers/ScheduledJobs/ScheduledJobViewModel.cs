@@ -9,7 +9,7 @@ using Server.Contracts.Dtos;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs
 {
-    public partial class ScheduledJobViewModel : BaseViewModel
+    public partial class ScheduledJobViewModel : Base.BaseViewModel
     {
         private readonly IJobService _jobService;
         private readonly ICustomerService _customerService;
@@ -50,9 +50,9 @@ namespace Mobile.UI.Pages.Customers.ScheduledJobs
         [RelayCommand]
         private async Task LoadScheduledJob(ScheduledJobDefinitionId scheduledJobDefinitionId)
         {
-            await RunSafeAsync(async () =>
+            await RunWithSpinner(async () =>
             {
-                var result = await _jobService.GetJobAsync(_selectedCustomer.Id, scheduledJobDefinitionId);
+                var result = await _jobService.GetJobAsync(SelectedCustomer.Id, scheduledJobDefinitionId);
                 var customer = await _customerService.GetCustomerAsync(result.CustomerId);
                 Title = result.Title;
                 CustomerName = customer.FullName;

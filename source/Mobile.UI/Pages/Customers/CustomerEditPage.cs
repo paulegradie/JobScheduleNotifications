@@ -55,12 +55,12 @@ public sealed class CustomerEditPage : BasePage<CustomerEditModel>, IQueryAttrib
 
                     new HorizontalStackLayout
                     {
-                        Spacing = 10,
+                        Spacing = 15,
                         Children =
                         {
                             new Button { Text = "Save" }
-                                .BindCommand(nameof(vm.SaveCustomerCommand))
-                                .Bind(IsEnabledProperty, nameof(vm.CanSave)),
+                                .BindCommand(nameof(vm.SaveCustomerCommand)),
+                                // .Bind(IsEnabledProperty, nameof(vm.CanSave)),
                             new Button { Text = "Cancel" }
                                 .BindCommand(nameof(vm.CancelCommand))
                         }

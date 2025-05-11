@@ -1,108 +1,116 @@
-﻿using Api.ValueTypes;
-using Api.ValueTypes.Enums;
-using CommunityToolkit.Maui.Converters;
+﻿using Api.ValueTypes.Enums;
 using CommunityToolkit.Maui.Markup;
+using Microsoft.Maui.Layouts;
 using Mobile.UI.Pages.Base;
 using Server.Contracts.Dtos;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
-
-[QueryProperty(nameof(CustomerId), "customerId")]
-public partial class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
-{
-    public string CustomerId { get; set; }
-
-    public ScheduledJobCreatePage(ScheduledJobCreateModel vm) : base(vm)
+[QueryProperty(nameof(CustomerId), nameof(CustomerId))]
+    public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
     {
-        Title = "Create a Scheduled Job for this Customer:";
-        Content = new ScrollView
+        public string CustomerId { get; set; }
+
+        public ScheduledJobCreatePage(ScheduledJobCreateModel vm) : base(vm)
         {
-            Content = new VerticalStackLayout
+            Title = "Schedule Job";
+
+            Content = new ScrollView
             {
-                Padding = 20,
-                Spacing = 15,
+                Content = new VerticalStackLayout
+                {
+                    Padding = 20,
+                    Spacing = 25,
+                    Children =
+                    {
+                        Section("Customer",
+                            new Picker { Title = "Select Customer", ItemDisplayBinding = new Binding(nameof(CustomerDto.FullName)) }
+                                .Bind(Picker.ItemsSourceProperty, nameof(vm.Customers))
+                                .Bind(Picker.SelectedItemProperty, nameof(vm.SelectedCustomer))
+                        ),
+
+                        Section("Title",
+                            new Entry()
+                                .Placeholder("Job Title")
+                                .Bind(Entry.TextProperty, nameof(vm.Title))
+                        ),
+
+                        Section("Description",
+                            new Editor { HeightRequest = 100 }
+                                .Bind(Editor.TextProperty, nameof(vm.Description))
+                        ),
+
+                        Section("Anchor Date",
+                            new DatePicker()
+                                .Bind(DatePicker.DateProperty, nameof(vm.AnchorDate))
+                        ),
+
+                        new Label().Text("Frequency").Font(size:14, bold:true),
+                        new FlexLayout
+                        {
+                            JustifyContent = FlexJustify.SpaceBetween,
+                            Children =
+                            {
+                                CreateChip(Frequency.Daily),
+                                CreateChip(Frequency.Weekly),
+                                CreateChip(Frequency.Monthly),
+                                CreateChip(Frequency.Custom)
+                            }
+                        },
+
+                        new Label().Bind(Label.TextProperty, nameof(vm.IntervalDisplay)).Font(size:18),
+                        new Slider(1, 52, 1)
+                            .Bind(Slider.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay),
+                        new Stepper(1, 100, 1, 1)
+                            .Bind(Stepper.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay),
+
+                        Section("Day of Month",
+                            new Entry { Keyboard = Keyboard.Numeric }
+                                .Bind(Entry.TextProperty, nameof(vm.DayOfMonth))
+                        ),
+
+                        Section("Cron Preview",
+                            new Label { FontSize = 14, TextColor = Colors.Gray }
+                                .Bind(Label.TextProperty, nameof(vm.CronPreview))
+                        ),
+
+                        new Label { TextColor = Colors.Red }
+                            .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
+                            .Bind(IsVisibleProperty, nameof(vm.HasError)),
+
+                        new Button { Text = "Save Job", CornerRadius = 8 }
+                            .BindCommand(nameof(vm.SaveCommand))
+                            .Bind(IsEnabledProperty, nameof(vm.CanSave)),
+
+                        new ActivityIndicator()
+                            .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
+                            .Bind(ActivityIndicator.IsVisibleProperty, nameof(vm.IsBusy))
+                    }
+                }
+            };
+
+            // Use LoadCommand not LoadAsync
+            Loaded += async (_,_) => await ViewModel.LoadCommand.ExecuteAsync(CustomerId);
+        }
+
+        Button CreateChip(Frequency freq) =>
+            new Button
+            {
+                Text = freq.ToString(),
+                CornerRadius = 20,
+                Padding = new Thickness(16,8)
+            }
+            .Bind(Button.CommandProperty, nameof(ViewModel.SelectFrequencyCommand))
+            // .Bind(Button.CommandParameterProperty, freq)
+            .Bind(Button.StyleProperty, nameof(ViewModel.ChipStyle), converterParameter: freq);
+
+        static View Section(string label, View control) =>
+            new VerticalStackLayout
+            {
+                Spacing = 4,
                 Children =
                 {
-                    Section("Customer",
-                        new Picker()
-                            {
-                                Title = "Where does this go",
-                                ItemDisplayBinding = new Binding(nameof(CustomerDto.FullName)),
-                            }
-                            .TextColor(Colors.White)
-                            .Bind(Picker.ItemsSourceProperty, nameof(vm.Customers))
-                            .Bind(Picker.SelectedItemProperty, nameof(vm.SelectedCustomer))),
-
-                    Section("Title",
-                        new Entry()
-                            .Placeholder("Job title")
-                            .Bind(Entry.TextProperty, nameof(ViewModel.Title))),
-
-                    Section("Description",
-                        new Editor { HeightRequest = 100 }
-                            .Bind(Editor.TextProperty, nameof(ViewModel.Description))),
-
-                    Section("Anchor Date",
-                        new DatePicker()
-                            .Bind(DatePicker.DateProperty, nameof(ViewModel.AnchorDate))),
-
-                    Section("Frequency",
-                        new Picker { ItemsSource = Enum.GetValues<Frequency>() }
-                            .Bind(Picker.SelectedItemProperty, nameof(ViewModel.Frequency))),
-
-                    Section("Interval",
-                        new Stepper { Minimum = 1, Maximum = 30 }
-                            .Bind(Stepper.ValueProperty, nameof(ViewModel.Interval))),
-
-                    Section("Week Days",
-                        new HorizontalStackLayout
-                        {
-                            Spacing = 5,
-                            // you can generate CheckBoxes here bound to ViewModel.SelectedWeekDays
-                        }),
-
-                    Section("Day of Month",
-                        new Entry { Keyboard = Keyboard.Numeric }
-                            .Bind(Entry.TextProperty, nameof(ViewModel.DayOfMonth))),
-
-                    Section("Cron Expression",
-                        new Entry()
-                            .Placeholder("Optional cron")
-                            .Bind(Entry.TextProperty, nameof(ViewModel.CronExpression))),
-
-                    new Label()
-                        .Bind(Label.TextProperty, nameof(ViewModel.ErrorMessage))
-                        .TextColor(Colors.Red)
-                        .Bind(IsVisibleProperty, nameof(ViewModel.ErrorMessage)),
-
-                    new Button()
-                        .Text("Create Job")
-                        .BindCommand(nameof(ViewModel.CreateJobCommand))
-                        .Bind(IsEnabledProperty, nameof(ViewModel.IsBusy),
-                            converter: new InvertedBoolConverter()),
-
-                    new ActivityIndicator()
-                        .Bind(ActivityIndicator.IsRunningProperty, nameof(ViewModel.IsBusy))
-                        .Bind(ActivityIndicator.IsVisibleProperty, nameof(ViewModel.IsBusy)),
+                    new Label().Text(label).Font(size:14, bold:true),
+                    control
                 }
-            }
-        };
+            };
     }
-
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-        ViewModel.LoadCustomersCommand.Execute(CustomerId);
-    }
-
-    static View Section(string label, View control) =>
-        new VerticalStackLayout
-        {
-            Spacing = 2,
-            Children =
-            {
-                new Label().Text(label).Font(size: 14, bold: true),
-                control
-            }
-        };
-}

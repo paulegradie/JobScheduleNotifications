@@ -1,10 +1,3 @@
 ﻿namespace Api.ValueTypes.Enums;
 
-public enum Frequency
-{
-    Daily,
-    Weekly,
-    Monthly,
-    Yearly,
-    Cron
-}
+public enum Frequency { Daily, Weekly, Monthly, Custom }

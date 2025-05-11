@@ -40,6 +40,8 @@ public static class CompositionExtensionMethods
         services.RegisterPageAndModel<ScheduledJobCreatePage, ScheduledJobCreateModel>();
         services.RegisterPageAndModel<ScheduledJobListPage, ScheduledJobListModel>();
         services.RegisterPageAndModel<ScheduledJobViewPage, ScheduledJobViewModel>();
+        services.RegisterPageAndModel<ElegantSchedulePage, ElegantScheduleViewModel>();
+
 
         // Service
         services.AddDomainServices();

@@ -2,19 +2,17 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Mobile.UI.Pages;
+namespace Mobile.UI.Pages.Base;
 
 public abstract partial class BaseViewModel : ObservableObject
 {
     // common “busy”/“error” lifecycle state
-    [ObservableProperty] 
-    private bool _isBusy;
+    [ObservableProperty] private bool _isBusy;
 
-    [ObservableProperty]
-    private string _errorMessage = string.Empty;
+    [ObservableProperty] private string _errorMessage = string.Empty;
 
     // optional: a base “Refresh” command pattern
-    protected async Task RunSafeAsync(Func<Task> operation)
+    protected async Task RunWithSpinner(Func<Task> operation, string? errorMessage = null)
     {
         if (IsBusy) return;
         IsBusy = true;
@@ -25,7 +23,14 @@ public abstract partial class BaseViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
+            if (errorMessage != null)
+            {
+                ErrorMessage = errorMessage;
+            }
+            else
+            {
+                ErrorMessage = ex.Message;
+            }
         }
         finally
         {

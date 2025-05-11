@@ -8,7 +8,7 @@ using Server.Contracts.Endpoints.Auth.Contracts;
 
 namespace Mobile.UI.Pages;
 
-public partial class LandingPageModel : BaseViewModel
+public partial class LandingPageModel : Base.BaseViewModel
 {
     private readonly INavigationRepository _navigation;
     private readonly IServerClient _serverClient;

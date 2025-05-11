@@ -18,8 +18,8 @@ public class SimpleRecurrenceCalculator : IRecurrenceCalculator
             Frequency.Daily => NextDaily(pat, afterUtc),
             Frequency.Weekly => NextWeekly(pat, anchorDateUtc, afterUtc),
             Frequency.Monthly => NextMonthly(pat, afterUtc),
-            Frequency.Yearly => NextYearly(pat, afterUtc),
-            Frequency.Cron => NextCron(pat, afterUtc),
+            // Frequency.Yearly => NextYearly(pat, afterUtc),
+            // Frequency.Cron => NextCron(pat, afterUtc),
             _ => throw new NotSupportedException(
                 $"Unsupported frequency: {pat.Frequency}")
         };

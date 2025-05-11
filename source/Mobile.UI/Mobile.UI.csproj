@@ -105,6 +105,9 @@
       <Compile Update="Pages\RegisterViewModel.cs">
         <DependentUpon>RegisterPage.cs</DependentUpon>
       </Compile>
+      <Compile Update="Pages\Customers\ScheduledJobs\ElegantIntervalModel.cs">
+        <DependentUpon>ElegantIntervalSelectionPage.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

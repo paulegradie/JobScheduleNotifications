@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.Pages.Customers.ScheduledJobs;
@@ -80,7 +81,7 @@ public partial class CustomerListModel : ObservableObject
         if (customer == null) return;
         await _navigation.GoToAsync(
             nameof(ScheduledJobCreatePage),
-            new Dictionary<string, object> { { "customerId", customer.Id.ToString() } });
+            new Dictionary<string, object> { { nameof(CustomerId), customer.Id.ToString() } });
     }
 
     [RelayCommand]
@@ -93,6 +94,6 @@ public partial class CustomerListModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task NavigateHomeAsync()
+    private async Task NavigateHomeAsync()
         => await _navigation.GoToAsync(nameof(LandingPage));
 }

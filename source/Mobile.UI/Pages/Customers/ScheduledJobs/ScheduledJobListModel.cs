@@ -8,7 +8,7 @@ using Server.Contracts.Dtos;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
-public partial class ScheduledJobListModel : BaseViewModel
+public partial class ScheduledJobListModel : Base.BaseViewModel
 {
     private readonly IJobService _jobService;
     private readonly INavigationRepository _navigation;

@@ -49,6 +49,7 @@ public sealed class CustomerListPage : BasePage<CustomerListModel>
             {
                 new SearchBar()
                     .Placeholder("Search customers…")
+                    .TextColor(Colors.DarkGray)
                     .Bind(SearchBar.TextProperty, nameof(vm.SearchText), BindingMode.TwoWay)
                     .Bind(SearchBar.SearchCommandProperty, nameof(vm.LoadCustomersCommand))
                     .Column(Col.Search),
@@ -67,6 +68,7 @@ public sealed class CustomerListPage : BasePage<CustomerListModel>
                     {
                         SelectionMode = SelectionMode.None,
                         EmptyView = "No customers found",
+                        Margin = new Thickness(0, 10, 0, 10),
                         ItemTemplate = new DataTemplate(() => BuildCustomerTemplate(vm))
                     }
                     .Bind(CollectionView.ItemsSourceProperty, nameof(vm.Customers))
@@ -85,17 +87,25 @@ public sealed class CustomerListPage : BasePage<CustomerListModel>
         // Card-like container
         return new Frame
         {
-            Padding = 10,
-            Margin = new Thickness(0, 0, 0, 10),
+            Padding = 40,
+            Margin = 40,
             Content = new VerticalStackLayout
             {
                 Spacing = 8,
+                Margin = new Thickness(0, 10, 0, 10),
                 Children =
                 {
-                    new Label().Font(size: 16, bold: true)
-                        .Bind(Label.TextProperty, nameof(CustomerDto.FirstName)),
-                    new Label().Font(size: 16, bold: true)
-                        .Bind(Label.TextProperty, nameof(CustomerDto.LastName)),
+                    new HorizontalStackLayout()
+                    {
+                        Spacing = 5,
+                        Children =
+                        {
+                            new Label().Font(size: 16, bold: true)
+                                .Bind(Label.TextProperty, nameof(CustomerDto.FirstName)),
+                            new Label().Font(size: 16, bold: true)
+                                .Bind(Label.TextProperty, nameof(CustomerDto.LastName)),
+                        }
+                    },
                     new Label().FontSize(14)
                         .TextColor((Color)Application.Current.Resources["TextSecondary"])
                         .Bind(Label.TextProperty, nameof(CustomerDto.Email)),

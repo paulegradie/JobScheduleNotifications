@@ -9,7 +9,7 @@ using Server.Contracts.Dtos;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
-public partial class ScheduledJobEditModel : BaseViewModel
+public partial class ScheduledJobEditModel : Base.BaseViewModel
 {
     private readonly IJobService _jobService;
     private readonly ICustomerService _customerService;
@@ -41,7 +41,7 @@ public partial class ScheduledJobEditModel : BaseViewModel
     {
         if (IsBusy) return;
 
-        await RunSafeAsync(async () =>
+        await RunWithSpinner(async () =>
         {
             // fetch the existing record
             var dto = await _jobService.GetJobAsync(details.CustomerId, details.ScheduledJobDefinitionId);
@@ -70,7 +70,7 @@ public partial class ScheduledJobEditModel : BaseViewModel
         // guard
         if (ScheduledJobDefinitionDtoItem is null) return;
 
-        await RunSafeAsync(async () =>
+        await RunWithSpinner(async () =>
         {
             // 1) parse your string fields
             if (!DateTime.TryParse(AnchorDate, out var anchor))
