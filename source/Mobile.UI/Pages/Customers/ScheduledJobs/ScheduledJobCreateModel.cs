@@ -30,7 +30,7 @@ public partial class ScheduledJobCreateModel : BaseViewModel
     public string IntervalDisplay =>
         $"Every {Interval} {Frequency.ToString().ToLower()}{(Interval > 1 ? "s" : "")}";
 
-    private bool IsCustom => Frequency == Frequency.Custom;
+    public bool IsCustom => Frequency == Frequency.Custom;
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
     public bool CanSave =>
@@ -60,6 +60,39 @@ public partial class ScheduledJobCreateModel : BaseViewModel
     partial void OnIntervalChanged(int value) => UpdateCronPreview();
     partial void OnDayOfMonthChanged(int? value) => UpdateCronPreview();
     partial void OnCronExpressionChanged(string value) => UpdateCronPreview();
+
+    [RelayCommand]
+    private async Task LoadAsync(string customerId)
+    {
+        if (IsBusy) return;
+        IsBusy = true;
+        try
+        {
+            var result = await _customerRepository.GetCustomersAsync();
+            if (result.IsSuccess)
+            {
+                Customers.Clear();
+                foreach (var c in result.Value)
+                    Customers.Add(c);
+                SelectedCustomer = Customers.FirstOrDefault(c => c.Id.Value.ToString() == customerId)
+                                   ?? Customers.FirstOrDefault();
+            }
+        }
+        catch
+        {
+            ErrorMessage = "Unable to load customers.";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private void SelectFrequency(Frequency freq)
+    {
+        Frequency = freq;
+    }
 
     private void UpdateCronPreview()
     {
@@ -97,37 +130,18 @@ public partial class ScheduledJobCreateModel : BaseViewModel
             CronPreview = "Invalid parameters";
         }
 
+        // Notify changes
         OnPropertyChanged(nameof(CronPreview));
-    }
-    
-    [RelayCommand]
-    private void SelectFrequency(Frequency freq)
-    {
-        Frequency = freq;
-    }
-    
-
-    [RelayCommand]
-    private async Task LoadAsync(string customerId)
-    {
-        await RunWithSpinner(async () =>
-        {
-            var result = await _customerRepository.GetCustomersAsync();
-            if (result.IsSuccess)
-            {
-                Customers.Clear();
-                foreach (var c in result.Value)
-                    Customers.Add(c);
-                SelectedCustomer = Customers.FirstOrDefault(c => c.Id.Value.ToString() == customerId)
-                                   ?? Customers.FirstOrDefault();
-            }
-        }, "Unable to load customers.");
+        OnPropertyChanged(nameof(IntervalDisplay));
+        OnPropertyChanged(nameof(IsCustom));
     }
 
     [RelayCommand(CanExecute = nameof(CanSave))]
     private async Task SaveAsync()
     {
-        await RunWithSpinner(async () =>
+        if (IsBusy) return;
+        IsBusy = true;
+        try
         {
             var dto = new CreateScheduledJobDefinitionDto
             {
@@ -141,6 +155,10 @@ public partial class ScheduledJobCreateModel : BaseViewModel
             await _jobService.CreateJobAsync(dto);
             await _navigation.ShowAlertAsync("Success", "Job scheduled!");
             await _navigation.GoToAsync(nameof(CustomerListPage));
-        });
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 }
