@@ -26,10 +26,7 @@ internal class JobService : IJobService
         var result = await _jobRepository.GetJobsByCustomerAsync(customerId);
         if (result.IsSuccess)
             return result.Value;
-        else
-        {
-            throw new Exception(result.ErrorMessage ?? "Failed to load jobs.");
-        }
+        throw new Exception(result.ErrorMessage ?? "Failed to load jobs.");
     }
 
     public async Task<ScheduledJobDefinitionDto> GetJobAsync(CustomerId customerId, ScheduledJobDefinitionId scheduledJobDefinitionId)
@@ -47,16 +44,12 @@ internal class JobService : IJobService
     {
         var updateDto = new UpdateJobDto
         {
-            DayOfMonth = scheduledJobDefinitionDto.Pattern.DayOfMonth,
             CustomerId = scheduledJobDefinitionDto.CustomerId,
             Description = scheduledJobDefinitionDto.Description,
             Title = scheduledJobDefinitionDto.Title,
-            Interval = scheduledJobDefinitionDto.Pattern.Interval,
             AnchorDate = scheduledJobDefinitionDto.AnchorDate,
-            CronExpression = scheduledJobDefinitionDto.Pattern.CronExpression,
-            Frequency = scheduledJobDefinitionDto.Pattern.Frequency,
+            CronExpression = scheduledJobDefinitionDto.CronExpression,
             JobDefinitionId = scheduledJobDefinitionDto.ScheduledJobDefinitionId,
-            WeekDays = scheduledJobDefinitionDto.Pattern.WeekDays
         };
         var result = await _jobRepository.UpdateJobAsync(scheduledJobDefinitionDto.CustomerId, scheduledJobDefinitionDto.ScheduledJobDefinitionId, updateDto);
         if (result.IsSuccess)

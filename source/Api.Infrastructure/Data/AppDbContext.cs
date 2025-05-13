@@ -21,15 +21,12 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
     // Domain Tables
     public DbSet<Customer> Customers { get; set; }
     public DbSet<ScheduledJobDefinition> ScheduledJobDefinitions { get; set; }
-    public DbSet<RecurrencePattern> RecurrencePatterns { get; set; }
     public DbSet<JobOccurrence> JobOccurrences { get; set; }
     public DbSet<JobReminder> JobReminders { get; set; }
-
 
     // Link Tables
     public DbSet<CustomerUser> CustomerUsers { get; set; }
     public DbSet<OrganizationUser> OrganizationUsers { get; set; }
-
 
     // Org
     public DbSet<Organization> Organizations { get; set; }
@@ -138,12 +135,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
                     .HasConversion<ScheduledJobDefinitionIdConverter>()
                     .HasValueGenerator<ScheduledJobDefinitionIdValueGenerator>()
                     .ValueGeneratedOnAdd();
-
-                def.HasOne(d => d.Pattern)
-                    .WithOne(p => p.ScheduledJobDefinition)
-                    .HasForeignKey<RecurrencePattern>(p => p.ScheduledJobDefinitionId)
-                    .IsRequired()
-                    .OnDelete(DeleteBehavior.Cascade);
 
                 def.Property(x => x.CustomerId).HasConversion<CustomerIdConverter>();
 

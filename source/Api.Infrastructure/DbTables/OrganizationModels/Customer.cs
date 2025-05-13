@@ -30,7 +30,7 @@ public class Customer
 
     public Customer DefineNewJob(
         ScheduledJobDefinitionId id,
-        RecurrencePattern pattern,
+        string cronExpression,
         string title,
         string description,
         DateTime anchorDate)
@@ -39,7 +39,7 @@ public class Customer
         {
             ScheduledJobDefinitionId = id,
             CustomerId = CustomerId,
-            Pattern = pattern,
+            CronExpression = cronExpression,
             AnchorDate = anchorDate,
             Title = title,
             Description = description

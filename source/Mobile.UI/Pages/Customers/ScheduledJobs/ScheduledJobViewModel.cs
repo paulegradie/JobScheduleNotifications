@@ -11,8 +11,8 @@ namespace Mobile.UI.Pages.Customers.ScheduledJobs
 {
     public partial class ScheduledJobViewModel : Base.BaseViewModel
     {
-        private readonly IJobService _jobService;
-        private readonly ICustomerService _customerService;
+        private readonly IJobRepository _jobRepository;
+        private readonly ICustomerRepository _customerRepository;
         private readonly INavigationRepository _navigation;
 
         [ObservableProperty] private ObservableCollection<CustomerDto> _customers = new();
@@ -37,12 +37,12 @@ namespace Mobile.UI.Pages.Customers.ScheduledJobs
         [ObservableProperty] private string _customerName = string.Empty;
 
         public ScheduledJobViewModel(
-            IJobService jobService,
-            ICustomerService customerService,
+            IJobRepository jobRepository,
+            ICustomerRepository customerRepository,
             INavigationRepository navigation)
         {
-            _jobService = jobService;
-            _customerService = customerService;
+            _jobRepository = jobRepository;
+            _customerRepository = customerRepository;
             _navigation = navigation;
         }
 
@@ -52,16 +52,22 @@ namespace Mobile.UI.Pages.Customers.ScheduledJobs
         {
             await RunWithSpinner(async () =>
             {
-                var result = await _jobService.GetJobAsync(SelectedCustomer.Id, scheduledJobDefinitionId);
-                var customer = await _customerService.GetCustomerAsync(result.CustomerId);
-                Title = result.Title;
-                CustomerName = customer.FullName;
-                AnchorDate = result.AnchorDate;
-                Description = result.Description;
-                Frequency = result.Pattern.Frequency;
-                Interval = result.Pattern.Interval;
-                DayOfMonth = result.Pattern.DayOfMonth;
-                SelectedWeekDays = new ObservableCollection<WeekDay>(result.Pattern.WeekDays);
+                var scheduledJobResult = await _jobRepository.GetJobByIdAsync(SelectedCustomer.Id, scheduledJobDefinitionId);
+                if (scheduledJobResult.IsSuccess)
+                {
+                    var scheduledJob = scheduledJobResult.Value;
+                    var customerId = scheduledJobResult.Value.CustomerId;
+                    var customerResult = await _customerRepository.GetCustomerByIdAsync(customerId);
+                    if (customerResult.IsSuccess)
+                    {
+                        var customer = customerResult.Value;
+                        Title = scheduledJob.Title;
+                        CustomerName = customer.FullName;
+                        AnchorDate = scheduledJob.AnchorDate;
+                        Description = scheduledJob.Description;
+                        CronExpression = scheduledJob.CronExpression;
+                    }
+                }
             });
         }
     }

@@ -64,9 +64,7 @@ public partial class ScheduledJobCreateModel : BaseViewModel
     [RelayCommand]
     private async Task LoadAsync(string customerId)
     {
-        if (IsBusy) return;
-        IsBusy = true;
-        try
+        await RunWithSpinner(async () =>
         {
             var result = await _customerRepository.GetCustomersAsync();
             if (result.IsSuccess)
@@ -77,15 +75,7 @@ public partial class ScheduledJobCreateModel : BaseViewModel
                 SelectedCustomer = Customers.FirstOrDefault(c => c.Id.Value.ToString() == customerId)
                                    ?? Customers.FirstOrDefault();
             }
-        }
-        catch
-        {
-            ErrorMessage = "Unable to load customers.";
-        }
-        finally
-        {
-            IsBusy = false;
-        }
+        });
     }
 
     [RelayCommand]
@@ -120,6 +110,10 @@ public partial class ScheduledJobCreateModel : BaseViewModel
                         if (DayOfMonth.HasValue)
                             builder.OnDayOfMonth(DayOfMonth.Value).EveryMonths(Interval);
                         break;
+                    case Frequency.Custom:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
 
                 CronPreview = builder.Build().ToString();

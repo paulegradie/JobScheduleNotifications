@@ -9,8 +9,8 @@ public class ScheduledJobDefinitionDomainModel : DomainModelBase<ScheduledJobDef
     public ScheduledJobDefinitionId ScheduledJobDefinitionId { get; set; }
     public CustomerId CustomerId { get; set; }
     public DateTime AnchorDate { get; set; }
-    public RecurrencePatternDomainModel Pattern { get; set; }
-    public List<JobOccurrenceDomainModel> JobOccurrences { get; set; } = new();
+    public string CronExpression { get; set; }
+    public List<JobOccurrenceDomainModel> JobOccurrences { get; set; } = [];
 
     public string Title { get; set; }
     public string Description { get; set; }
@@ -21,7 +21,7 @@ public class ScheduledJobDefinitionDomainModel : DomainModelBase<ScheduledJobDef
             CustomerId,
             ScheduledJobDefinitionId,
             AnchorDate,
-            Pattern.ToDto(),
+            CronExpression,
             JobOccurrences.Select(o => o.ToDto()).ToList(),
             Title,
             Description);

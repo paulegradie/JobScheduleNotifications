@@ -2,7 +2,6 @@ using System.Reflection;
 using Api.Business.Repositories;
 using Api.Business.Repositories.Internal;
 using Api.Business.Services;
-using Api.Composition.AutomapperProfiles;
 using Api.Infrastructure.Data;
 using Api.Infrastructure.DbTables.Jobs;
 using Api.Infrastructure.DbTables.OrganizationModels;
@@ -65,13 +64,8 @@ public static class CompositionRoot
 
         // 3) Register each:
         foreach (var m in mappings)
+        {
             services.AddScoped(m.Iface, m.Type);
-        
-        
-        // Lets try Automapper
-        services.AddAutoMapper(toScan.ToArray());
-        services.AddAutoMapper(typeof(JobMappingProfile).Assembly);
-
-        
+        }
     }
 }

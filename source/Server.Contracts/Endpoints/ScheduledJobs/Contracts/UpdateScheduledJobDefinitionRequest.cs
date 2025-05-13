@@ -8,7 +8,6 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
 {
     public const string Route = $"api/customers/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/next";
 
-
     public override ApiRoute GetApiRoute()
     {
         var route = base.GetApiRoute();
@@ -22,12 +21,8 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
 
     public string? Title { get; init; }
     public string? Description { get; init; }
-    public Frequency? Frequency { get; init; }
-    public int? Interval { get; init; }
-    public WeekDay[]? WeekDays { get; init; }
-    public int? DayOfMonth { get; init; }
-    public string? CronExpression { get; init; }
-    public DateTime? AnchorDate { get; set; }
+    public string CronExpression { get; init; }
+    public DateTime AnchorDate { get; set; }
 
     public UpdateScheduledJobDefinitionRequest() : base(Route)
     {
@@ -36,24 +31,16 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
     private UpdateScheduledJobDefinitionRequest(
         CustomerId customerId,
         ScheduledJobDefinitionId jobDefinitionId,
-        string? title = null,
-        string? description = null,
-        Frequency? frequency = null,
-        int? interval = null,
-        WeekDay[]? weekDays = null,
-        int? dayOfMonth = null,
-        string? cronExpression = null,
-        DateTime? anchorDate = null)
+        DateTime anchorDate,
+        string title,
+        string description,
+        string cronExpression)
         : base(Route)
     {
         CustomerId = customerId;
         JobDefinitionId = jobDefinitionId;
         Title = title;
         Description = description;
-        Frequency = frequency;
-        Interval = interval;
-        WeekDays = weekDays;
-        DayOfMonth = dayOfMonth;
         CronExpression = cronExpression;
         AnchorDate = anchorDate;
     }
@@ -69,10 +56,6 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
         private readonly ScheduledJobDefinitionId _jobDefinitionId;
         private string? _title;
         private string? _description;
-        private Frequency? _frequency;
-        private int? _interval;
-        private WeekDay[]? _daysOfWeek;
-        private int? _dayOfMonth;
         private string? _cronExpression;
         private DateTime? _anchorDate;
 
@@ -96,29 +79,6 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
             return this;
         }
 
-        public Builder WithFrequency(Frequency? frequency)
-        {
-            _frequency = frequency;
-            return this;
-        }
-
-        public Builder WithInterval(int? interval)
-        {
-            _interval = interval;
-            return this;
-        }
-
-        public Builder WithWeekDays(WeekDay[] daysOfWeek)
-        {
-            _daysOfWeek = daysOfWeek;
-            return this;
-        }
-
-        public Builder WithDayOfMonth(int? dayOfMonth)
-        {
-            _dayOfMonth = dayOfMonth;
-            return this;
-        }
 
         public Builder WithCronExpression(string cronExpression)
         {
@@ -136,13 +96,9 @@ public sealed record UpdateScheduledJobDefinitionRequest : RequestBase
             new UpdateScheduledJobDefinitionRequest(
                 _customerId,
                 _jobDefinitionId,
+                _anchorDate ?? DateTime.UtcNow,
                 _title,
                 _description,
-                _frequency,
-                _interval,
-                _daysOfWeek,
-                _dayOfMonth,
-                _cronExpression,
-                _anchorDate);
+                _cronExpression);
     }
 }

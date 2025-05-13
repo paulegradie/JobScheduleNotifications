@@ -5,6 +5,7 @@ using Server.Contracts.Dtos;
 
 namespace Api.Business.Entities;
 
+[Obsolete]
 public class RecurrencePatternDomainModel : DomainModelBase<RecurrencePatternDto>
 {
     public RecurrencePatternDomainModel()
@@ -23,10 +24,6 @@ public class RecurrencePatternDomainModel : DomainModelBase<RecurrencePatternDto
     public RecurrencePatternDomainModel(RecurrencePatternDto dto)
     {
         Id = dto.Id;
-        Frequency = dto.Frequency;
-        Interval = dto.Interval;
-        WeekDays = dto.WeekDays;
-        DayOfMonth = dto.DayOfMonth;
         CronExpression = dto.CronExpression;
     }
 
@@ -44,10 +41,6 @@ public class RecurrencePatternDomainModel : DomainModelBase<RecurrencePatternDto
         return new RecurrencePatternDto
         {
             Id = Id,
-            Frequency = Frequency,
-            Interval = Interval,
-            WeekDays = WeekDays,
-            DayOfMonth = DayOfMonth,
             CronExpression = CronExpression
         };
     }

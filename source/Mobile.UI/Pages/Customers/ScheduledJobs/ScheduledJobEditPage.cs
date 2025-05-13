@@ -8,23 +8,16 @@ namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
 public record Details(CustomerId CustomerId, ScheduledJobDefinitionId ScheduledJobDefinitionId);
 
-[QueryProperty(nameof(CustomerId), "customerId")]
-[QueryProperty(nameof(ScheduledJobDefinitionId), "scheduledJobDefinitionId")]
+[QueryProperty(nameof(CustomerId), nameof(CustomerId))]
+[QueryProperty(nameof(ScheduledJobDefinitionId), nameof(ScheduledJobDefinitionId))]
 public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
 {
-    public string ScheduledJobDefinitionId { get; set; }
     public string CustomerId { get; set; }
-
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-        ViewModel.LoadForEditCommand.Execute(new Details(
-            new CustomerId(Guid.Parse(CustomerId)), new ScheduledJobDefinitionId(Guid.Parse(ScheduledJobDefinitionId))));
-    }
+    public string ScheduledJobDefinitionId { get; set; }
 
     public ScheduledJobEditPage(ScheduledJobEditModel vm) : base(vm)
     {
-        Title = "Edit a Scheduled Job:";
+        Title = "Edit a Scheduled Job";
         Content = new ScrollView
         {
             Content = new VerticalStackLayout
@@ -49,8 +42,8 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                     Section("Frequency",
                         new Picker { ItemsSource = Enum.GetValues<Frequency>() }
                             .Bind(Picker.SelectedItemProperty,
-                                nameof(ViewModel.Frequency),
-                                mode: BindingMode.TwoWay)),
+                                  nameof(ViewModel.Frequency),
+                                  mode: BindingMode.TwoWay)),
 
                     Section("Interval",
                         new Stepper { Minimum = 1, Maximum = 30 }
@@ -68,22 +61,30 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                     new Label()
                         .Bind(Label.TextProperty, nameof(ViewModel.ErrorMessage))
                         .TextColor(Colors.Red)
-                        .Bind(IsVisibleProperty, nameof(ViewModel.ErrorMessage)),
+                        .Bind(IsVisibleProperty, nameof(ViewModel.HasError)),
 
                     new Button()
                         .Text("Save")
-                        .BindCommand(nameof(ViewModel.SaveCommand))
-                        .Bind(IsEnabledProperty, nameof(vm.IsBusy), converter: new InvertedBoolConverter()),
+                        .BindCommand(nameof(ViewModel.SaveCommand)),
 
                     new ActivityIndicator()
-                        .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
-                        .Bind(ActivityIndicator.IsVisibleProperty, nameof(vm.IsBusy))
+                        .Bind(ActivityIndicator.IsRunningProperty, nameof(ViewModel.IsBusy))
+                        .Bind(ActivityIndicator.IsVisibleProperty, nameof(ViewModel.IsBusy))
                 }
             }
         };
+
+        // Kick off the load as soon as the page appears:
+        Loaded += async (_, _) =>
+            await ViewModel.LoadForEditCommand.ExecuteAsync(
+                new Details(
+                    new CustomerId(Guid.Parse(CustomerId)),
+                    new ScheduledJobDefinitionId(Guid.Parse(ScheduledJobDefinitionId))
+                )
+            );
     }
 
-    private static View Section(string label, View control) =>
+    static View Section(string label, View control) =>
         new VerticalStackLayout
         {
             Spacing = 2,

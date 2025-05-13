@@ -89,7 +89,6 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
             }
         };
 
-        // Use LoadCommand not LoadAsync
         Loaded += async (_, _) => await ViewModel.LoadCommand.ExecuteAsync(CustomerId);
     }
 

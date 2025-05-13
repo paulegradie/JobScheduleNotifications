@@ -8,11 +8,7 @@ public sealed record CreateScheduledJobDefinitionRequest(
     CustomerId Id,
     string Title,
     string Description,
-    Frequency Frequency,
-    int Interval,
-    WeekDay[]? WeekDays,
-    int? DayOfMonth,
-    string? CronExpression,
+    string CronExpression,
     DateTime AnchorDate) : RequestBase(Route)
 {
     public const string Route = $"api/customers/{CustomerIdSegmentParam}/jobs";

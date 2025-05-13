@@ -41,11 +41,7 @@ public class RecurrencePattern : IConvertToDto<RecurrencePatternDto>
         return new RecurrencePatternDto
         {
             Id = RecurrencePatternId,
-            WeekDays = WeekDays,
             CronExpression = CronExpression,
-            DayOfMonth = DayOfMonth,
-            Frequency = Frequency,
-            Interval = Interval
         };
     }
 }

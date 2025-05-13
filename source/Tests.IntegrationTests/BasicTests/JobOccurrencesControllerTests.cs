@@ -28,11 +28,7 @@ public class JobOccurrencesControllerTests : AuthenticatedIntegrationTest
             _customerId,
             Title: "Test Job",
             Description: "Test Description",
-            Frequency: Frequency.Daily,
-            Interval: 1,
-            WeekDays: null,
-            DayOfMonth: null,
-            CronExpression: null,
+            CronExpression: "* * * * *",
             AnchorDate: DateTime.UtcNow
         );
 
@@ -135,6 +131,6 @@ public class JobOccurrencesControllerTests : AuthenticatedIntegrationTest
 
         listResp.IsSuccess.ShouldBeTrue();
         listResp.Value.Occurrences.Count.ShouldBe(1);
-        listResp.Value.Occurrences.First().Id.ShouldBe(resp2.Value.Occurrence.Id);
+        listResp.Value.Occurrences[0].Id.ShouldBe(resp2.Value.Occurrence.Id);
     }
 }

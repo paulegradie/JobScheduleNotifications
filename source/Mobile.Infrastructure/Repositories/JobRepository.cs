@@ -63,10 +63,6 @@ internal class JobRepository : IJobRepository
             job.CustomerId,
             job.Title,
             job.Description,
-            job.Frequency,
-            job.Interval,
-            job.WeekDays,
-            job.DayOfMonth,
             job.CronExpression,
             job.AnchorDate);
 
@@ -91,14 +87,9 @@ internal class JobRepository : IJobRepository
         CancellationToken ct = default)
     {
         var request = UpdateScheduledJobDefinitionRequest.CreateBuilder(customerId, id)
-            .WithDayOfMonth(job.DayOfMonth)
             .WithCronExpression(job.CronExpression)
             .WithDescription(job.Description)
             .WithTitle(job.Title)
-            .WithFrequency(job.Frequency)
-            .WithInterval(job.Interval)
-            .WithWeekDays(job.WeekDays)
-            .WithDayOfMonth(job.DayOfMonth)
             .WithCronExpression(job.CronExpression)
             .WithAnchorDate(job.AnchorDate)
             .Build();

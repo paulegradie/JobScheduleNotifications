@@ -3,121 +3,108 @@ using Api.ValueTypes;
 using Api.ValueTypes.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Mobile.UI.Pages.Base;
 using Mobile.UI.RepositoryAbstractions;
 using Mobile.UI.Services;
 using Server.Contracts.Dtos;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
-public partial class ScheduledJobEditModel : Base.BaseViewModel
+public partial class ScheduledJobEditModel : BaseViewModel
 {
     private readonly IJobService _jobService;
-    private readonly ICustomerService _customerService;
+    private readonly ICustomerRepository _customerRepository;
     private readonly INavigationRepository _navigation;
-
-    public ScheduledJobEditModel(IJobService jobService, ICustomerService customerService, INavigationRepository navigation)
-    {
-        _jobService = jobService;
-        _customerService = customerService;
-        _navigation = navigation;
-    }
 
     [ObservableProperty] private ScheduledJobDefinitionDto _scheduledJobDefinitionDtoItem;
     [ObservableProperty] private string _title;
     [ObservableProperty] private string _description;
-    [ObservableProperty] private string _anchorDate;
-    [ObservableProperty] private string _frequency;
-    [ObservableProperty] private string _interval;
-    [ObservableProperty] private string _dayOfMonth;
+    [ObservableProperty] private DateTime _anchorDate;
+    [ObservableProperty] private Frequency _frequency;
+    [ObservableProperty] private int _interval;
+    [ObservableProperty] private int? _dayOfMonth;
     [ObservableProperty] private string _cronExpression;
-    [ObservableProperty] private ObservableCollection<WeekDay> _selectedWeekDays;
+    [ObservableProperty] private string _errorMessage;
+    [ObservableProperty] private ObservableCollection<WeekDay> _selectedWeekDays = [];
 
     [ObservableProperty] private CustomerId _customerId;
     [ObservableProperty] private ScheduledJobDefinitionId _scheduledJobDefinitionId;
 
+    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+
+    public bool CanSave =>
+        !IsBusy
+        && !string.IsNullOrWhiteSpace(Title)
+        && !string.IsNullOrWhiteSpace(Description)
+        && DateTime.TryParse(AnchorDate.ToString(), out _);
+
+    public ScheduledJobEditModel(
+        IJobService jobService,
+        ICustomerRepository customerRepository,
+        INavigationRepository navigation)
+    {
+        _jobService = jobService;
+        _customerRepository = customerRepository;
+        _navigation = navigation;
+    }
 
     [RelayCommand]
     private async Task LoadForEditAsync(Details details)
     {
-        if (IsBusy) return;
-
         await RunWithSpinner(async () =>
         {
-            // fetch the existing record
-            var dto = await _jobService.GetJobAsync(details.CustomerId, details.ScheduledJobDefinitionId);
-            ScheduledJobDefinitionDtoItem = dto;
+            var dto = await _jobService.GetJobAsync(
+                details.CustomerId, details.ScheduledJobDefinitionId);
 
-            // push all the fields into your bindable props:
+            ScheduledJobDefinitionDtoItem = dto;
+            CustomerId = dto.CustomerId;
+            ScheduledJobDefinitionId = dto.ScheduledJobDefinitionId;
             Title = dto.Title;
             Description = dto.Description;
-            AnchorDate = dto.AnchorDate.ToString("yyyy-MM-dd");
-            Frequency = dto.Pattern.Frequency.ToString();
-            Interval = dto.Pattern.Interval.ToString();
-            DayOfMonth = dto.Pattern.DayOfMonth?.ToString() ?? string.Empty;
-            CronExpression = dto.Pattern.CronExpression ?? string.Empty;
-
-            if (SelectedWeekDays is not null)
-                SelectedWeekDays.Clear();
-            foreach (var wd in dto.Pattern.WeekDays)
-                SelectedWeekDays.Add(wd);
+            AnchorDate = dto.AnchorDate;
+            CronExpression = dto.CronExpression;
         });
     }
 
+    partial void OnTitleChanged(string oldVal, string newVal)
+        => SaveCommand.NotifyCanExecuteChanged();
 
-    [RelayCommand]
+    partial void OnDescriptionChanged(string oldVal, string newVal)
+        => SaveCommand.NotifyCanExecuteChanged();
+
+    partial void OnAnchorDateChanged(DateTime oldVal, DateTime newVal)
+        => SaveCommand.NotifyCanExecuteChanged();
+
+    partial void OnFrequencyChanged(Frequency oldVal, Frequency newVal)
+        => SaveCommand.NotifyCanExecuteChanged();
+
+    partial void OnIntervalChanged(int oldVal, int newVal)
+        => SaveCommand.NotifyCanExecuteChanged();
+
+    partial void OnDayOfMonthChanged(int? oldVal, int? newVal)
+        => SaveCommand.NotifyCanExecuteChanged();
+
+    partial void OnCronExpressionChanged(string oldVal, string newVal)
+        => SaveCommand.NotifyCanExecuteChanged();
+
+    [RelayCommand(CanExecute = nameof(CanSave))]
     private async Task SaveAsync()
     {
-        // guard
         if (ScheduledJobDefinitionDtoItem is null) return;
 
         await RunWithSpinner(async () =>
         {
-            // 1) parse your string fields
-            if (!DateTime.TryParse(AnchorDate, out var anchor))
-                throw new InvalidOperationException("Invalid anchor date");
-
-            if (!Enum.TryParse<Frequency>(Frequency, true, out var freq))
-                throw new InvalidOperationException("Invalid frequency");
-
-            if (!int.TryParse(Interval, out var interval))
-                throw new InvalidOperationException("Invalid interval");
-
-            int? dayOfMonthParsed = null;
-            if (!string.IsNullOrWhiteSpace(DayOfMonth))
-            {
-                if (int.TryParse(DayOfMonth, out var dom))
-                    dayOfMonthParsed = dom;
-                else
-                    throw new InvalidOperationException("Invalid day of month");
-            }
-
-            // 2) build a new RecurrencePatternDto
-            var patternDto = new RecurrencePatternDto
-            {
-                Frequency = freq,
-                Interval = interval,
-                WeekDays = SelectedWeekDays?.ToArray() ?? [],
-                DayOfMonth = dayOfMonthParsed ?? 1,
-                CronExpression = string.IsNullOrWhiteSpace(CronExpression)
-                    ? string.Empty
-                    : CronExpression
-            };
-
-            var updated = new ScheduledJobDefinitionDto
-            (
-                CustomerId: ScheduledJobDefinitionDtoItem.CustomerId,
-                ScheduledJobDefinitionId: ScheduledJobDefinitionDtoItem.ScheduledJobDefinitionId,
-                AnchorDate: anchor,
-                Pattern: patternDto,
-                [],
+            var updatedDto = new ScheduledJobDefinitionDto(
+                CustomerId: CustomerId,
+                ScheduledJobDefinitionId: ScheduledJobDefinitionId,
+                AnchorDate: AnchorDate,
+                CronExpression: CronExpression,
+                JobOccurrences: [],
                 Title: Title,
                 Description: Description
             );
 
-            // 4) call your service
-            await _jobService.UpdateJobAsync(updated);
-
-            // 5) navigate back (or to wherever you need)
+            await _jobService.UpdateJobAsync(updatedDto);
             await _navigation.GoBackAsync();
         });
     }

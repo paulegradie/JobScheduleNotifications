@@ -11,19 +11,16 @@ namespace Api.Infrastructure.Repositories;
 public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepository
 {
     private readonly AppDbContext _context;
-    private readonly IMapper _mapper;
 
-    public ScheduledJobDefinitionRepository(AppDbContext context, IMapper mapper)
+    public ScheduledJobDefinitionRepository(AppDbContext context)
     {
         _context = context;
-        _mapper = mapper;
     }
 
     public async Task<ScheduledJobDefinitionDomainModel?> GetAsync(ScheduledJobDefinitionId id)
     {
         var entity = await _context.ScheduledJobDefinitions
             .Include(x => x.Customer)
-            .Include(p => p.Pattern)
             .Include(d => d.JobOccurrences)
             .ThenInclude(o => o.JobReminders)
             .FirstOrDefaultAsync(d => d.ScheduledJobDefinitionId == id);
@@ -34,7 +31,6 @@ public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepositor
     {
         var list = await _context.ScheduledJobDefinitions
             .Include(x => x.Customer)
-            .Include(p => p.Pattern)
             .Include(d => d.JobOccurrences)
             .ThenInclude(o => o.JobReminders)
             .Where(d => d.CustomerId == customerId)
@@ -46,7 +42,6 @@ public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepositor
     {
         var entities = await _context.ScheduledJobDefinitions
             .Include(x => x.Customer)
-            .Include(x => x.Pattern)
             .Include(d => d.JobOccurrences)
             .ThenInclude(o => o.JobReminders)
             .ToListAsync();
@@ -60,18 +55,15 @@ public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepositor
         var entity = def.ToEntity();
         await _context.ScheduledJobDefinitions.AddAsync(entity);
         def.ScheduledJobDefinitionId = entity.ScheduledJobDefinitionId;
-        def.Pattern.Id = entity.Pattern.RecurrencePatternId;
-        // copy the generated Id back if you need it: def.Id = entity.Id;
+        def.CronExpression = entity.CronExpression;
     }
 
     public async Task UpdateAsync(ScheduledJobDefinitionDomainModel def)
     {
         var entity = await _context.ScheduledJobDefinitions
             .Include(x => x.Customer)
-            .Include(x => x.Pattern)
             .Include(d => d.JobOccurrences)
             .ThenInclude(o => o.JobReminders)
-            .Include(scheduledJobDefinition => scheduledJobDefinition.Pattern)
             .FirstOrDefaultAsync(d => d.ScheduledJobDefinitionId == def.ScheduledJobDefinitionId);
 
         if (entity == null)
@@ -80,17 +72,12 @@ public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepositor
         entity.Title = def.Title;
         entity.Description = def.Description;
         entity.AnchorDate = def.AnchorDate;
-        entity.Pattern.Frequency = def.Pattern.Frequency;
-        entity.Pattern.Interval = def.Pattern.Interval;
-        entity.Pattern.WeekDays = def.Pattern.WeekDays;
-        entity.Pattern.DayOfMonth = def.Pattern.DayOfMonth;
 
         _context.ScheduledJobDefinitions.Update(entity);
 
         await _context.SaveChangesAsync();
         def.ScheduledJobDefinitionId = entity.ScheduledJobDefinitionId;
         def.CustomerId = entity.CustomerId;
-        def.Pattern.Id = entity.Pattern.RecurrencePatternId;
     }
 }
 
@@ -105,12 +92,7 @@ internal static class JobDefinitionMappings
             AnchorDate = e.AnchorDate,
             Title = e.Title,
             Description = e.Description,
-            Pattern = new RecurrencePatternDomainModel(e.Pattern.Frequency, e.Pattern.Interval, e.Pattern.WeekDays)
-            {
-                Id = e.Pattern.RecurrencePatternId,
-                CronExpression = e.Pattern.CronExpression,
-                
-            },
+            CronExpression = e.CronExpression,
             JobOccurrences = e.JobOccurrences
                 .Select(o => new JobOccurrenceDomainModel
                 {
@@ -141,16 +123,7 @@ internal static class JobDefinitionMappings
             Description = d.Description,
             CustomerId = d.CustomerId,
             AnchorDate = d.AnchorDate,
-            Pattern = new RecurrencePattern
-            {
-                // RecurrencePatternId = d.Pattern.Id,
-                Frequency = d.Pattern.Frequency,
-                Interval = d.Pattern.Interval,
-                WeekDays = d.Pattern.WeekDays,
-                CronExpression = d.Pattern.CronExpression,
-                DayOfMonth = d.Pattern.DayOfMonth,
-                ScheduledJobDefinitionId = d.ScheduledJobDefinitionId
-            },
+            CronExpression = d.CronExpression,
             JobOccurrences = d.JobOccurrences
                 .Select(o => new JobOccurrence
                 {

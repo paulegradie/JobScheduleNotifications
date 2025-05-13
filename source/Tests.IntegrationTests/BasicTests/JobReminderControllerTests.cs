@@ -29,11 +29,7 @@ public class JobReminderControllerTests : AuthenticatedIntegrationTest
             _customerId,
             Title: "ReminderJob",
             Description: "Desc",
-            Frequency: Api.ValueTypes.Enums.Frequency.Daily,
-            Interval: 1,
-            WeekDays: null,
-            DayOfMonth: null,
-            CronExpression: null,
+            CronExpression: "* * * * *",
             AnchorDate: DateTime.UtcNow
         );
         var defResp = await Client.ScheduledJobs.CreateScheduledJobDefinitionAsync(defReq, CancellationToken);

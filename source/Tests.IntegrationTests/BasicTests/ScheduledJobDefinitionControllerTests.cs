@@ -2,6 +2,7 @@
 using Api.ValueTypes.Enums;
 using IntegrationTests.Base;
 using IntegrationTests.Utils;
+using Server.Contracts.Cron;
 using Server.Contracts.Endpoints.ScheduledJobs.Contracts;
 using Shouldly;
 
@@ -40,11 +41,7 @@ public class ScheduledJobDefinitionControllerTests : AuthenticatedIntegrationTes
             _customerId,
             Title: "My Job",
             Description: "Desc",
-            Frequency: Frequency.Daily,
-            Interval: 1,
-            WeekDays: null,
-            DayOfMonth: null,
-            CronExpression: null,
+            CronExpression: "* * * * *",
             AnchorDate: anchor
         );
 
@@ -70,11 +67,7 @@ public class ScheduledJobDefinitionControllerTests : AuthenticatedIntegrationTes
             _customerId,
             Title: "JobX",
             Description: "DescX",
-            Frequency: Frequency.Weekly,
-            Interval: 2,
-            WeekDays: new[] { WeekDay.Monday, WeekDay.Wednesday },
-            DayOfMonth: null,
-            CronExpression: null,
+            CronExpression: "* * * * *",
             AnchorDate: DateTime.UtcNow
         );
         var createResp = await Client.ScheduledJobs.CreateScheduledJobDefinitionAsync(createReq, CancellationToken);
@@ -98,11 +91,7 @@ public class ScheduledJobDefinitionControllerTests : AuthenticatedIntegrationTes
             _customerId,
             Title: "Before",
             Description: "Old",
-            Frequency: Frequency.Monthly,
-            Interval: 1,
-            WeekDays: null,
-            DayOfMonth: 15,
-            CronExpression: null,
+            CronExpression: "* * * * *",
             AnchorDate: DateTime.UtcNow
         );
         var createResp = await Client.ScheduledJobs.CreateScheduledJobDefinitionAsync(createReq, CancellationToken);
@@ -114,11 +103,7 @@ public class ScheduledJobDefinitionControllerTests : AuthenticatedIntegrationTes
         var updateReq = UpdateScheduledJobDefinitionRequest.CreateBuilder(_customerId, id)
             .WithTitle("After")
             .WithDescription("NewDesc")
-            .WithFrequency(Frequency.Monthly)
-            .WithInterval(1)
-            .WithWeekDays([WeekDay.Monday])
-            .WithDayOfMonth(20)
-            .WithCronExpression(null!)
+            .WithCronExpression("* * * * *")
             .WithAnchorDate(updatedAnchor)
             .Build();
 
@@ -128,22 +113,25 @@ public class ScheduledJobDefinitionControllerTests : AuthenticatedIntegrationTes
         def.Title.ShouldBe("After");
         def.Description.ShouldBe("NewDesc");
         def.AnchorDate.ShouldBe(updatedAnchor);
-        def.Pattern.DayOfMonth.ShouldBe(20);
+        def.CronExpression.ShouldBe("* * * * *");
     }
 
     [Fact]
     public async Task GetNextRunShouldReturnCorrectNextOccurrence()
     {
         var anchor = new DateTime(2025, 4, 20, 8, 0, 0, DateTimeKind.Utc);
+
+        var schedule = FluentCron.Create()
+            .AtHour(0)
+            .AtMinute(0)
+            .EveryDays(1)
+            .Build();
+
         var createReq = new CreateScheduledJobDefinitionRequest(
             _customerId,
             Title: "NextRunJob",
             Description: "NextRunDesc",
-            Frequency: Frequency.Daily,
-            Interval: 1,
-            WeekDays: null,
-            DayOfMonth: null,
-            CronExpression: null,
+            CronExpression: schedule.ToString(),
             AnchorDate: anchor
         );
         var createResp = await Client.ScheduledJobs.CreateScheduledJobDefinitionAsync(createReq, CancellationToken);

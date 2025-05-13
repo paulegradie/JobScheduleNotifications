@@ -1,5 +1,4 @@
-﻿using Api.ValueTypes;
-using CommunityToolkit.Maui.Markup;
+﻿using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 

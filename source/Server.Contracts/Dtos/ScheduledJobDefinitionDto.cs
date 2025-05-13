@@ -6,7 +6,7 @@ public record ScheduledJobDefinitionDto(
     CustomerId CustomerId,
     ScheduledJobDefinitionId ScheduledJobDefinitionId,
     DateTime AnchorDate,
-    RecurrencePatternDto Pattern,
+    string CronExpression,
     List<JobOccurrenceDto> JobOccurrences,
     string Title,
     string Description);

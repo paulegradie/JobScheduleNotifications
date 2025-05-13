@@ -8,6 +8,8 @@ using Api.ValueTypes.Enums;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NCrontab;
+using Server.Contracts.Cron;
 using Server.Contracts.Dtos;
 using Server.Contracts.Endpoints.ScheduledJobs.Contracts;
 
@@ -19,21 +21,15 @@ public class ScheduledJobDefinitionsController : ControllerBase
 {
     private readonly IScheduledJobDefinitionRepository _scheduledJobDefinitionRepository;
     private readonly IRecurrenceCalculator _calculator;
-    private readonly IJobSchedulingService _scheduler;
-    private readonly IMapper _mapper;
     private readonly AppDbContext _uow;
 
     public ScheduledJobDefinitionsController(
         IScheduledJobDefinitionRepository scheduledJobDefinitionRepository,
         IRecurrenceCalculator calculator,
-        IJobSchedulingService scheduler,
-        IMapper mapper,
         AppDbContext uow)
     {
         _scheduledJobDefinitionRepository = scheduledJobDefinitionRepository;
         _calculator = calculator;
-        _scheduler = scheduler;
-        _mapper = mapper;
         _uow = uow;
     }
 
@@ -64,12 +60,15 @@ public class ScheduledJobDefinitionsController : ControllerBase
         if (def == null || def.CustomerId != new CustomerId(customerId))
             return NotFound();
 
-        var lastOcc = def.JobOccurrences
-                          .OrderByDescending(o => o.OccurrenceDate)
-                          .FirstOrDefault()?.OccurrenceDate
-                      ?? def.AnchorDate;
+        // var lastOcc = def.JobOccurrences
+        //                   .OrderByDescending(o => o.OccurrenceDate)
+        //                   .FirstOrDefault()?.OccurrenceDate
+        //               ?? def.AnchorDate;
 
-        var next = _calculator.GetNextOccurrence(def.Pattern, def.AnchorDate, lastOcc);
+        var cronSchedule = new CronSchedule(
+            CrontabSchedule.Parse(def.CronExpression)
+        );
+        var next = _calculator.GetNextOccurrence(cronSchedule, def.AnchorDate);
         return Ok(new GetNextScheduledJobRunResponse(next));
     }
 
@@ -86,18 +85,13 @@ public class ScheduledJobDefinitionsController : ControllerBase
             Title = req.Title,
             Description = req.Description,
             AnchorDate = req.AnchorDate,
-            Pattern = new RecurrencePatternDomainModel(
-                req.Frequency,
-                req.Interval,
-                req.WeekDays ?? [WeekDay.Monday],
-                req.DayOfMonth ?? 1,
-                req.CronExpression ?? string.Empty),
-            JobOccurrences = new List<JobOccurrenceDomainModel>()
+            CronExpression = req.CronExpression,
+            JobOccurrences = []
         };
 
         await _scheduledJobDefinitionRepository.AddAsync(def);
         await _uow.SaveChangesAsync();
-        
+
         var dto = def.ToDto();
         return new CreateScheduledJobDefinitionResponse(dto);
     }
@@ -115,12 +109,8 @@ public class ScheduledJobDefinitionsController : ControllerBase
         // apply changes
         def.Title = req.Title;
         def.Description = req.Description;
-        def.AnchorDate = req.AnchorDate ?? DateTime.UtcNow;
-        def.Pattern.Frequency = req.Frequency ?? Frequency.Weekly;
-        def.Pattern.Interval = req.Interval ?? 1;
-        def.Pattern.WeekDays = req.WeekDays ?? [WeekDay.Monday];
-        def.Pattern.DayOfMonth = req.DayOfMonth ?? 1;
-        def.Pattern.CronExpression = req.CronExpression ?? string.Empty;
+        def.AnchorDate = req.AnchorDate;
+        def.CronExpression = req.CronExpression;
 
         await _scheduledJobDefinitionRepository.UpdateAsync(def);
 
