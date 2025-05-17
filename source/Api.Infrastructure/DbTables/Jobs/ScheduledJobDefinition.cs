@@ -15,6 +15,6 @@ public class ScheduledJobDefinition
     public string Title { get; set; } = "";
     public string Description { get; set; } = "";
 
-    public virtual string CronExpression { get; set; } = null!;
+    public string CronExpression { get; set; } = "";
     public virtual ICollection<JobOccurrence> JobOccurrences { get; set; } = new List<JobOccurrence>();
 }

@@ -42,8 +42,8 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                     Section("Frequency",
                         new Picker { ItemsSource = Enum.GetValues<Frequency>() }
                             .Bind(Picker.SelectedItemProperty,
-                                  nameof(ViewModel.Frequency),
-                                  mode: BindingMode.TwoWay)),
+                                nameof(ViewModel.Frequency),
+                                mode: BindingMode.TwoWay)),
 
                     Section("Interval",
                         new Stepper { Minimum = 1, Maximum = 30 }
@@ -73,15 +73,16 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                 }
             }
         };
+    }
 
-        // Kick off the load as soon as the page appears:
-        Loaded += async (_, _) =>
-            await ViewModel.LoadForEditCommand.ExecuteAsync(
-                new Details(
-                    new CustomerId(Guid.Parse(CustomerId)),
-                    new ScheduledJobDefinitionId(Guid.Parse(ScheduledJobDefinitionId))
-                )
-            );
+    protected override async void OnAppearing()
+    {
+        await ViewModel.LoadForEditCommand.ExecuteAsync(
+            new Details(
+                new CustomerId(Guid.Parse(CustomerId)),
+                new ScheduledJobDefinitionId(Guid.Parse(ScheduledJobDefinitionId))
+            )
+        );
     }
 
     static View Section(string label, View control) =>

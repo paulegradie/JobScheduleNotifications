@@ -72,7 +72,7 @@ public sealed class CustomerEditPage : BasePage<CustomerEditModel>, IQueryAttrib
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
-        if (query.TryGetValue("customerId", out var raw)
+        if (query.TryGetValue("CustomerId", out var raw)
             && raw is string sid
             && Guid.TryParse(sid, out var id))
         {

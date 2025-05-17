@@ -78,7 +78,7 @@ public partial class CustomerViewModel : ObservableObject
             nameof(CustomerEditPage),
             new Dictionary<string, object>
             {
-                { "customerId", CustomerId.Value.ToString() }
+                { "CustomerId", CustomerId.Value.ToString() }
             });
     }
 }

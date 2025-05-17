@@ -5,7 +5,7 @@ using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
-[QueryProperty(nameof(CustomerId), "customerId")]
+[QueryProperty(nameof(CustomerId), "CustomerId")]
 public sealed class ScheduledJobListPage : BasePage<ScheduledJobListModel>
 {
     public string CustomerId { get; set; }

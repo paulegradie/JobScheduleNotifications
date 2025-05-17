@@ -56,7 +56,7 @@ public partial class CustomerListModel : ObservableObject
         if (customer == null) return;
         await _navigation.GoToAsync(
             nameof(CustomerEditPage),
-            new Dictionary<string, object> { { "customerId", customer.Id.ToString() } });
+            new Dictionary<string, object> { { "CustomerId", customer.Id.ToString() } });
     }
 
     [RelayCommand]
@@ -90,7 +90,7 @@ public partial class CustomerListModel : ObservableObject
         if (customer == null) return;
         await _navigation.GoToAsync(
             nameof(ScheduledJobListPage),
-            new Dictionary<string, object> { { "customerId", customer.Id.ToString() } });
+            new Dictionary<string, object> { { "CustomerId", customer.Id.ToString() } });
     }
 
     [RelayCommand]

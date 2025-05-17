@@ -13,7 +13,7 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
 
     public ScheduledJobCreatePage(ScheduledJobCreateModel vm) : base(vm)
     {
-        Title = "Schedule Job";
+        Title = "Create A Scheduled Job";
 
         Content = new ScrollView
         {
@@ -79,20 +79,24 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
                         .Bind(IsVisibleProperty, nameof(vm.HasError)),
 
                     new Button { Text = "Save Job", CornerRadius = 8 }
-                        .BindCommand(nameof(vm.SaveCommand))
-                        .Bind(IsEnabledProperty, nameof(vm.CanSave)),
+                        .BindCommand(nameof(vm.SaveCommand)),
+                        // .Bind(IsEnabledProperty, nameof(vm.CanSave)),
 
                     new ActivityIndicator()
                         .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
-                        .Bind(ActivityIndicator.IsVisibleProperty, nameof(vm.IsBusy))
+                        .Bind(IsVisibleProperty, nameof(vm.IsBusy))
                 }
             }
         };
-
-        Loaded += async (_, _) => await ViewModel.LoadCommand.ExecuteAsync(CustomerId);
     }
 
-    Button CreateChip(Frequency freq) =>
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await ViewModel.LoadCommand.ExecuteAsync(CustomerId);
+    }
+
+    private Button CreateChip(Frequency freq) =>
         new Button
             {
                 Text = freq.ToString(),
@@ -105,7 +109,7 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
             )
             .Bind(Button.StyleProperty, nameof(ViewModel.ChipStyle), converterParameter: freq);
 
-    static View Section(string label, View control) =>
+    private static View Section(string label, View control) =>
         new VerticalStackLayout
         {
             Spacing = 4,

@@ -59,8 +59,8 @@ public partial class ScheduledJobListModel : Base.BaseViewModel
         if (dto == null) return;
         await _navigation.GoToAsync(nameof(ScheduledJobEditPage), new Dictionary<string, object>
         {
-            ["scheduledJobDefinitionId"] = dto.ScheduledJobDefinitionId.Value.ToString(),
-            ["customerId"] = dto.CustomerId.Value.ToString()
+            ["ScheduledJobDefinitionId"] = dto.ScheduledJobDefinitionId.Value.ToString(),
+            ["CustomerId"] = dto.CustomerId.Value.ToString()
         });
     }
 }
