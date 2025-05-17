@@ -12,6 +12,8 @@ public abstract partial class BaseViewModel : ObservableObject
     [ObservableProperty] private string _errorMessage = string.Empty;
 
     // optional: a base “Refresh” command pattern
+
+
     protected async Task RunWithSpinner(Func<Task> operation, string? errorMessage = null)
     {
         if (IsBusy) return;
@@ -23,18 +25,32 @@ public abstract partial class BaseViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            if (errorMessage != null)
-            {
-                ErrorMessage = errorMessage;
-            }
-            else
-            {
-                ErrorMessage = ex.Message;
-            }
+            ErrorMessage = errorMessage ?? ex.Message;
         }
         finally
         {
             IsBusy = false;
         }
+    }
+
+    protected async Task<T?> RunWithSpinner<T>(Func<Task<T>> operation, string? errorMessage = null)
+    {
+        if (IsBusy) return default;
+        IsBusy = true;
+        ErrorMessage = string.Empty;
+        try
+        {
+            return await operation();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = errorMessage ?? ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+
+        return default;
     }
 }

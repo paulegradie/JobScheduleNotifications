@@ -126,7 +126,7 @@ public partial class ScheduledJobEditModel : BaseViewModel
         UpdateCronPreview();
     }
 
-    partial void OnDayOfMonthChanged(int oldValue, int newvValue)
+    partial void OnDayOfMonthChanged(int? oldValue, int? newValue)
     {
         SaveCommand.NotifyCanExecuteChanged();
         UpdateCronPreview();

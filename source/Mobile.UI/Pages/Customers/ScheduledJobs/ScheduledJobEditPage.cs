@@ -1,6 +1,5 @@
 ﻿using Api.ValueTypes;
 using Api.ValueTypes.Enums;
-using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
 using Microsoft.Maui.Layouts;
 using Mobile.UI.Pages.Base;
@@ -105,7 +104,7 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
             )
             .Bind(Button.StyleProperty, nameof(ViewModel.ChipStyle), converterParameter: freq);
 
-    public static View Section(string label, View control) =>
+    private static View Section(string label, View control) =>
         new VerticalStackLayout
         {
             Spacing = 4,

@@ -10,51 +10,48 @@ namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
 public partial class ScheduledJobListModel : Base.BaseViewModel
 {
-    private readonly IJobService _jobService;
+    private readonly IJobRepository _jobRepository;
     private readonly INavigationRepository _navigation;
 
-    public ScheduledJobListModel(INavigationRepository navigation, IJobService jobService)
+    public ScheduledJobListModel(INavigationRepository navigation, IJobRepository jobRepository)
     {
         _navigation = navigation;
-        _jobService = jobService;
+        _jobRepository = jobRepository;
     }
 
-    [ObservableProperty] private ObservableCollection<ScheduledJobDefinitionDto> _scheduledJobs = new();
+    [ObservableProperty] private ObservableCollection<ScheduledJobDefinitionDto> _scheduledJobs = [];
 
     [RelayCommand]
     private async Task LoadForCustomerAsync(string customerIdString)
     {
         if (IsBusy) return;
+        var guid = await RunWithSpinner(async () =>
+        {
+            if (!Guid.TryParse(customerIdString, out var guid))
+            {
+                ErrorMessage = "Invalid customer ID.";
+            }
 
-        if (!Guid.TryParse(customerIdString, out var guid))
-        {
-            ErrorMessage = "Invalid customer ID.";
-            return;
-        }
+            return guid;
+        });
 
-        var customerId = new CustomerId(guid);
 
-        IsBusy = true;
-        ErrorMessage = string.Empty;
-        try
+        await RunWithSpinner(async () =>
         {
-            var jobs = await _jobService.GetJobsAsync(customerId);
-            ScheduledJobs.Clear();
-            foreach (var j in jobs)
-                ScheduledJobs.Add(j);
-        }
-        catch
-        {
-            ErrorMessage = "Failed to load scheduled jobs.";
-        }
-        finally
-        {
-            IsBusy = false;
-        }
+            var customerId = new CustomerId(guid);
+            var result = await _jobRepository.GetJobsByCustomerAsync(customerId);
+            if (result.IsSuccess)
+            {
+                var jobs = result.Value;
+                ScheduledJobs.Clear();
+                foreach (var j in jobs)
+                    ScheduledJobs.Add(j);
+            }
+        }, "Failed to load scheduled jobs.");
     }
 
     [RelayCommand]
-    private async Task NavigateToEditAsync(ScheduledJobDefinitionDto dto)
+    private async Task NavigateToEditAsync(ScheduledJobDefinitionDto? dto)
     {
         if (dto == null) return;
         await _navigation.GoToAsync(nameof(ScheduledJobEditPage), new Dictionary<string, object>

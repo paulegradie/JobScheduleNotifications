@@ -8,8 +8,8 @@ public static class ServiceRegistrationExtensionMethods
 {
     public static IServiceCollection AddDomainServices(this IServiceCollection services)
     {
-        services.AddTransient<ICustomerService, CustomerService>();
-        services.AddTransient<IJobService, JobService>();
+        // services.AddTransient<ICustomerService, CustomerService>();
+        // services.AddTransient<IJobService, JobService>();
 
         // Repositories
         services.AddTransient<INavigationRepository, NavigationRepository>();
