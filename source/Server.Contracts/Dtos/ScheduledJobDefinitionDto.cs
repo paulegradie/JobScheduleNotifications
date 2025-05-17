@@ -9,4 +9,5 @@ public record ScheduledJobDefinitionDto(
     string CronExpression,
     List<JobOccurrenceDto> JobOccurrences,
     string Title,
-    string Description);
+    string Description,
+    int? DayOfMonth);

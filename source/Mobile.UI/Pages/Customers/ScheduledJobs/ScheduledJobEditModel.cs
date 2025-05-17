@@ -5,45 +5,53 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.RepositoryAbstractions;
-using Mobile.UI.Services;
+using Server.Contracts.Cron;
 using Server.Contracts.Dtos;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
 public partial class ScheduledJobEditModel : BaseViewModel
 {
-    private readonly IJobService _jobService;
+    private readonly IJobRepository _jobRepository;
     private readonly ICustomerRepository _customerRepository;
     private readonly INavigationRepository _navigation;
 
-    [ObservableProperty] private ScheduledJobDefinitionDto _scheduledJobDefinitionDtoItem;
-    [ObservableProperty] private string _title;
-    [ObservableProperty] private string _description;
-    [ObservableProperty] private DateTime _anchorDate;
-    [ObservableProperty] private Frequency _frequency;
-    [ObservableProperty] private int _interval;
+    [ObservableProperty] private ObservableCollection<CustomerDto> _customers = new();
+    [ObservableProperty] private CustomerDto _selectedCustomer;
+    [ObservableProperty] private string _title = string.Empty;
+    [ObservableProperty] private string _description = string.Empty;
+    [ObservableProperty] private DateTime _anchorDate = DateTime.Now;
+    [ObservableProperty] private Frequency _frequency = Frequency.Daily;
+    [ObservableProperty] private int _interval = 1;
     [ObservableProperty] private int? _dayOfMonth;
-    [ObservableProperty] private string _cronExpression;
+    [ObservableProperty] private string _cronExpression = string.Empty;
+    [ObservableProperty] private string _cronPreview;
     [ObservableProperty] private string _errorMessage;
-    [ObservableProperty] private ObservableCollection<WeekDay> _selectedWeekDays = [];
 
-    [ObservableProperty] private CustomerId _customerId;
-    [ObservableProperty] private ScheduledJobDefinitionId _scheduledJobDefinitionId;
+    private ScheduledJobDefinitionDto ScheduledJobDefinitionDtoItem { get; set; }
+    private CustomerId CustomerId { get; set; }
+    private ScheduledJobDefinitionId ScheduledJobDefinitionId { get; set; }
 
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
+
+    public bool IsCustom => Frequency == Frequency.Custom;
+
+    public string IntervalDisplay =>
+        $"Every {Interval} {Frequency.ToString().ToLower()}{(Interval > 1 ? "s" : "")}";
+
     public bool CanSave =>
-        !IsBusy
-        && !string.IsNullOrWhiteSpace(Title)
-        && !string.IsNullOrWhiteSpace(Description)
-        && DateTime.TryParse(AnchorDate.ToString(), out _);
+        !IsBusy &&
+        !string.IsNullOrWhiteSpace(Title) &&
+        !string.IsNullOrWhiteSpace(Description) &&
+        (Frequency != Frequency.Custom || !string.IsNullOrWhiteSpace(CronExpression));
 
     public ScheduledJobEditModel(
-        IJobService jobService,
+        IJobRepository jobRepository,
         ICustomerRepository customerRepository,
         INavigationRepository navigation)
     {
-        _jobService = jobService;
+        _jobRepository = jobRepository;
         _customerRepository = customerRepository;
         _navigation = navigation;
     }
@@ -53,39 +61,29 @@ public partial class ScheduledJobEditModel : BaseViewModel
     {
         await RunWithSpinner(async () =>
         {
-            var dto = await _jobService.GetJobAsync(
-                details.CustomerId, details.ScheduledJobDefinitionId);
+            var result = await _jobRepository.GetJobByIdAsync(details.CustomerId, details.ScheduledJobDefinitionId);
+            if (result.IsSuccess)
+            {
+                var dto = result.Value;
+                ScheduledJobDefinitionDtoItem = dto;
+                CustomerId = dto.CustomerId;
 
-            ScheduledJobDefinitionDtoItem = dto;
-            CustomerId = dto.CustomerId;
-            ScheduledJobDefinitionId = dto.ScheduledJobDefinitionId;
-            Title = dto.Title;
-            Description = dto.Description;
-            AnchorDate = dto.AnchorDate;
-            CronExpression = dto.CronExpression;
+                ScheduledJobDefinitionId = dto.ScheduledJobDefinitionId;
+                Title = dto.Title;
+                Description = dto.Description;
+                AnchorDate = dto.AnchorDate;
+                CronExpression = dto.CronExpression;
+                DayOfMonth = dto.DayOfMonth;
+            }
         });
     }
 
-    partial void OnTitleChanged(string oldVal, string newVal)
-        => SaveCommand.NotifyCanExecuteChanged();
 
-    partial void OnDescriptionChanged(string oldVal, string newVal)
-        => SaveCommand.NotifyCanExecuteChanged();
-
-    partial void OnAnchorDateChanged(DateTime oldVal, DateTime newVal)
-        => SaveCommand.NotifyCanExecuteChanged();
-
-    partial void OnFrequencyChanged(Frequency oldVal, Frequency newVal)
-        => SaveCommand.NotifyCanExecuteChanged();
-
-    partial void OnIntervalChanged(int oldVal, int newVal)
-        => SaveCommand.NotifyCanExecuteChanged();
-
-    partial void OnDayOfMonthChanged(int? oldVal, int? newVal)
-        => SaveCommand.NotifyCanExecuteChanged();
-
-    partial void OnCronExpressionChanged(string oldVal, string newVal)
-        => SaveCommand.NotifyCanExecuteChanged();
+    [RelayCommand]
+    private void SelectFrequency(Frequency freq)
+    {
+        Frequency = freq;
+    }
 
     [RelayCommand(CanExecute = nameof(CanSave))]
     private async Task SaveAsync()
@@ -94,18 +92,102 @@ public partial class ScheduledJobEditModel : BaseViewModel
 
         await RunWithSpinner(async () =>
         {
-            var updatedDto = new ScheduledJobDefinitionDto(
+            var updatedDto = new UpdateJobDto(
                 CustomerId: CustomerId,
                 ScheduledJobDefinitionId: ScheduledJobDefinitionId,
                 AnchorDate: AnchorDate,
                 CronExpression: CronExpression,
-                JobOccurrences: [],
                 Title: Title,
-                Description: Description
+                Description: Description,
+                DayOfMonth: DayOfMonth
             );
 
-            await _jobService.UpdateJobAsync(updatedDto);
+            await _jobRepository.UpdateJobAsync(CustomerId, ScheduledJobDefinitionId, updatedDto, CancellationToken.None);
+            await _navigation.ShowAlertAsync("Success", "Job Updated!");
             await _navigation.GoBackAsync();
         });
+    }
+
+    partial void OnTitleChanged(string oldValue, string newValue)
+        => SaveCommand.NotifyCanExecuteChanged();
+
+    partial void OnDescriptionChanged(string oldValue, string newValue)
+        => SaveCommand.NotifyCanExecuteChanged();
+
+    partial void OnIntervalChanged(int oldValue, int newValue)
+    {
+        SaveCommand.NotifyCanExecuteChanged();
+        UpdateCronPreview();
+    }
+
+    partial void OnCronExpressionChanged(string oldValue, string newValue)
+    {
+        SaveCommand.NotifyCanExecuteChanged();
+        UpdateCronPreview();
+    }
+
+    partial void OnDayOfMonthChanged(int oldValue, int newvValue)
+    {
+        SaveCommand.NotifyCanExecuteChanged();
+        UpdateCronPreview();
+    }
+
+
+    partial void OnFrequencyChanged(Frequency value)
+    {
+        SaveCommand.NotifyCanExecuteChanged();
+        UpdateCronPreview();
+    }
+
+    public Style ChipStyle(object value, object parameter)
+    {
+        var freq = (Frequency)parameter;
+        return freq == Frequency ? Device.Styles.BodyStyle : Device.Styles.CaptionStyle;
+    }
+
+    private void UpdateCronPreview()
+    {
+        try
+        {
+            if (IsCustom)
+            {
+                CronPreview = CronExpression;
+            }
+            else
+            {
+                var builder = FluentCron.Create()
+                    .AtMinute(0)
+                    .AtHour(0);
+
+                switch (Frequency)
+                {
+                    case Frequency.Daily:
+                        builder.EveryDays(Interval);
+                        break;
+                    case Frequency.Weekly:
+                        builder.EveryWeeks(Interval);
+                        break;
+                    case Frequency.Monthly:
+                        if (DayOfMonth.HasValue)
+                            builder.OnDayOfMonth(DayOfMonth.Value).EveryMonths(Interval);
+                        break;
+                    case Frequency.Custom:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                CronPreview = builder.Build().ToString();
+            }
+        }
+        catch
+        {
+            CronPreview = "Invalid parameters";
+        }
+
+        // Notify changes
+        OnPropertyChanged(nameof(CronPreview));
+        OnPropertyChanged(nameof(IntervalDisplay));
+        OnPropertyChanged(nameof(IsCustom));
     }
 }

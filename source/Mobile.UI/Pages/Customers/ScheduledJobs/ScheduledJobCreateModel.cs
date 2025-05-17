@@ -39,12 +39,6 @@ public partial class ScheduledJobCreateModel : BaseViewModel
         !string.IsNullOrWhiteSpace(Description) &&
         (Frequency != Frequency.Custom || !string.IsNullOrWhiteSpace(CronExpression));
 
-    public Style ChipStyle(object value, object parameter)
-    {
-        var freq = (Frequency)parameter;
-        return freq == Frequency ? Device.Styles.BodyStyle : Device.Styles.CaptionStyle;
-    }
-
     public ScheduledJobCreateModel(
         IJobRepository jobService,
         ICustomerRepository customerRepository,
@@ -57,8 +51,11 @@ public partial class ScheduledJobCreateModel : BaseViewModel
     }
 
     partial void OnFrequencyChanged(Frequency value) => UpdateCronPreview();
+
     partial void OnIntervalChanged(int value) => UpdateCronPreview();
+
     partial void OnDayOfMonthChanged(int? value) => UpdateCronPreview();
+
     partial void OnCronExpressionChanged(string value) => UpdateCronPreview();
 
     [RelayCommand]
@@ -133,9 +130,7 @@ public partial class ScheduledJobCreateModel : BaseViewModel
     [RelayCommand(CanExecute = nameof(CanSave))]
     private async Task SaveAsync()
     {
-        if (IsBusy) return;
-        IsBusy = true;
-        try
+        await RunWithSpinner(async () =>
         {
             var dto = new CreateScheduledJobDefinitionDto
             {
@@ -149,11 +144,7 @@ public partial class ScheduledJobCreateModel : BaseViewModel
             await _jobService.CreateJobAsync(dto);
             await _navigation.ShowAlertAsync("Success", "Job scheduled!");
             await _navigation.GoToAsync(nameof(CustomerListPage));
-        }
-        finally
-        {
-            IsBusy = false;
-        }
+        });
     }
 
     partial void OnTitleChanged(string oldValue, string newValue)
@@ -170,4 +161,10 @@ public partial class ScheduledJobCreateModel : BaseViewModel
 
     partial void OnCronExpressionChanged(string oldValue, string newValue)
         => SaveCommand.NotifyCanExecuteChanged();
+
+    public Style ChipStyle(object value, object parameter)
+    {
+        var freq = (Frequency)parameter;
+        return freq == Frequency ? Device.Styles.BodyStyle : Device.Styles.CaptionStyle;
+    }
 }

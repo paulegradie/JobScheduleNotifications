@@ -10,6 +10,7 @@ public class ScheduledJobDefinitionDomainModel : DomainModelBase<ScheduledJobDef
     public CustomerId CustomerId { get; set; }
     public DateTime AnchorDate { get; set; }
     public string CronExpression { get; set; }
+    public int? DayOfMonth { get; set; }
     public List<JobOccurrenceDomainModel> JobOccurrences { get; set; } = [];
 
     public string Title { get; set; }
@@ -24,6 +25,7 @@ public class ScheduledJobDefinitionDomainModel : DomainModelBase<ScheduledJobDef
             CronExpression,
             JobOccurrences.Select(o => o.ToDto()).ToList(),
             Title,
-            Description);
+            Description,
+            DayOfMonth);
     }
 }

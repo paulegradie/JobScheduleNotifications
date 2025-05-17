@@ -2,6 +2,7 @@
 using Api.ValueTypes.Enums;
 using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
+using Microsoft.Maui.Layouts;
 using Mobile.UI.Pages.Base;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
@@ -28,48 +29,54 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                 {
                     Section("Title",
                         new Entry()
-                            .Placeholder("Job title")
-                            .Bind(Entry.TextProperty, nameof(ViewModel.Title))),
+                            .Placeholder("Job Title")
+                            .Bind(Entry.TextProperty, nameof(vm.Title))
+                    ),
 
                     Section("Description",
                         new Editor { HeightRequest = 100 }
-                            .Bind(Editor.TextProperty, nameof(ViewModel.Description))),
+                            .Bind(Editor.TextProperty, nameof(vm.Description))
+                    ),
 
                     Section("Anchor Date",
                         new DatePicker()
-                            .Bind(DatePicker.DateProperty, nameof(ViewModel.AnchorDate))),
+                            .Bind(DatePicker.DateProperty, nameof(vm.AnchorDate))
+                    ),
+                    new Label().Text("Frequency").Font(size: 14, bold: true),
+                    new FlexLayout
+                    {
+                        JustifyContent = FlexJustify.SpaceBetween,
+                        Children =
+                        {
+                            CreateChip(Frequency.Daily),
+                            CreateChip(Frequency.Weekly),
+                            CreateChip(Frequency.Monthly),
+                            CreateChip(Frequency.Custom)
+                        }
+                    },
 
-                    Section("Frequency",
-                        new Picker { ItemsSource = Enum.GetValues<Frequency>() }
-                            .Bind(Picker.SelectedItemProperty,
-                                nameof(ViewModel.Frequency),
-                                mode: BindingMode.TwoWay)),
+                    new Label().Bind(Label.TextProperty, nameof(vm.IntervalDisplay)).Font(size: 18),
+                    new Slider(1, 52, 1)
+                        .Bind(Slider.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay),
+                    new Stepper(1, 100, 1, 1)
+                        .Bind(Stepper.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay),
 
-                    Section("Interval",
-                        new Stepper { Minimum = 1, Maximum = 30 }
-                            .Bind(Stepper.ValueProperty, nameof(ViewModel.Interval))),
+                    Section("Cron Preview",
+                        new Label { FontSize = 14, TextColor = Colors.Gray }
+                            .Bind(Label.TextProperty, nameof(vm.CronPreview))
+                    ),
 
-                    Section("Day of Month",
-                        new Entry { Keyboard = Keyboard.Numeric }
-                            .Bind(Entry.TextProperty, nameof(ViewModel.DayOfMonth))),
+                    new Label { TextColor = Colors.Red }
+                        .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
+                        .Bind(IsVisibleProperty, nameof(vm.HasError)),
 
-                    Section("Cron Expression",
-                        new Entry()
-                            .Placeholder("Optional cron")
-                            .Bind(Entry.TextProperty, nameof(ViewModel.CronExpression))),
-
-                    new Label()
-                        .Bind(Label.TextProperty, nameof(ViewModel.ErrorMessage))
-                        .TextColor(Colors.Red)
-                        .Bind(IsVisibleProperty, nameof(ViewModel.HasError)),
-
-                    new Button()
-                        .Text("Save")
-                        .BindCommand(nameof(ViewModel.SaveCommand)),
+                    new Button { Text = "Save Job", CornerRadius = 8 }
+                        .BindCommand(nameof(vm.SaveCommand))
+                        .Bind(IsEnabledProperty, nameof(vm.CanSave)),
 
                     new ActivityIndicator()
-                        .Bind(ActivityIndicator.IsRunningProperty, nameof(ViewModel.IsBusy))
-                        .Bind(ActivityIndicator.IsVisibleProperty, nameof(ViewModel.IsBusy))
+                        .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
+                        .Bind(IsVisibleProperty, nameof(vm.IsBusy))
                 }
             }
         };
@@ -85,10 +92,23 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
         );
     }
 
-    static View Section(string label, View control) =>
+    private Button CreateChip(Frequency freq) =>
+        new Button
+            {
+                Text = freq.ToString(),
+                CornerRadius = 20,
+                Padding = new Thickness(16, 8)
+            }
+            .BindCommand(
+                nameof(ScheduledJobCreateModel.SelectFrequencyCommand),
+                parameterSource: freq
+            )
+            .Bind(Button.StyleProperty, nameof(ViewModel.ChipStyle), converterParameter: freq);
+
+    public static View Section(string label, View control) =>
         new VerticalStackLayout
         {
-            Spacing = 2,
+            Spacing = 4,
             Children =
             {
                 new Label().Text(label).Font(size: 14, bold: true),

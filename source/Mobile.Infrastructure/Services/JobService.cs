@@ -42,15 +42,15 @@ internal class JobService : IJobService
 
     public async Task<ScheduledJobDefinitionDto> UpdateJobAsync(ScheduledJobDefinitionDto scheduledJobDefinitionDto)
     {
-        var updateDto = new UpdateJobDto
-        {
-            CustomerId = scheduledJobDefinitionDto.CustomerId,
-            Description = scheduledJobDefinitionDto.Description,
-            Title = scheduledJobDefinitionDto.Title,
-            AnchorDate = scheduledJobDefinitionDto.AnchorDate,
-            CronExpression = scheduledJobDefinitionDto.CronExpression,
-            JobDefinitionId = scheduledJobDefinitionDto.ScheduledJobDefinitionId,
-        };
+        var updateDto = new UpdateJobDto(
+            CustomerId: scheduledJobDefinitionDto.CustomerId,
+            ScheduledJobDefinitionId: scheduledJobDefinitionDto.ScheduledJobDefinitionId,
+            Title: scheduledJobDefinitionDto.Title,
+            Description: scheduledJobDefinitionDto.Description,
+            CronExpression: scheduledJobDefinitionDto.CronExpression,
+            AnchorDate: scheduledJobDefinitionDto.AnchorDate,
+            DayOfMonth: scheduledJobDefinitionDto.DayOfMonth
+        );
         var result = await _jobRepository.UpdateJobAsync(scheduledJobDefinitionDto.CustomerId, scheduledJobDefinitionDto.ScheduledJobDefinitionId, updateDto);
         if (result.IsSuccess)
         {
