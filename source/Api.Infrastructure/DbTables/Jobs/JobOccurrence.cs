@@ -1,4 +1,5 @@
-﻿using Api.Infrastructure.DbTables.OrganizationModels;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Api.Infrastructure.DbTables.OrganizationModels;
 using Api.ValueTypes;
 
 namespace Api.Infrastructure.DbTables.Jobs;
@@ -9,6 +10,7 @@ public class JobOccurrence
     public DateTime OccurrenceDate { get; set; }
     public DateTime? CompletedDate { get; set; }
 
+    [NotMapped] public bool MarkedAsCompleted => CompletedDate.HasValue;
 
     // relationships
 
@@ -20,7 +22,7 @@ public class JobOccurrence
 
     // DOWN
     public virtual ICollection<JobReminder> JobReminders { get; set; } = new List<JobReminder>();
-    
+
     public enum JobOccurrenceStatus
     {
         NotStarted,

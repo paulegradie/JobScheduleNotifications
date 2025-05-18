@@ -70,8 +70,14 @@ namespace Api.Controllers
 
             var domain = new JobOccurrenceDomainModel
             {
+                CustomerId = customerId,
                 ScheduledJobDefinitionId = req.JobDefinitionId,
-                OccurrenceDate = req.OccurrenceDate
+                OccurrenceDate = req.OccurrenceDate,
+                CompletedDate = null,
+                JobTitle = def.Title,
+                MarkedAsComplete = false,
+                JobDescription = def.Description,
+                JobReminders = []
             };
 
             await _occRepo.AddAsync(domain);
@@ -113,7 +119,6 @@ namespace Api.Controllers
 
             return Ok(new UpdateJobOccurrenceResponse(occ.ToDto()));
         }
-
 
         // DELETE: …/occurrences/{occurrenceId}
         [HttpDelete(DeleteJobOccurrenceRequest.Route)]

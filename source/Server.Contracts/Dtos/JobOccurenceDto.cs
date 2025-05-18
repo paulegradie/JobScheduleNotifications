@@ -13,5 +13,5 @@ public record JobOccurrenceDto(
     DateTime? CompletedDate,
     string JobTitle,
     string JobDescription,
-    bool MarkAsCompleted,
+    bool MarkedAsCompleted,
     List<JobReminderDto> JobReminders);

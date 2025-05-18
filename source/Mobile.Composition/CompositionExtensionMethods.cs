@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using Microsoft.Extensions.Logging;
+using Mobile.Infrastructure;
 using Mobile.Infrastructure.Persistence;
-using Mobile.Infrastructure.Services;
 using Mobile.UI.Pages;
 using Mobile.UI.Pages.Customers;
 using Mobile.UI.Pages.Customers.ScheduledJobs;

@@ -37,7 +37,7 @@ public class JobOccurrenceDomainModel : DomainModelBase<JobOccurrenceDto>
             CompletedDate: CompletedDate,
             JobTitle: JobTitle,
             JobDescription: JobDescription,
-            MarkAsCompleted: MarkedAsComplete,
+            MarkedAsCompleted: MarkedAsComplete,
             JobReminders: JobReminders.Select(r => r.ToDto()).ToList()
         );
     }
@@ -54,7 +54,7 @@ public class JobOccurrenceDomainModel : DomainModelBase<JobOccurrenceDto>
         CompletedDate = dto.CompletedDate;
         JobTitle = dto.JobTitle;
         JobDescription = dto.JobDescription;
-        MarkedAsComplete = dto.MarkAsCompleted;
+        MarkedAsComplete = dto.MarkedAsCompleted;
         JobReminders = dto.JobReminders
             .Select(r =>
             {

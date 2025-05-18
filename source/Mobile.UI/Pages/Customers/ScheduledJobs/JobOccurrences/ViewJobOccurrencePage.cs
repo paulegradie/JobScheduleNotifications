@@ -1,12 +1,17 @@
-﻿using CommunityToolkit.Maui.Markup;
+﻿using Api.ValueTypes;
+using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
 
 [QueryProperty(nameof(JobOccurrenceId), "JobOccurrenceId")]
+[QueryProperty(nameof(ScheduledJobDefinitionId), "ScheduledJobDefinitionId")]
+[QueryProperty(nameof(CustomerId), "CustomerId")]
 public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
 {
     public string JobOccurrenceId { get; set; }
+    public string ScheduledJobDefinitionId { get; set; }
+    public string CustomerId { get; set; }
 
     public ViewJobOccurrencePage(ViewJobOccurrenceModel vm) : base(vm)
     {
@@ -61,6 +66,9 @@ public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        ViewModel.LoadCommand.Execute(JobOccurrenceId);
+        ViewModel.LoadCommand.Execute(new CustomerJobAndOccurrenceIds(
+            new CustomerId(Guid.Parse(CustomerId)),
+            new ScheduledJobDefinitionId(Guid.Parse(ScheduledJobDefinitionId)),
+            new JobOccurrenceId(Guid.Parse(JobOccurrenceId))));
     }
 }

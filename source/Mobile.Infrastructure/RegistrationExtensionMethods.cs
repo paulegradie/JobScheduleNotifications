@@ -1,9 +1,9 @@
 ﻿using Mobile.Infrastructure.Repositories;
 using Mobile.UI.RepositoryAbstractions;
 
-namespace Mobile.Infrastructure.Services;
+namespace Mobile.Infrastructure;
 
-public static class ServiceRegistrationExtensionMethods
+public static class RegistrationExtensionMethods
 {
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {

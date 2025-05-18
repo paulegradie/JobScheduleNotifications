@@ -128,6 +128,8 @@ internal static class JobOccurrenceMappings
         => new()
         {
             JobOccurrenceId = d.Id,
+            CustomerId = d.CustomerId,
+            CompletedDate = d.CompletedDate,
             ScheduledJobDefinitionId = d.ScheduledJobDefinitionId,
             OccurrenceDate = d.OccurrenceDate,
             JobReminders = d.JobReminders

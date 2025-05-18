@@ -99,16 +99,27 @@ internal static class JobDefinitionMappings
                     Id = o.JobOccurrenceId,
                     ScheduledJobDefinitionId = o.ScheduledJobDefinitionId,
                     OccurrenceDate = o.OccurrenceDate,
+                    CustomerId = e.CustomerId,
+                    JobDescription = e.Description,
+                    JobTitle = e.Title,
+                    CompletedDate = o.CompletedDate,
+                    MarkedAsComplete = o.MarkedAsCompleted,
                     JobReminders = o.JobReminders
-                        .Select(r => new JobReminderDomainModel
+                        .Select(r =>
                         {
-                            ReminderDateTime = r.ReminderDateTime,
-                            JobOccurrenceId = o.JobOccurrenceId,
-                            ScheduledJobDefinitionId = o.ScheduledJobDefinitionId,
-                            Id = r.JobReminderId,
-                            IsSent = r.IsSent,
-                            SentDate = r.SentDate,
-                            Message = r.Message
+                            var model = new JobReminderDomainModel
+                            {
+                                ReminderDateTime = r.ReminderDateTime,
+                                JobOccurrenceId = o.JobOccurrenceId,
+                                ScheduledJobDefinitionId = o.ScheduledJobDefinitionId,
+                                Id = r.JobReminderId,
+                                IsSent = r.IsSent,
+                                SentDate = r.SentDate,
+                                Message = r.Message
+                            };
+
+
+                            return model;
                         }).ToList()
                 })
                 .ToList()

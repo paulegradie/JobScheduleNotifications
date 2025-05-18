@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui.Markup;
+using CommunityToolkit.Maui.Markup.RightToLeft;
 using Mobile.UI.Pages.Base;
 using Server.Contracts.Dtos;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
@@ -51,29 +52,27 @@ public sealed class ScheduledJobListPage : BasePage<ScheduledJobListModel>
 
                 new Label()
                     .Font(size: 12)
-                    .Bind(Label.TextProperty, nameof(ScheduledJobDefinitionDto.CustomerId))  
+                    .Bind(Label.TextProperty, nameof(ScheduledJobDefinitionDto.CustomerId))
                     .Row(Row.CustomerId).Column(0),
 
                 new Label()
                     .Font(size: 12)
                     .Bind(Label.TextProperty, nameof(ScheduledJobDefinitionDto.AnchorDate), stringFormat: "{0:yyyy-MM-dd}")
                     .Row(Row.AnchorDate).Column(0),
-                
+
                 new Button()
                     .Text("View")
                     .Bind(Button.CommandProperty, nameof(model.NavigateToViewCommand), source: model)
                     .Bind(Button.CommandParameterProperty, nameof(ScheduledJobDefinitionDto.ScheduledJobDefinitionId))
                     .Row(Row.ViewButton)
-                    .RowSpan(3).Column(1)
-                    .CenterVertical(),
+                    .RowSpan(1).Column(0),
 
                 // new Button()
                 //     .Text("Edit")
                 //     .Bind(Button.CommandProperty, nameof(model.NavigateToEditCommand), source: model)
                 //     .Bind(Button.CommandParameterProperty, ".")
                 //     .Row(Row.EditButton)
-                //     .RowSpan(3).Column(1)
-                //     .CenterVertical(),
+                //     .RowSpan(1).Column(0)
             }
         };
 

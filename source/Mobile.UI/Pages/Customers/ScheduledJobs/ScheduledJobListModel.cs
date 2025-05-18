@@ -20,6 +20,7 @@ public partial class ScheduledJobListModel : BaseViewModel
     }
 
     [ObservableProperty] private ObservableCollection<ScheduledJobDefinitionDto> _scheduledJobs = [];
+    public CustomerId CustomerId { get; set; }
 
     [RelayCommand]
     private async Task LoadForCustomerAsync(string customerIdString)
@@ -33,18 +34,20 @@ public partial class ScheduledJobListModel : BaseViewModel
 
             return guid;
         });
-
+        var customerId = new CustomerId(guid);
+        CustomerId = customerId; // check this isn't null?
 
         await RunWithSpinner(async () =>
         {
-            var customerId = new CustomerId(guid);
             var result = await _jobRepository.GetJobsByCustomerAsync(customerId);
             if (result.IsSuccess)
             {
                 var jobs = result.Value;
                 ScheduledJobs.Clear();
-                foreach (var j in jobs)
-                    ScheduledJobs.Add(j);
+                foreach (var scheduledJobDefinitionDto in jobs)
+                {
+                    ScheduledJobs.Add(scheduledJobDefinitionDto);
+                }
             }
         }, "Failed to load scheduled jobs.");
         OnPropertyChanged(nameof(ScheduledJobs));
@@ -67,7 +70,7 @@ public partial class ScheduledJobListModel : BaseViewModel
         await _navigation.GoToAsync(nameof(ScheduledJobViewPage), new Dictionary<string, object>
         {
             ["ScheduledJobDefinitionId"] = scheduledJobDefinitionId.Value.ToString(),
-            ["CustomerId"] = dto.CustomerId.Value.ToString()
+            ["CustomerId"] = CustomerId.Value.ToString()
         });
     }
 }

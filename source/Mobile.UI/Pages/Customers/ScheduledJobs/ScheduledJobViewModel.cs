@@ -10,7 +10,6 @@ using Server.Contracts.Dtos;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
-
 public partial class ScheduledJobViewModel : BaseViewModel
 {
     private readonly IJobRepository _jobRepository;
@@ -18,8 +17,7 @@ public partial class ScheduledJobViewModel : BaseViewModel
     private readonly INavigationRepository _navigation;
     private readonly IJobOccurrenceRepository _jobOccurrenceRepository;
 
-    [ObservableProperty] private ObservableCollection<CustomerDto> _customers = new();
-    [ObservableProperty] private ObservableCollection<JobOccurrenceDto> _occurrences = new();
+    [ObservableProperty] private ObservableCollection<CustomerDto> _customers = [];
 
     [ObservableProperty] private CustomerDto _selectedCustomer;
 
@@ -31,7 +29,7 @@ public partial class ScheduledJobViewModel : BaseViewModel
 
     [ObservableProperty] private int _interval = 1;
 
-    [ObservableProperty] private ObservableCollection<WeekDay> _selectedWeekDays = new();
+    [ObservableProperty] private ObservableCollection<WeekDay> _selectedWeekDays = [];
 
     [ObservableProperty] private int? _dayOfMonth;
 
@@ -41,10 +39,12 @@ public partial class ScheduledJobViewModel : BaseViewModel
     [ObservableProperty] private string _customerName = string.Empty;
     [ObservableProperty] private ObservableCollection<JobOccurrenceDto> _jobOccurrences = [];
 
-
     private CustomerId CustomerId { get; set; }
     private ScheduledJobDefinitionId ScheduledJobDefinitionId { get; set; }
     
+
+    public Details Details { get; set; }
+
     public ScheduledJobViewModel(
         IJobRepository jobRepository,
         ICustomerRepository customerRepository,
@@ -57,10 +57,25 @@ public partial class ScheduledJobViewModel : BaseViewModel
         _jobOccurrenceRepository = jobOccurrenceRepository;
     }
 
+    public JobOccurrenceId JobOccurrenceId { get; set; }
+    [RelayCommand]
+    private async Task NavigateToOccurrenceAsync(JobOccurrenceId jobOccurrenceId)
+    {
+        await RunWithSpinner(async () =>
+        {
+            await _navigation.GoToAsync(nameof(ViewJobOccurrencePage), new Dictionary<string, object>
+            {
+                ["JobOccurrenceId"] = jobOccurrenceId.Value.ToString(),
+                ["CustomerId"] = Details.CustomerId.Value.ToString(),
+                ["ScheduledJobDefinitionId"] = Details.ScheduledJobDefinitionId.Value.ToString()
+            });
+        });
+    }
 
     [RelayCommand]
     private async Task LoadScheduledJob(Details details)
     {
+        Details = details;
         await RunWithSpinner(async () =>
         {
             var scheduledJobResult = await _jobRepository.GetJobByIdAsync(details.CustomerId, details.ScheduledJobDefinitionId);
@@ -84,8 +99,9 @@ public partial class ScheduledJobViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task AddOccurrenceAsync(Details details)
+    private async Task AddOccurrenceAsync()
     {
+        var details = Details;
         await RunWithSpinner(async () =>
         {
             var results = await _jobOccurrenceRepository
@@ -94,22 +110,9 @@ public partial class ScheduledJobViewModel : BaseViewModel
             if (results.IsSuccess)
             {
                 var jobOccurrenceDto = results.Value.Occurrence;
-                Occurrences.Add(jobOccurrenceDto);
-                OnPropertyChanged(nameof(Occurrences));
+                JobOccurrences.Add(jobOccurrenceDto);
+                OnPropertyChanged(nameof(JobOccurrences));
             }
-        });
-    }
-
-
-    [RelayCommand]
-    private async Task NavigateToOccurrencesAsync(JobOccurrenceId jobOccurrenceId)
-    {
-        await RunWithSpinner(async () =>
-        {
-            await _navigation.GoToAsync(nameof(ViewJobOccurrencePage), new Dictionary<string, object>
-            {
-                ["JobOccurrenceId"] = jobOccurrenceId.Value.ToString()
-            });
         });
     }
 }
