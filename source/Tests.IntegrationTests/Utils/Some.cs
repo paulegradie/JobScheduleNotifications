@@ -39,7 +39,7 @@ public static class Some
     /// Creates a fully-populated CreateCustomerRequest with random data.
     /// </summary>
     public static CreateCustomerRequest CreateCustomerRequest()
-        => new CreateCustomerRequest(
+        => new(
             email:       Email(),
             firstName:   String(6).Capitalize(),
             lastName:    String(8).Capitalize(),

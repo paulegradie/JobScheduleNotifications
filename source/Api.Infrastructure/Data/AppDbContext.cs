@@ -144,21 +144,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-        modelBuilder.Entity<RecurrencePattern>(b =>
-        {
-            b.HasKey(p => p.RecurrencePatternId);
-            b.Property(p => p.RecurrencePatternId)
-                .HasConversion<RecurrencePatternIdConverter>()
-                .HasValueGenerator<RecurrencePatternIdValueGenerator>()
-                .ValueGeneratedOnAdd();
-
-            b.Property(p => p.ScheduledJobDefinitionId).HasConversion<ScheduledJobDefinitionIdConverter>();
-            b.Property(p => p.WeekDays)
-                .HasConversion(
-                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                    v => JsonSerializer.Deserialize<WeekDay[]>(v, (JsonSerializerOptions?)null)!);
-        });
-
         // Occurrence → Reminders
         modelBuilder
             .Entity<JobOccurrence>(oc =>

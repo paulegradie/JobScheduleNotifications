@@ -39,9 +39,10 @@ public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
                     // Completed date (prints “null” if not set)
                     new Label()
                         .Bind(Label.TextProperty, nameof(ViewModel.CompletedDate),
-                            stringFormat: "Completed: {0:MMM d, yyyy h:mm tt}",
+                            stringFormat: "Completed: {0:MMM d, yyyy h:mm tt} -- selected",
                             fallbackValue: "Completed: null")
-                        .FontSize(16),
+                        .FontSize(16)
+                        .Bind(IsVisibleProperty, nameof(vm.MarkedAsComplete)),
 
                     // Mark as Completed
                     new Button()

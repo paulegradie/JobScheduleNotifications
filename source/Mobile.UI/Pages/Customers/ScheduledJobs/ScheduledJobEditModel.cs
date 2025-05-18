@@ -34,17 +34,25 @@ public partial class ScheduledJobEditModel : BaseViewModel
 
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
+    public string IntervalDisplay => FormatIntervalDisplay();
 
-    public bool IsCustom => Frequency == Frequency.Custom;
+    private string FormatIntervalDisplay()
+    {
+        var freqString = Frequency switch
+        {
+            Frequency.Daily => "daily",
+            Frequency.Weekly => "weekly",
+            Frequency.Monthly => "monthly",
+            _ => ""
+        };
 
-    public string IntervalDisplay =>
-        $"Every {Interval} {Frequency.ToString().ToLower()}{(Interval > 1 ? "s" : "")}";
-
+        return $"Every {Interval} {freqString}{(Interval > 1 ? "s" : "")}";
+    }
     public bool CanSave =>
         !IsBusy &&
         !string.IsNullOrWhiteSpace(Title) &&
         !string.IsNullOrWhiteSpace(Description) &&
-        (Frequency != Frequency.Custom || !string.IsNullOrWhiteSpace(CronExpression));
+        !string.IsNullOrWhiteSpace(CronExpression);
 
     public ScheduledJobEditModel(
         IJobRepository jobRepository,
@@ -149,36 +157,27 @@ public partial class ScheduledJobEditModel : BaseViewModel
     {
         try
         {
-            if (IsCustom)
-            {
-                CronPreview = CronExpression;
-            }
-            else
-            {
-                var builder = FluentCron.Create()
-                    .AtMinute(0)
-                    .AtHour(0);
+            var builder = FluentCron.Create()
+                .AtMinute(0)
+                .AtHour(0);
 
-                switch (Frequency)
-                {
-                    case Frequency.Daily:
-                        builder.EveryDays(Interval);
-                        break;
-                    case Frequency.Weekly:
-                        builder.EveryWeeks(Interval);
-                        break;
-                    case Frequency.Monthly:
-                        if (DayOfMonth.HasValue)
-                            builder.OnDayOfMonth(DayOfMonth.Value).EveryMonths(Interval);
-                        break;
-                    case Frequency.Custom:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-
-                CronPreview = builder.Build().ToString();
+            switch (Frequency)
+            {
+                case Frequency.Daily:
+                    builder.EveryDays(Interval);
+                    break;
+                case Frequency.Weekly:
+                    builder.EveryWeeks(Interval);
+                    break;
+                case Frequency.Monthly:
+                    if (DayOfMonth.HasValue)
+                        builder.OnDayOfMonth(DayOfMonth.Value).EveryMonths(Interval);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
+
+            CronPreview = builder.Build().ToString();
         }
         catch
         {
@@ -188,6 +187,5 @@ public partial class ScheduledJobEditModel : BaseViewModel
         // Notify changes
         OnPropertyChanged(nameof(CronPreview));
         OnPropertyChanged(nameof(IntervalDisplay));
-        OnPropertyChanged(nameof(IsCustom));
     }
 }

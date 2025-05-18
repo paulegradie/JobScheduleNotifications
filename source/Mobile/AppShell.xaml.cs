@@ -30,8 +30,6 @@ public partial class AppShell : Shell
         AddPageToApp<ScheduledJobCreatePage>();
         AddPageToApp<ViewJobOccurrencePage>();
 
-        AddPageToApp<ElegantSchedulePage>();
-
         var currentTheme = Application.Current!.UserAppTheme;
         ThemeSegmentedControl.SelectedIndex = currentTheme == AppTheme.Light ? 0 : 1;
     }

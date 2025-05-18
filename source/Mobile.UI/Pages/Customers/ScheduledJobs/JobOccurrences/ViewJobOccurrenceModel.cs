@@ -19,12 +19,13 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
     [ObservableProperty] private bool _markedAsComplete;
     [ObservableProperty] private ICollection<JobReminderDto> _jobReminderDtos;
 
-
     public ViewJobOccurrenceModel(IJobOccurrenceRepository repo, INavigationRepository navigationRepository)
     {
         _repo = repo;
         _navigationRepository = navigationRepository;
     }
+
+    private CustomerJobAndOccurrenceIds? CustomerJobAndOccurrenceIds { get; set; }
 
     [RelayCommand]
     private async Task LoadAsync(CustomerJobAndOccurrenceIds ids)
@@ -48,7 +49,7 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task MarkCompletedAsync(CustomerJobAndOccurrenceIds id)
+    private async Task MarkCompletedAsync()
     {
         var ids = CustomerJobAndOccurrenceIds;
 
@@ -56,12 +57,11 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
         await RunWithSpinner(async () =>
         {
             var success = await _repo
-                .MarkOccurrenceAsCompletedAsync(id.CustomerId, id.ScheduledJobDefinitionId, id.JobOccurrenceId, CancellationToken.None);
+                .MarkOccurrenceAsCompletedAsync(ids.CustomerId, ids.ScheduledJobDefinitionId, ids.JobOccurrenceId, CancellationToken.None);
 
             if (success.IsSuccess) return;
             await _navigationRepository.ShowAlertAsync("Job Done!", "The job has been marked as complete.");
         });
+        OnPropertyChanged(nameof(MarkedAsComplete));
     }
-
-    private CustomerJobAndOccurrenceIds? CustomerJobAndOccurrenceIds { get; set; }
 }

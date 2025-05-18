@@ -37,7 +37,7 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                             .Bind(Editor.TextProperty, nameof(vm.Description))
                     ),
 
-                    Section("Anchor Date",
+                    Section("Start Date",
                         new DatePicker()
                             .Bind(DatePicker.DateProperty, nameof(vm.AnchorDate))
                     ),
@@ -50,7 +50,6 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                             CreateChip(Frequency.Daily),
                             CreateChip(Frequency.Weekly),
                             CreateChip(Frequency.Monthly),
-                            CreateChip(Frequency.Custom)
                         }
                     },
 

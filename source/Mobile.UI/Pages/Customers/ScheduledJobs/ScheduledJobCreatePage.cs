@@ -54,7 +54,6 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
                             CreateChip(Frequency.Daily),
                             CreateChip(Frequency.Weekly),
                             CreateChip(Frequency.Monthly),
-                            CreateChip(Frequency.Custom)
                         }
                     },
 
@@ -67,7 +66,7 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
                     Section("Day of Month",
                         new Entry { Keyboard = Keyboard.Numeric }
                             .Bind(Entry.TextProperty, nameof(vm.DayOfMonth))
-                    ),
+                    ).Bind(IsVisibleProperty, nameof(vm.ShowDayOfMonth)),
 
                     Section("Cron Preview",
                         new Label { FontSize = 14, TextColor = Colors.Gray }
@@ -79,8 +78,9 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
                         .Bind(IsVisibleProperty, nameof(vm.HasError)),
 
                     new Button { Text = "Save Job", CornerRadius = 8 }
-                        .BindCommand(nameof(vm.SaveCommand)),
-                        // .Bind(IsEnabledProperty, nameof(vm.CanSave)),
+                        .Bind()
+                        .BindCommand(nameof(vm.SaveCommand))
+                        .Bind(IsEnabledProperty, nameof(vm.CanSave)),
 
                     new ActivityIndicator()
                         .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
@@ -109,8 +109,8 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
             )
             .Bind(Button.StyleProperty, nameof(ViewModel.ChipStyle), converterParameter: freq);
 
-    private static View Section(string label, View control) =>
-        new VerticalStackLayout
+    private static VerticalStackLayout Section(string label, View control) =>
+        new()
         {
             Spacing = 4,
             Children =

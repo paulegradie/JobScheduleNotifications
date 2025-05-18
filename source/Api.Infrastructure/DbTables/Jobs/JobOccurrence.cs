@@ -23,11 +23,13 @@ public class JobOccurrence
     // DOWN
     public virtual ICollection<JobReminder> JobReminders { get; set; } = new List<JobReminder>();
 
-    public enum JobOccurrenceStatus
-    {
-        NotStarted,
-        InProgress,
-        Completed,
-        Canceled
-    }
+    public JobOccurrenceStatus JobOccurrenceStatus { get; set; }
+}
+
+public enum JobOccurrenceStatus
+{
+    NotStarted,
+    InProgress,
+    Completed,
+    Canceled
 }
