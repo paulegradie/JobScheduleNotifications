@@ -40,7 +40,7 @@ public class JobReminderControllerTests : AuthenticatedIntegrationTest
         var occReq = new CreateJobOccurrenceRequest(_customerId, _jobDefinitionId, DateTime.UtcNow);
         var occResp = await Client.JobOccurrences.CreateAsync(occReq, CancellationToken);
         occResp.IsSuccess.ShouldBeTrue();
-        _occurrenceId = occResp.Value.Occurrence.Id;
+        _occurrenceId = occResp.Value.Occurrence.JobOccurrenceId;
     }
 
     [Fact]

@@ -37,7 +37,7 @@ public sealed class ScheduledJobListPage : BasePage<ScheduledJobListModel>
             .Bind(RefreshView.IsRefreshingProperty, nameof(vm.IsBusy));
     }
 
-    private Grid BuildGrid(ScheduledJobListModel model) =>
+    private static Grid BuildGrid(ScheduledJobListModel model) =>
         new Grid
         {
             Margin = new Thickness(2, 10, 2, 0),
@@ -51,21 +51,29 @@ public sealed class ScheduledJobListPage : BasePage<ScheduledJobListModel>
 
                 new Label()
                     .Font(size: 12)
-                    .Bind(Label.TextProperty, nameof(ScheduledJobDefinitionDto.CustomerId))
+                    .Bind(Label.TextProperty, nameof(ScheduledJobDefinitionDto.CustomerId))  
                     .Row(Row.CustomerId).Column(0),
 
                 new Label()
                     .Font(size: 12)
                     .Bind(Label.TextProperty, nameof(ScheduledJobDefinitionDto.AnchorDate), stringFormat: "{0:yyyy-MM-dd}")
                     .Row(Row.AnchorDate).Column(0),
-
+                
                 new Button()
-                    .Text("Edit")
-                    .Bind(Button.CommandProperty, nameof(model.NavigateToEditCommand), source: model)
-                    .Bind(Button.CommandParameterProperty, ".")
-                    .Row(Row.EditButton)
+                    .Text("View")
+                    .Bind(Button.CommandProperty, nameof(model.NavigateToViewCommand), source: model)
+                    .Bind(Button.CommandParameterProperty, nameof(ScheduledJobDefinitionDto.ScheduledJobDefinitionId))
+                    .Row(Row.ViewButton)
                     .RowSpan(3).Column(1)
-                    .CenterVertical()
+                    .CenterVertical(),
+
+                // new Button()
+                //     .Text("Edit")
+                //     .Bind(Button.CommandProperty, nameof(model.NavigateToEditCommand), source: model)
+                //     .Bind(Button.CommandParameterProperty, ".")
+                //     .Row(Row.EditButton)
+                //     .RowSpan(3).Column(1)
+                //     .CenterVertical(),
             }
         };
 
@@ -82,5 +90,6 @@ public sealed class ScheduledJobListPage : BasePage<ScheduledJobListModel>
         CustomerId,
         AnchorDate,
         EditButton,
+        ViewButton,
     }
 }

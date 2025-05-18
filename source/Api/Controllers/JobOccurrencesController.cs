@@ -75,7 +75,7 @@ namespace Api.Controllers
             };
 
             await _occRepo.AddAsync(domain);
-            
+
             await _uow.SaveChangesAsync();
 
             return Ok(new CreateJobOccurrenceResponse(domain.ToDto()));
@@ -86,21 +86,34 @@ namespace Api.Controllers
         public async Task<ActionResult<UpdateJobOccurrenceResponse>> Update(
             [FromBody] UpdateJobOccurrenceRequest req)
         {
-            var def = await _scheduledJobDefRepo.GetAsync(req.JobDefinitionId);
+            var def = await _scheduledJobDefRepo.GetAsync(req.ScheduledJobDefinitionId);
             if (def == null || def.CustomerId != req.CustomerId || def.JobOccurrences.All(o => o.Id != req.JobOccurrenceId))
                 return NotFound();
 
-            def.JobOccurrences.Where(o => o.Id == req.JobOccurrenceId).ToList().ForEach(o => o.OccurrenceDate = req.OccurrenceDate);
+            def.JobOccurrences
+                .Where(o => o.Id == req.JobOccurrenceId)
+                .ToList()
+                .ForEach(o => o.OccurrenceDate = req.OccurrenceDate);
+
             var occ = await _occRepo.GetByIdAsync(req.JobOccurrenceId);
-            if (occ == null || occ.ScheduledJobDefinitionId != req.JobDefinitionId)
+            if (occ == null || occ.ScheduledJobDefinitionId != req.ScheduledJobDefinitionId)
                 return NotFound();
-            
+
             occ.OccurrenceDate = req.OccurrenceDate;
-            occ.ScheduledJobDefinitionId = req.JobDefinitionId;
+            occ.ScheduledJobDefinitionId = req.ScheduledJobDefinitionId;
+            if (req.MarkAsCompleted)
+            {
+                occ.CompletedDate = DateTime.Now;
+                occ.MarkedAsComplete = true;
+            }
+
+            occ.JobTitle = req.JobTitle;
+            occ.JobDescription = req.JobDescription;
             await _occRepo.UpdateAsync(occ);
-            
+
             return Ok(new UpdateJobOccurrenceResponse(occ.ToDto()));
         }
+
 
         // DELETE: …/occurrences/{occurrenceId}
         [HttpDelete(DeleteJobOccurrenceRequest.Route)]

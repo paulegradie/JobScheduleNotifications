@@ -60,11 +60,11 @@ public class JobOccurrencesControllerTests : AuthenticatedIntegrationTest
 
         var occDto = createResp.Value.Occurrence;
 
-        var getReq = new GetJobOccurrenceByIdRequest(_customerId, _jobDefinitionId, occDto.Id);
+        var getReq = new GetJobOccurrenceByIdRequest(_customerId, _jobDefinitionId, occDto.JobOccurrenceId);
         var getResp = await Client.JobOccurrences.GetAsync(getReq, CancellationToken);
 
         getResp.IsSuccess.ShouldBeTrue();
-        getResp.Value.JobOccurrence.Id.ShouldBe(occDto.Id);
+        getResp.Value.JobOccurrence.JobOccurrenceId.ShouldBe(occDto.JobOccurrenceId);
         getResp.Value.JobOccurrence.OccurrenceDate.ShouldBe(occurrenceDate);
     }
 
@@ -82,21 +82,25 @@ public class JobOccurrencesControllerTests : AuthenticatedIntegrationTest
         var updateReq = new UpdateJobOccurrenceRequest(
             _customerId,
             _jobDefinitionId,
-            createResp.Value.Occurrence.Id,
-            newDate
+            createResp.Value.Occurrence.JobOccurrenceId,
+            newDate,
+            false,
+            "Title",
+            "Description"
         );
         var updateResp = await Client.JobOccurrences.UpdateAsync(updateReq, CancellationToken);
 
         updateResp.IsSuccess.ShouldBeTrue();
-        updateResp.Value.Occurrence.OccurrenceDate.ShouldBe(newDate);
+        updateResp.Value?.Occurrence.OccurrenceDate.ShouldBe(newDate);
 
 
         // Get by ID
-        var getReq = new GetJobOccurrenceByIdRequest(_customerId, _jobDefinitionId, createResp.Value.Occurrence.Id);
+        var getReq = new GetJobOccurrenceByIdRequest(_customerId, _jobDefinitionId, createResp.Value.Occurrence.JobOccurrenceId);
         var getResp = await Client.JobOccurrences.GetAsync(getReq, CancellationToken);
         getResp.IsSuccess.ShouldBeTrue();
-        var fetched = getResp.Value.JobOccurrence;
-        fetched.Id.ShouldBe(createResp.Value.Occurrence.Id);
+        var fetched = getResp.Value?.JobOccurrence;
+        fetched.ShouldNotBeNull();
+        fetched.JobOccurrenceId.ShouldBe(createResp.Value.Occurrence.JobOccurrenceId);
         fetched.OccurrenceDate.ShouldBe(newDate);
     }
 
@@ -120,7 +124,7 @@ public class JobOccurrencesControllerTests : AuthenticatedIntegrationTest
         var deleteReq = new DeleteJobOccurrenceRequest(
             _customerId,
             _jobDefinitionId,
-            resp1.Value.Occurrence.Id
+            resp1.Value.Occurrence.JobOccurrenceId
         );
         var deleteResp = await Client.JobOccurrences.DeleteAsync(deleteReq, CancellationToken);
         deleteResp.IsSuccess.ShouldBeTrue();
@@ -131,6 +135,6 @@ public class JobOccurrencesControllerTests : AuthenticatedIntegrationTest
 
         listResp.IsSuccess.ShouldBeTrue();
         listResp.Value.Occurrences.Count.ShouldBe(1);
-        listResp.Value.Occurrences[0].Id.ShouldBe(resp2.Value.Occurrence.Id);
+        listResp.Value.Occurrences[0].JobOccurrenceId.ShouldBe(resp2.Value.Occurrence.JobOccurrenceId);
     }
 }

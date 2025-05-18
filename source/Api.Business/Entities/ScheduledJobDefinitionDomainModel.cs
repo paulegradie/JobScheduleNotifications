@@ -28,4 +28,23 @@ public class ScheduledJobDefinitionDomainModel : DomainModelBase<ScheduledJobDef
             Description,
             DayOfMonth);
     }
+
+    public override void FromDto(ScheduledJobDefinitionDto dto)
+    {
+        ScheduledJobDefinitionId = dto.ScheduledJobDefinitionId;
+        CustomerId = dto.CustomerId;
+        AnchorDate = dto.AnchorDate;
+        CronExpression = dto.CronExpression;
+        DayOfMonth = dto.DayOfMonth;
+        JobOccurrences = dto.JobOccurrences
+            .Select(o =>
+            {
+                var m = new JobOccurrenceDomainModel();
+                m.FromDto(o);
+                return m;
+            })
+            .ToList();
+        Title = dto.Title;
+        Description = dto.Description;
+    }
 }

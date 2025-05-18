@@ -25,10 +25,7 @@ public interface IJobRepository
         ScheduledJobDefinitionId id,
         CancellationToken ct = default);
 
-    Task<OperationResult<ScheduledJobDefinitionDto>> MarkJobAsCompletedAsync(
-        ScheduledJobDefinitionId id,
-        CancellationToken ct = default);
-
+    
     Task<OperationResult<IEnumerable<ScheduledJobDefinitionDto>>> GetJobsByCustomerAsync(
         CustomerId customerId,
         CancellationToken ct = default);

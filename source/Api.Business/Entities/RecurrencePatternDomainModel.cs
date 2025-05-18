@@ -44,4 +44,10 @@ public class RecurrencePatternDomainModel : DomainModelBase<RecurrencePatternDto
             CronExpression = CronExpression
         };
     }
+    
+    public override void FromDto(RecurrencePatternDto dto)
+    {
+        Id = dto.Id;
+        CronExpression = dto.CronExpression;
+    }
 }

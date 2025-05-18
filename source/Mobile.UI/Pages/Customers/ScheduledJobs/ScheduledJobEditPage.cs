@@ -104,8 +104,8 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
             )
             .Bind(Button.StyleProperty, nameof(ViewModel.ChipStyle), converterParameter: freq);
 
-    private static View Section(string label, View control) =>
-        new VerticalStackLayout
+    private static VerticalStackLayout Section(string label, View control) =>
+        new()
         {
             Spacing = 4,
             Children =

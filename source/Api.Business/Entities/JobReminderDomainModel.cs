@@ -8,8 +8,8 @@ public class JobReminderDomainModel : DomainModelBase<JobReminderDto>
 {
     public JobReminderDomainModel()
     {
-        
     }
+
     public JobReminderDomainModel(DateTime reminderDateTime, string message)
     {
         ReminderDateTime = reminderDateTime;
@@ -34,4 +34,14 @@ public class JobReminderDomainModel : DomainModelBase<JobReminderDto>
             IsSent = IsSent,
             SentDate = SentDate
         };
+
+    public override void FromDto(JobReminderDto dto)
+    {
+        Id = dto.Id;
+        ScheduledJobDefinitionId = dto.ScheduledJobDefinitionId;
+        ReminderDateTime = dto.ReminderTime;
+        Message = dto.Message;
+        IsSent = dto.IsSent;
+        SentDate = dto.SentDate;
+    }
 }

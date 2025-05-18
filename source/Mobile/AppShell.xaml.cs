@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Core;
 using Mobile.UI.Pages;
 using Mobile.UI.Pages.Customers;
 using Mobile.UI.Pages.Customers.ScheduledJobs;
+using Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
 using Font = Microsoft.Maui.Font;
 
 namespace Mobile;
@@ -27,6 +28,8 @@ public partial class AppShell : Shell
         AddPageToApp<ScheduledJobListPage>();
         AddPageToApp<ScheduledJobEditPage>();
         AddPageToApp<ScheduledJobCreatePage>();
+        AddPageToApp<ViewJobOccurrencePage>();
+
         AddPageToApp<ElegantSchedulePage>();
 
         var currentTheme = Application.Current!.UserAppTheme;

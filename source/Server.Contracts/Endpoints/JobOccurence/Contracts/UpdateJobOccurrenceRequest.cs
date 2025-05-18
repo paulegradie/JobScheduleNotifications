@@ -5,9 +5,12 @@ namespace Server.Contracts.Endpoints.JobOccurence.Contracts;
 
 public sealed record UpdateJobOccurrenceRequest(
     CustomerId CustomerId,
-    ScheduledJobDefinitionId JobDefinitionId,
+    ScheduledJobDefinitionId ScheduledJobDefinitionId,
     JobOccurrenceId JobOccurrenceId,
-    DateTime OccurrenceDate)
+    DateTime OccurrenceDate,
+    bool MarkAsCompleted,
+    string JobTitle,
+    string JobDescription)
     : RequestBase(Route)
 {
     public const string Route = $"api/customers/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/occurrences/{JobOccurenceIdSegmentParam}";
@@ -16,7 +19,7 @@ public sealed record UpdateJobOccurrenceRequest(
     {
         var route = base.GetApiRoute();
         route.AddRouteParam(CustomerIdSegmentParam, CustomerId.ToString());
-        route.AddRouteParam(JobDefinitionIdSegmentParam, JobDefinitionId.ToString());
+        route.AddRouteParam(JobDefinitionIdSegmentParam, ScheduledJobDefinitionId.ToString());
         route.AddRouteParam(JobOccurenceIdSegmentParam, JobOccurrenceId.ToString());
         return route;
     }

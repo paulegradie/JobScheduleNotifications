@@ -2,13 +2,13 @@
 using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Mobile.UI.Pages.Base;
 using Mobile.UI.RepositoryAbstractions;
-using Mobile.UI.Services;
 using Server.Contracts.Dtos;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
-public partial class ScheduledJobListModel : Base.BaseViewModel
+public partial class ScheduledJobListModel : BaseViewModel
 {
     private readonly IJobRepository _jobRepository;
     private readonly INavigationRepository _navigation;
@@ -24,7 +24,6 @@ public partial class ScheduledJobListModel : Base.BaseViewModel
     [RelayCommand]
     private async Task LoadForCustomerAsync(string customerIdString)
     {
-        if (IsBusy) return;
         var guid = await RunWithSpinner(async () =>
         {
             if (!Guid.TryParse(customerIdString, out var guid))
@@ -48,6 +47,7 @@ public partial class ScheduledJobListModel : Base.BaseViewModel
                     ScheduledJobs.Add(j);
             }
         }, "Failed to load scheduled jobs.");
+        OnPropertyChanged(nameof(ScheduledJobs));
     }
 
     [RelayCommand]
@@ -57,6 +57,16 @@ public partial class ScheduledJobListModel : Base.BaseViewModel
         await _navigation.GoToAsync(nameof(ScheduledJobEditPage), new Dictionary<string, object>
         {
             ["ScheduledJobDefinitionId"] = dto.ScheduledJobDefinitionId.Value.ToString(),
+            ["CustomerId"] = dto.CustomerId.Value.ToString()
+        });
+    }
+
+    [RelayCommand]
+    private async Task NavigateToViewAsync(ScheduledJobDefinitionId scheduledJobDefinitionId)
+    {
+        await _navigation.GoToAsync(nameof(ScheduledJobViewPage), new Dictionary<string, object>
+        {
+            ["ScheduledJobDefinitionId"] = scheduledJobDefinitionId.Value.ToString(),
             ["CustomerId"] = dto.CustomerId.Value.ToString()
         });
     }
