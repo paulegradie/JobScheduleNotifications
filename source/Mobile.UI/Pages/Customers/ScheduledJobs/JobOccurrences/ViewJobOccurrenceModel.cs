@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.Pages.Base;
+using Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences.JobReminders;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Dtos;
 
@@ -63,5 +64,19 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
             await _navigationRepository.ShowAlertAsync("Job Done!", "The job has been marked as complete.");
         });
         OnPropertyChanged(nameof(MarkedAsComplete));
+    }
+    
+    [RelayCommand]
+    private async Task NavigateToReminderAsync(Guid jobReminderId)
+    {
+        var ids = CustomerJobAndOccurrenceIds;
+        if (ids == null) return;
+        await _navigationRepository.GoToAsync(
+            $"{nameof(JobReminderPage)}?"
+            + $"CustomerId={ids.CustomerId}"
+            + $"&ScheduledJobDefinitionId={ids.ScheduledJobDefinitionId}"
+            + $"&JobOccurrenceId={ids.JobOccurrenceId}"
+            + $"&JobReminderId={jobReminderId}"
+        );
     }
 }

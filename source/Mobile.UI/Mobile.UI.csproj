@@ -106,12 +106,11 @@
         <DependentUpon>RegisterPage.cs</DependentUpon>
       </Compile>
       <Compile Update="Pages\Customers\ScheduledJobs\JobOccurrences\ViewJobOccurrenceModel.cs">
-        <DependentUpon>AddNewJobOccurrencePage.cs</DependentUpon>
+        <DependentUpon>ViewJobOccurrencePage.cs</DependentUpon>
       </Compile>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Pages\Customers\ScheduledJobs\JobOccurrences\JobReminders\" />
+      <Compile Update="Pages\Customers\ScheduledJobs\JobOccurrences\JobReminders\JobReminderModel.cs">
+        <DependentUpon>JobReminderPage.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

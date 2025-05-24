@@ -1,6 +1,7 @@
 ﻿using Api.ValueTypes;
 using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
+using Server.Contracts.Dtos;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
 
@@ -58,7 +59,28 @@ public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
                     // Create Invoice stub
                     new Button()
                         .Text("Create Invoice")
-                        .IsEnabled(false)
+                        .IsEnabled(false),
+                    new Label().Text("Reminders").FontSize(20).Bold(),
+                    new CollectionView
+                        {
+                            SelectionMode = SelectionMode.Single,
+                            EmptyView = "No reminders",
+                            ItemTemplate = new DataTemplate(() =>
+                                new Frame
+                                {
+                                    Padding = 10,
+                                    CornerRadius = 6,
+                                    BackgroundColor = Colors.LightGray,
+                                    HasShadow = true,
+                                    Content = new Button()
+                                        .Bind(Button.TextProperty, nameof(JobReminderDto.ReminderDate), stringFormat: "{0:MMM d, yyyy h:mm tt}")
+                                        .Bind(Button.CommandProperty, nameof(ViewModel.NavigateToReminderCommand))
+                                        .Bind(Button.CommandParameterProperty, nameof(JobReminderDto.JobReminderId))
+                                }
+                            )
+                        }
+                        .Bind(ItemsView.ItemsSourceProperty, nameof(ViewModel.JobReminderDtos)),
+
                 }
             }
         };

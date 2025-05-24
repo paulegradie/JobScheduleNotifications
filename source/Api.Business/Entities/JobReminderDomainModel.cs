@@ -27,9 +27,9 @@ public class JobReminderDomainModel : DomainModelBase<JobReminderDto>
     public override JobReminderDto ToDto()
         => new()
         {
-            Id = Id,
+            JobReminderId = Id,
             ScheduledJobDefinitionId = ScheduledJobDefinitionId,
-            ReminderTime = ReminderDateTime,
+            ReminderDate = ReminderDateTime,
             Message = Message,
             IsSent = IsSent,
             SentDate = SentDate
@@ -37,9 +37,9 @@ public class JobReminderDomainModel : DomainModelBase<JobReminderDto>
 
     public override void FromDto(JobReminderDto dto)
     {
-        Id = dto.Id;
+        Id = dto.JobReminderId;
         ScheduledJobDefinitionId = dto.ScheduledJobDefinitionId;
-        ReminderDateTime = dto.ReminderTime;
+        ReminderDateTime = dto.ReminderDate;
         Message = dto.Message;
         IsSent = dto.IsSent;
         SentDate = dto.SentDate;

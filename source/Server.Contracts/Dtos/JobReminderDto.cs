@@ -4,11 +4,11 @@ namespace Server.Contracts.Dtos;
 
 public class JobReminderDto
 {
-    public JobReminderId Id { get; set; }
+    public JobReminderId JobReminderId { get; set; }
 
     public ScheduledJobDefinitionId ScheduledJobDefinitionId { get; set; }
 
-    public DateTime ReminderTime { get; set; }
+    public DateTime ReminderDate { get; set; }
 
     public string Message { get; set; } = string.Empty;
 

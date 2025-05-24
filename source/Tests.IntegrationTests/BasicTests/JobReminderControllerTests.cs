@@ -69,18 +69,18 @@ public class JobReminderControllerTests : AuthenticatedIntegrationTest
 
         createResp.IsSuccess.ShouldBeTrue();
         var created = createResp.Value.JobReminder;
-        created.ReminderTime.ShouldBe(reminderTime);
+        created.ReminderDate.ShouldBe(reminderTime);
         created.Message.ShouldBe(message);
         created.IsSent.ShouldBeFalse();
-        created.Id.ShouldNotBe(default);
+        created.JobReminderId.ShouldNotBe(default);
 
         // Get by ID
-        var getReq = new GetJobReminderByIdRequest(_customerId, _jobDefinitionId, created.Id);
+        var getReq = new GetJobReminderByIdRequest(_customerId, _jobDefinitionId, created.JobReminderId);
         var getResp = await Client.JobReminders.GetJobReminderByIdAsync(getReq, CancellationToken);
         getResp.IsSuccess.ShouldBeTrue();
         var fetched = getResp.Value.JobReminder;
-        fetched.Id.ShouldBe(created.Id);
-        fetched.ReminderTime.ShouldBe(reminderTime);
+        fetched.JobReminderId.ShouldBe(created.JobReminderId);
+        fetched.ReminderDate.ShouldBe(reminderTime);
         fetched.Message.ShouldBe(message);
     }
 
@@ -94,7 +94,7 @@ public class JobReminderControllerTests : AuthenticatedIntegrationTest
         );
         var createResp = await Client.JobReminders.CreateJobReminderAsync(createReq, CancellationToken);
         createResp.IsSuccess.ShouldBeTrue();
-        var id = createResp.Value.JobReminder.Id;
+        var id = createResp.Value.JobReminder.JobReminderId;
 
         // Update
         var newTime = originalTime.AddHours(1);
@@ -109,8 +109,8 @@ public class JobReminderControllerTests : AuthenticatedIntegrationTest
         var updateResp = await Client.JobReminders.UpdateJobReminderAsync(updateReq, CancellationToken);
         updateResp.IsSuccess.ShouldBeTrue();
         var updated = updateResp.Value.JobReminderDto;
-        updated.Id.ShouldBe(id);
-        updated.ReminderTime.ShouldBe(newTime);
+        updated.JobReminderId.ShouldBe(id);
+        updated.ReminderDate.ShouldBe(newTime);
         updated.Message.ShouldBe(newMessage);
     }
 
@@ -122,13 +122,13 @@ public class JobReminderControllerTests : AuthenticatedIntegrationTest
             new CreateJobReminderRequest(_customerId, _jobDefinitionId, DateTime.UtcNow.AddHours(3), "One"),
             CancellationToken);
         resp1.IsSuccess.ShouldBeTrue();
-        var id1 = resp1.Value.JobReminder.Id;
+        var id1 = resp1.Value.JobReminder.JobReminderId;
 
         var resp2 = await Client.JobReminders.CreateJobReminderAsync(
             new CreateJobReminderRequest(_customerId, _jobDefinitionId, DateTime.UtcNow.AddHours(4), "Two"),
             CancellationToken);
         resp2.IsSuccess.ShouldBeTrue();
-        var id2 = resp2.Value.JobReminder.Id;
+        var id2 = resp2.Value.JobReminder.JobReminderId;
 
         // Delete first
         var delResp = await Client.JobReminders.DeleteJobReminderAsync(
@@ -142,7 +142,7 @@ public class JobReminderControllerTests : AuthenticatedIntegrationTest
             CancellationToken);
         listResp.IsSuccess.ShouldBeTrue();
         listResp.Value.JobReminder.Count().ShouldBe(1);
-        listResp.Value.JobReminder.First().Id.ShouldBe(id2);
+        listResp.Value.JobReminder.First().JobReminderId.ShouldBe(id2);
     }
 
     [Fact]
@@ -153,7 +153,7 @@ public class JobReminderControllerTests : AuthenticatedIntegrationTest
             new CreateJobReminderRequest(_customerId, _jobDefinitionId, DateTime.UtcNow.AddHours(5), "Ack this"),
             CancellationToken);
         createResp.IsSuccess.ShouldBeTrue();
-        var id = createResp.Value.JobReminder.Id;
+        var id = createResp.Value.JobReminder.JobReminderId;
 
         // Acknowledge
         var ackResp = await Client.JobReminders.AcknowledgeJobReminderAsync(
@@ -161,7 +161,7 @@ public class JobReminderControllerTests : AuthenticatedIntegrationTest
             CancellationToken);
         ackResp.IsSuccess.ShouldBeTrue();
         var acked = ackResp.Value.Reminder;
-        acked.Id.ShouldBe(id);
+        acked.JobReminderId.ShouldBe(id);
         acked.IsSent.ShouldBeTrue();
         acked.SentDate.ShouldNotBeNull();
 
@@ -169,12 +169,12 @@ public class JobReminderControllerTests : AuthenticatedIntegrationTest
         var listTrue = await Client.JobReminders.ListJobRemindersAsync(
             new ListJobRemindersRequest(_customerId, _jobDefinitionId, true),
             CancellationToken);
-        listTrue.Value.JobReminder.ShouldContain(r => r.Id == id);
+        listTrue.Value.JobReminder.ShouldContain(r => r.JobReminderId == id);
 
         // List with isSent=false should not include it
         var listFalse = await Client.JobReminders.ListJobRemindersAsync(
             new ListJobRemindersRequest(_customerId, _jobDefinitionId, false),
             CancellationToken);
-        listFalse.Value.JobReminder.ShouldNotContain(r => r.Id == id);
+        listFalse.Value.JobReminder.ShouldNotContain(r => r.JobReminderId == id);
     }
 }
