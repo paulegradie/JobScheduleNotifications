@@ -1,9 +1,6 @@
-﻿using System;
-using Api.ValueTypes;
+﻿using Api.ValueTypes;
 using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
-using Server.Contracts.Dtos;
-using Microsoft.Maui.Controls;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences.JobReminders
 {

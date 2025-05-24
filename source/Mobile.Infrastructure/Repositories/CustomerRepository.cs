@@ -38,7 +38,7 @@ internal class CustomerRepository : ICustomerRepository
 
         if (!op.IsSuccess)
             return OperationResult<CustomerDto>
-                .Failure(op.ErrorMessage ?? $"Couldn’t load {id}", op.StatusCode);
+                .Failure(op.ErrorMessage ?? $"Could not load {id}", op.StatusCode);
 
         return OperationResult<CustomerDto>
             .Success(op.Value.Customer, op.StatusCode);

@@ -37,7 +37,6 @@ public partial class JobReminderModel : BaseViewModel
             var dto = resp.Value.JobReminder;
 
             ReminderDate = dto.ReminderDate;
-            SnapshottedDescription = dto.SnapshottedDescription;
         });
     }
 }

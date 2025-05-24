@@ -6,4 +6,4 @@ public interface INavigationRepository
     Task GoBackAsync();
     Task ShowAlertAsync(string title, string message);
     Task<bool> ShowConfirmationAsync(string title, string message);
-} 
+}
