@@ -39,12 +39,30 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
                         new Editor { HeightRequest = 100 }
                             .Bind(Editor.TextProperty, nameof(vm.Description))
                     ),
-
-                    Section("Anchor Date",
-                        new DatePicker()
-                            .Bind(DatePicker.DateProperty, nameof(vm.AnchorDate))
-                    ),
-
+                    new Label().Text("Anchor Date").Font(size: 14, bold: true),
+                    new HorizontalStackLayout()
+                    {
+                        Spacing = 4,
+                        Children =
+                        {
+                            new DatePicker().Bind(DatePicker.DateProperty, nameof(vm.AnchorDate)),
+                            new TimePicker()
+                                .Bind(TimePicker.TimeProperty, nameof(vm.AnchorTime))
+                                // optional: clamp on ValueChanged to enforce a window
+                                .Invoke(tp =>
+                                {
+                                    tp.TimeSelected += (s, e) =>
+                                    {
+                                        var min = new TimeSpan(6, 0, 0);
+                                        var max = new TimeSpan(18, 0, 0);
+                                        if (e.NewTime < min)
+                                            tp.Time = min;
+                                        else if (e.NewTime > max)
+                                            tp.Time = max;
+                                    };
+                                })
+                        }
+                    },
                     new Label().Text("Frequency").Font(size: 14, bold: true),
                     new FlexLayout
                     {
@@ -56,32 +74,24 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
                             CreateChip(Frequency.Monthly),
                         }
                     },
-
                     new Label().Bind(Label.TextProperty, nameof(vm.IntervalDisplay)).Font(size: 18),
-                    new Slider(1, 52, 1)
-                        .Bind(Slider.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay),
-                    new Stepper(1, 100, 1, 1)
-                        .Bind(Stepper.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay),
-
+                    new Slider(1, 52, 1).Bind(Slider.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay),
+                    new Stepper(1, 100, 1, 1).Bind(Stepper.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay),
                     Section("Day of Month",
                         new Entry { Keyboard = Keyboard.Numeric }
                             .Bind(Entry.TextProperty, nameof(vm.DayOfMonth))
                     ).Bind(IsVisibleProperty, nameof(vm.ShowDayOfMonth)),
-
                     Section("Cron Preview",
                         new Label { FontSize = 14, TextColor = Colors.Gray }
                             .Bind(Label.TextProperty, nameof(vm.CronPreview))
                     ),
-
                     new Label { TextColor = Colors.Red }
                         .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
                         .Bind(IsVisibleProperty, nameof(vm.HasError)),
-
                     new Button { Text = "Save Job", CornerRadius = 8 }
                         .Bind()
                         .BindCommand(nameof(vm.SaveCommand))
                         .Bind(IsEnabledProperty, nameof(vm.CanSave)),
-
                     new ActivityIndicator()
                         .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
                         .Bind(IsVisibleProperty, nameof(vm.IsBusy))

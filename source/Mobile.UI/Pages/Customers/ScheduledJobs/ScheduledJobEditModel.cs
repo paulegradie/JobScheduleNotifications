@@ -21,6 +21,10 @@ public partial class ScheduledJobEditModel : BaseViewModel
     [ObservableProperty] private string _title = string.Empty;
     [ObservableProperty] private string _description = string.Empty;
     [ObservableProperty] private DateTime _anchorDate = DateTime.Now;
+    [ObservableProperty] private TimeSpan _anchorTime; // bound by TimePicker
+    public DateTime AnchorDateTime => AnchorDate.Date + AnchorTime;
+    
+    
     [ObservableProperty] private Frequency _frequency = Frequency.Daily;
     [ObservableProperty] private int _interval = 1;
     [ObservableProperty] private int? _dayOfMonth;

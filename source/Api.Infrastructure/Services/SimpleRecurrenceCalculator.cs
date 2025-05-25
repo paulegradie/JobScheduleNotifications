@@ -1,7 +1,4 @@
-﻿using Api.Business.Entities;
-using Api.Business.Services;
-using Api.Infrastructure.DbTables.Jobs;
-using Api.ValueTypes.Enums;
+﻿using Api.Business.Services;
 using NCrontab;
 using Server.Contracts.Cron;
 
@@ -24,11 +21,12 @@ public class SimpleRecurrenceCalculator : IRecurrenceCalculator
         var cron = CrontabSchedule.Parse(expression);
 
         // NCrontab works in local time; convert 'afterUtc' to local:
-        var nextLocal = cron.GetNextOccurrence(anchorDate.ToLocalTime());
+        var nextLocal = cron.GetNextOccurrence(anchorDate);//.ToLocalTime());
 
         // Tag as local then convert back to UTC
-        return DateTime
+        var what = DateTime
             .SpecifyKind(nextLocal, DateTimeKind.Local)
             .ToUniversalTime();
+        return nextLocal;
     }
 }

@@ -20,6 +20,11 @@ public partial class ScheduledJobCreateModel : BaseViewModel
     [ObservableProperty] private string _title = string.Empty;
     [ObservableProperty] private string _description = string.Empty;
     [ObservableProperty] private DateTime _anchorDate = DateTime.Now;
+    [ObservableProperty] private TimeSpan _anchorTime; // bound by TimePicker
+
+    // and when you read it out:
+    public DateTime AnchorDateTime => AnchorDate.Date + AnchorTime;
+
     [ObservableProperty] private Frequency _frequency = Frequency.Daily;
     [ObservableProperty] private int _interval = 1;
     [ObservableProperty] private int? _dayOfMonth;
@@ -33,9 +38,9 @@ public partial class ScheduledJobCreateModel : BaseViewModel
     {
         var freqString = Frequency switch
         {
-            Frequency.Daily => "daily",
-            Frequency.Weekly => "weekly",
-            Frequency.Monthly => "monthly",
+            Frequency.Daily => "dail",
+            Frequency.Weekly => "week",
+            Frequency.Monthly => "month",
             _ => ""
         };
 
@@ -68,8 +73,8 @@ public partial class ScheduledJobCreateModel : BaseViewModel
 
     partial void OnDayOfMonthChanged(int? value) => UpdateCronPreview();
 
-    partial void OnCronExpressionChanged(string value) => UpdateCronPreview();
-
+    partial void OnAnchorDateChanged(DateTime value) => UpdateCronPreview();
+    
     [RelayCommand]
     private async Task LoadAsync(string customerId)
     {
@@ -145,7 +150,7 @@ public partial class ScheduledJobCreateModel : BaseViewModel
                 CustomerId = SelectedCustomer.Id,
                 Title = Title,
                 Description = Description,
-                AnchorDate = AnchorDate,
+                AnchorDate = AnchorDateTime,
                 CronExpression = CronPreview
             };
 

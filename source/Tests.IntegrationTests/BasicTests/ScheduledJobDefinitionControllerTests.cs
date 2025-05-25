@@ -122,8 +122,8 @@ public class ScheduledJobDefinitionControllerTests : AuthenticatedIntegrationTes
         var anchor = new DateTime(2025, 4, 20, 8, 0, 0, DateTimeKind.Utc);
 
         var schedule = FluentCron.Create()
-            .AtHour(0)
-            .AtMinute(0)
+            .AtHour(anchor.Hour)
+            .AtMinute(anchor.Minute)
             .EveryDays(1)
             .Build();
 

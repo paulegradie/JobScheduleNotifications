@@ -17,13 +17,13 @@ namespace Api.Controllers;
 
 [Authorize]
 [ApiController]
-public class ScheduledJobDefinitionsController : ControllerBase
+public class ScheduledJobController : ControllerBase
 {
     private readonly IScheduledJobDefinitionRepository _scheduledJobDefinitionRepository;
     private readonly IRecurrenceCalculator _calculator;
     private readonly AppDbContext _uow;
 
-    public ScheduledJobDefinitionsController(
+    public ScheduledJobController(
         IScheduledJobDefinitionRepository scheduledJobDefinitionRepository,
         IRecurrenceCalculator calculator,
         AppDbContext uow)
@@ -60,14 +60,8 @@ public class ScheduledJobDefinitionsController : ControllerBase
         if (def == null || def.CustomerId != new CustomerId(customerId))
             return NotFound();
 
-        // var lastOcc = def.JobOccurrences
-        //                   .OrderByDescending(o => o.OccurrenceDate)
-        //                   .FirstOrDefault()?.OccurrenceDate
-        //               ?? def.AnchorDate;
+        var cronSchedule = new CronSchedule(CrontabSchedule.Parse(def.CronExpression));
 
-        var cronSchedule = new CronSchedule(
-            CrontabSchedule.Parse(def.CronExpression)
-        );
         var next = _calculator.GetNextOccurrence(cronSchedule, def.AnchorDate);
         return Ok(new GetNextScheduledJobRunResponse(next));
     }

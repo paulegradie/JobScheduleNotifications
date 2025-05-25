@@ -37,8 +37,10 @@ public sealed class ScheduledJobViewPage : BasePage<ScheduledJobViewModel>
 
                     new Label().Text("Anchor Date:")
                         .FontSize(14),
-                    new Label().Bind(Label.TextProperty, nameof(ViewModel.AnchorDate),
-                            stringFormat: "{0:MM/dd/yyyy}")
+                    new Label()
+                        .Bind(Label.TextProperty,
+                            nameof(ViewModel.AnchorDate),
+                            stringFormat: "{0:MM/dd/yyyy h:mm tt}")
                         .FontSize(14),
 
                     new Label().Text("Description:")
