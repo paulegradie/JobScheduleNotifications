@@ -17,4 +17,6 @@ public class ScheduledJobDefinition
 
     public string CronExpression { get; set; } = "";
     public virtual ICollection<JobOccurrence> JobOccurrences { get; set; } = new List<JobOccurrence>();
+    public virtual ICollection<JobReminder> JobReminders { get; set; } = new List<JobReminder>();
+
 }

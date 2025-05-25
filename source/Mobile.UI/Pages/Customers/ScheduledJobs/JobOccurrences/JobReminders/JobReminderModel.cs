@@ -36,7 +36,7 @@ public partial class JobReminderModel : BaseViewModel
             if (!resp.IsSuccess) return;
             var dto = resp.Value.JobReminder;
 
-            ReminderDate = dto.ReminderDate;
+            ReminderDate = dto.ReminderDateTime;
         });
     }
 }

@@ -24,7 +24,6 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
     {
         var entities = await _context.JobOccurrences
             .Where(o => o.ScheduledJobDefinitionId == jobDefinitionId)
-            .Include(o => o.JobReminders)
             .ToListAsync();
 
         return entities.Select(ToDomain);
@@ -33,7 +32,6 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
     public async Task<JobOccurrenceDomainModel?> GetByIdAsync(JobOccurrenceId occurrenceId)
     {
         var entity = await _context.JobOccurrences
-            .Include(o => o.JobReminders)
             .FirstOrDefaultAsync(o => o.JobOccurrenceId == occurrenceId);
 
         return entity is null ? null : ToDomain(entity);
@@ -80,19 +78,7 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
         {
             Id = e.JobOccurrenceId,
             ScheduledJobDefinitionId = e.ScheduledJobDefinitionId,
-            OccurrenceDate = e.OccurrenceDate,
-            JobReminders = e.JobReminders
-                .Select(r => new JobReminderDomainModel
-                {
-                    Id = r.JobReminderId,
-                    JobOccurrenceId = r.JobOccurrenceId,
-                    ScheduledJobDefinitionId = e.ScheduledJobDefinitionId,
-                    ReminderDateTime = r.ReminderDateTime,
-                    Message = r.Message,
-                    IsSent = r.IsSent,
-                    SentDate = r.SentDate
-                })
-                .ToList()
+            OccurrenceDate = e.OccurrenceDate
         };
 }
 
@@ -106,19 +92,7 @@ internal static class JobOccurrenceMappings
         {
             Id = e.JobOccurrenceId,
             ScheduledJobDefinitionId = e.ScheduledJobDefinitionId,
-            OccurrenceDate = e.OccurrenceDate,
-            JobReminders = e.JobReminders
-                .Select(r => new JobReminderDomainModel
-                {
-                    Id = r.JobReminderId,
-                    JobOccurrenceId = r.JobOccurrenceId,
-                    ScheduledJobDefinitionId = e.ScheduledJobDefinitionId,
-                    ReminderDateTime = r.ReminderDateTime,
-                    Message = r.Message,
-                    IsSent = r.IsSent,
-                    SentDate = r.SentDate
-                })
-                .ToList()
+            OccurrenceDate = e.OccurrenceDate
         };
 
     /// <summary>
@@ -131,17 +105,6 @@ internal static class JobOccurrenceMappings
             CustomerId = d.CustomerId,
             CompletedDate = d.CompletedDate,
             ScheduledJobDefinitionId = d.ScheduledJobDefinitionId,
-            OccurrenceDate = d.OccurrenceDate,
-            JobReminders = d.JobReminders
-                .Select(r => new JobReminder
-                {
-                    JobReminderId = r.Id,
-                    JobOccurrenceId = r.JobOccurrenceId,
-                    ReminderDateTime = r.ReminderDateTime,
-                    Message = r.Message,
-                    IsSent = r.IsSent,
-                    SentDate = r.SentDate
-                })
-                .ToList()
+            OccurrenceDate = d.OccurrenceDate
         };
 }

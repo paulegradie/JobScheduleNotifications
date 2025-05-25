@@ -1,4 +1,5 @@
-﻿using Api.Business.Entities.Base;
+﻿using System.Diagnostics.CodeAnalysis;
+using Api.Business.Entities.Base;
 using Api.ValueTypes;
 using Server.Contracts.Dtos;
 
@@ -6,40 +7,76 @@ namespace Api.Business.Entities;
 
 public class JobReminderDomainModel : DomainModelBase<JobReminderDto>
 {
-    public JobReminderDomainModel()
-    {
-    }
-
-    public JobReminderDomainModel(DateTime reminderDateTime, string message)
+    public JobReminderDomainModel(
+        DateTime reminderDateTime,
+        string message,
+        ScheduledJobDefinitionId scheduledJobDefinitionId,
+        bool isSent,
+        DateTime? sentDate)
     {
         ReminderDateTime = reminderDateTime;
         Message = message;
+        ScheduledJobDefinitionId = scheduledJobDefinitionId;
+        IsSent = isSent;
+        SentDate = sentDate;
     }
 
-    public JobReminderId Id { get; set; }
-    public JobOccurrenceId JobOccurrenceId { get; set; } // ← newly surfaced
-    public ScheduledJobDefinitionId ScheduledJobDefinitionId { get; set; }
+    public JobReminderId? JobReminderId { get; protected set; }
+
+    public void SetJobReminderId(JobReminderId id)
+    {
+        JobReminderId = id;
+    }
+
+    public ScheduledJobDefinitionId ScheduledJobDefinitionId { get; protected set; }
+
+    public void SetScheduledJobDefinitionId(ScheduledJobDefinitionId id)
+    {
+        ScheduledJobDefinitionId = id;
+    }
+
+
     public DateTime ReminderDateTime { get; set; }
+
+
     public string Message { get; set; } = string.Empty;
-    public bool IsSent { get; set; }
-    public DateTime? SentDate { get; set; }
+
+    [MemberNotNullWhen(true, nameof(SentDate))]
+    public bool IsSent { get; protected set; }
+
+    public void SetIsSent()
+    {
+        IsSent = true;
+        SentDate = DateTime.Now;
+    }
+
+
+    // [MemberNotNullWhen(true, nameof(IsSent))]
+    public DateTime? SentDate { get; protected set; }
 
     public override JobReminderDto ToDto()
-        => new()
+    {
+        if (JobReminderId is null)
         {
-            JobReminderId = Id,
+            throw new InvalidOperationException("Dtos are only valid when primary id is not null");
+        }
+
+        return new JobReminderDto
+        {
+            JobReminderId = JobReminderId.Value,
             ScheduledJobDefinitionId = ScheduledJobDefinitionId,
-            ReminderDate = ReminderDateTime,
+            ReminderDateTime = ReminderDateTime,
             Message = Message,
             IsSent = IsSent,
             SentDate = SentDate
         };
+    }
 
     public override void FromDto(JobReminderDto dto)
     {
-        Id = dto.JobReminderId;
+        JobReminderId = dto.JobReminderId;
         ScheduledJobDefinitionId = dto.ScheduledJobDefinitionId;
-        ReminderDateTime = dto.ReminderDate;
+        ReminderDateTime = dto.ReminderDateTime;
         Message = dto.Message;
         IsSent = dto.IsSent;
         SentDate = dto.SentDate;

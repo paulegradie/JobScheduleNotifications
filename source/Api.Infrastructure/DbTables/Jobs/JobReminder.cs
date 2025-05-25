@@ -9,6 +9,6 @@ public class JobReminder
     public string Message { get; set; } = string.Empty;
     public bool IsSent { get; set; }
     public DateTime? SentDate { get; set; }
-    public virtual JobOccurrence JobOccurrence { get; set; } = null!;
-    public JobOccurrenceId JobOccurrenceId { get; set; }
+    public virtual ScheduledJobDefinition ScheduledJobDefinition { get; set; } = null!;
+    public ScheduledJobDefinitionId ScheduledJobDefinitionId { get; set; }
 }

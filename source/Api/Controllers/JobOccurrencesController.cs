@@ -76,8 +76,7 @@ namespace Api.Controllers
                 CompletedDate = null,
                 JobTitle = def.Title,
                 MarkedAsComplete = false,
-                JobDescription = def.Description,
-                JobReminders = []
+                JobDescription = def.Description
             };
 
             await _occRepo.AddAsync(domain);

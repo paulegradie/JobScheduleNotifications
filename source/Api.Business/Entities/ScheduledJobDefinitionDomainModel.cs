@@ -12,6 +12,8 @@ public class ScheduledJobDefinitionDomainModel : DomainModelBase<ScheduledJobDef
     public string CronExpression { get; set; }
     public int? DayOfMonth { get; set; }
     public List<JobOccurrenceDomainModel> JobOccurrences { get; set; } = [];
+    public List<JobReminderDomainModel> JobReminders { get; set; } = [];
+
 
     public string Title { get; set; }
     public string Description { get; set; }
@@ -26,7 +28,8 @@ public class ScheduledJobDefinitionDomainModel : DomainModelBase<ScheduledJobDef
             JobOccurrences.Select(o => o.ToDto()).ToList(),
             Title,
             Description,
-            DayOfMonth);
+            DayOfMonth,
+            JobReminders.Select(r => r.ToDto()).ToList());
     }
 
     public override void FromDto(ScheduledJobDefinitionDto dto)
@@ -46,5 +49,15 @@ public class ScheduledJobDefinitionDomainModel : DomainModelBase<ScheduledJobDef
             .ToList();
         Title = dto.Title;
         Description = dto.Description;
+    }
+
+    public JobReminderDomainModel CreateNewReminder()
+    {
+        return new JobReminderDomainModel(
+            reminderDateTime: DateTime.Now,
+            message: $"You have a job coming up: {Title} - {Description}",
+            scheduledJobDefinitionId: ScheduledJobDefinitionId,
+            isSent: false,
+            sentDate: null);
     }
 }

@@ -10,4 +10,5 @@ public record ScheduledJobDefinitionDto(
     List<JobOccurrenceDto> JobOccurrences,
     string Title,
     string Description,
-    int? DayOfMonth);
+    int? DayOfMonth,
+    List<JobReminderDto> JobReminders);

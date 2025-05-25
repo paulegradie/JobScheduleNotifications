@@ -88,15 +88,12 @@ public class JobRemindersController : ControllerBase
         if (occ == null)
             return BadRequest("No occurrences exist for this job definition.");
 
-        var domain = new JobReminderDomainModel
-        {
-            JobOccurrenceId = occ.Id,
-            ScheduledJobDefinitionId = req.JobDefinitionId,
-            ReminderDateTime = req.ReminderDateTime,
-            Message = req.Message,
-            IsSent = false,
-            SentDate = null
-        };
+        var domain = new JobReminderDomainModel(
+            scheduledJobDefinitionId: req.JobDefinitionId,
+            reminderDateTime: req.ReminderDateTime,
+            message: req.Message,
+            isSent: false,
+            sentDate: null);
 
         await _remRepo.AddAsync(domain);
 
@@ -159,9 +156,7 @@ public class JobRemindersController : ControllerBase
         if (r == null || r.ScheduledJobDefinitionId != jobDefinitionId)
             return NotFound();
 
-        r.IsSent = true;
-        r.SentDate = DateTime.UtcNow;
-
+        r.SetIsSent();
         await _remRepo.UpdateAsync(r);
 
         return Ok(new AcknowledgeJobReminderResponse(r.ToDto()));

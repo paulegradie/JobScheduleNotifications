@@ -13,7 +13,7 @@ public interface IJobReminderRepository
     /// Optionally filter by whether they have been sent.
     /// </summary>
     Task<IEnumerable<JobReminderDomainModel>> ListByJobDefinitionAsync(
-        ScheduledJobDefinitionId jobDefinitionId,
+        ScheduledJobDefinitionId scheduledJobDefinitionId,
         bool? isSent = null);
 
     /// <summary>
@@ -27,7 +27,7 @@ public interface IJobReminderRepository
     /// <summary>
     /// Returns all reminders that have not yet been sent.
     /// </summary>
-    Task<IEnumerable<JobReminderDomainModel>> ListUnsentAsync();
+    Task<IEnumerable<JobReminderDomainModel>> ListUnsentAsync(ScheduledJobDefinitionId scheduledJobDefinitionId);
 
     /// <summary>
     /// Returns all reminders whose ReminderDateTime is on or before the specified cutoff.

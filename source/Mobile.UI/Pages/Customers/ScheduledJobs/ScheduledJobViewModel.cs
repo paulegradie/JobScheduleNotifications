@@ -58,6 +58,7 @@ public partial class ScheduledJobViewModel : BaseViewModel
     }
 
     public JobOccurrenceId JobOccurrenceId { get; set; }
+
     [RelayCommand]
     private async Task NavigateToOccurrenceAsync(JobOccurrenceId jobOccurrenceId)
     {

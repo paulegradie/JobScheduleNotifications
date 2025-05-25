@@ -44,7 +44,6 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
             CanMarkComplete = dto.CompletedDate == null;
             JobTitle = dto.JobTitle;
             JobDescription = dto.JobDescription;
-            JobReminderDtos = dto.JobReminders;
             MarkedAsComplete = dto.MarkedAsCompleted;
         });
     }
@@ -76,7 +75,6 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
             + $"CustomerId={ids.CustomerId}"
             + $"&ScheduledJobDefinitionId={ids.ScheduledJobDefinitionId}"
             + $"&JobOccurrenceId={ids.JobOccurrenceId}"
-            + $"&JobReminderId={jobReminderId}"
         );
     }
 }

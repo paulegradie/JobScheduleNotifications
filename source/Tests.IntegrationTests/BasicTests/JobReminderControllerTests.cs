@@ -69,7 +69,7 @@ public class JobReminderControllerTests : AuthenticatedIntegrationTest
 
         createResp.IsSuccess.ShouldBeTrue();
         var created = createResp.Value.JobReminder;
-        created.ReminderDate.ShouldBe(reminderTime);
+        created.ReminderDateTime.ShouldBe(reminderTime);
         created.Message.ShouldBe(message);
         created.IsSent.ShouldBeFalse();
         created.JobReminderId.ShouldNotBe(default);
@@ -80,7 +80,7 @@ public class JobReminderControllerTests : AuthenticatedIntegrationTest
         getResp.IsSuccess.ShouldBeTrue();
         var fetched = getResp.Value.JobReminder;
         fetched.JobReminderId.ShouldBe(created.JobReminderId);
-        fetched.ReminderDate.ShouldBe(reminderTime);
+        fetched.ReminderDateTime.ShouldBe(reminderTime);
         fetched.Message.ShouldBe(message);
     }
 
@@ -110,7 +110,7 @@ public class JobReminderControllerTests : AuthenticatedIntegrationTest
         updateResp.IsSuccess.ShouldBeTrue();
         var updated = updateResp.Value.JobReminderDto;
         updated.JobReminderId.ShouldBe(id);
-        updated.ReminderDate.ShouldBe(newTime);
+        updated.ReminderDateTime.ShouldBe(newTime);
         updated.Message.ShouldBe(newMessage);
     }
 

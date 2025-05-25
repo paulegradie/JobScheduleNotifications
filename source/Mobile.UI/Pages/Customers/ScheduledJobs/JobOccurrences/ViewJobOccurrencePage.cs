@@ -73,7 +73,7 @@ public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
                                     BackgroundColor = Colors.LightGray,
                                     HasShadow = true,
                                     Content = new Button()
-                                        .Bind(Button.TextProperty, nameof(JobReminderDto.ReminderDate), stringFormat: "{0:MMM d, yyyy h:mm tt}")
+                                        .Bind(Button.TextProperty, nameof(JobReminderDto.ReminderDateTime), stringFormat: "{0:MMM d, yyyy h:mm tt}")
                                         .Bind(Button.CommandProperty, nameof(ViewModel.NavigateToReminderCommand))
                                         .Bind(Button.CommandParameterProperty, nameof(JobReminderDto.JobReminderId))
                                 }

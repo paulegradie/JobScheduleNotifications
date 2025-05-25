@@ -12,17 +12,20 @@ namespace Api.BackgroundJobs
         private readonly IScheduledJobDefinitionRepository _scheduledJobDefinitionRepository;
         private readonly ISendNotificationOfUpcomingJobs _sendNotificationOfUpcomingJobs;
         private readonly IRecurrenceCalculator _recurrenceCalculator;
+        private readonly IJobReminderRepository _jobReminderRepository;
 
         public NotifyUpcomingJob(
             ILogger<NotifyUpcomingJob> logger,
             IScheduledJobDefinitionRepository scheduledJobDefinitionRepository,
             ISendNotificationOfUpcomingJobs sendNotificationOfUpcomingJobs,
-            IRecurrenceCalculator recurrenceCalculator)
+            IRecurrenceCalculator recurrenceCalculator,
+            IJobReminderRepository jobReminderRepository)
         {
             _logger = logger;
             _scheduledJobDefinitionRepository = scheduledJobDefinitionRepository;
             _sendNotificationOfUpcomingJobs = sendNotificationOfUpcomingJobs;
             _recurrenceCalculator = recurrenceCalculator;
+            _jobReminderRepository = jobReminderRepository;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -43,7 +46,7 @@ namespace Api.BackgroundJobs
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Delaying {Delay} until next notification at {NextRun}", delay, nextRun);
+                _logger.LogInformation("Delaying {Delay} until next notification at {NextRun}", "1Hr", DateTime.Now.AddHours(1));
                 try
                 {
                     await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
@@ -110,6 +113,9 @@ namespace Api.BackgroundJobs
             {
                 await _sendNotificationOfUpcomingJobs
                     .SendNotification(jobToNotify.ScheduledJobDefinition);
+
+                var newReminder = jobToNotify.ScheduledJobDefinition.CreateNewReminder();
+                await _jobReminderRepository.AddAsync(newReminder);
             }
         }
     }

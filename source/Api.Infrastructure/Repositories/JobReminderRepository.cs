@@ -24,17 +24,18 @@ public class JobReminderRepository : IJobReminderRepository
         ICrudRepository<JobOccurrence, JobOccurrenceId> occurrences,
         AppDbContext context)
     {
-        _reminders   = reminders;
+        _reminders = reminders;
         _occurrences = occurrences;
         _context = context;
     }
+
     public async Task<IEnumerable<JobReminderDomainModel>> ListByOccurrenceAsync(
-        JobOccurrenceId occurrenceId,
+        ScheduledJobDefinitionId scheduledJobDefinitionId,
         bool? isSent = null)
     {
         var q = _context.Set<JobReminder>()
-            .Include(r => r.JobOccurrence)
-            .Where(r => r.JobOccurrenceId == occurrenceId);
+            .Include(r => r.ScheduledJobDefinition)
+            .Where(r => r.ScheduledJobDefinitionId == scheduledJobDefinitionId);
 
         if (isSent.HasValue)
             q = q.Where(r => r.IsSent == isSent.Value);
@@ -44,16 +45,10 @@ public class JobReminderRepository : IJobReminderRepository
     }
 
     public async Task<IEnumerable<JobReminderDomainModel>> ListByJobDefinitionAsync(
-        ScheduledJobDefinitionId jobDefinitionId, bool? isSent = null)
+        ScheduledJobDefinitionId scheduledJobDefinitionId, bool? isSent = null)
     {
-        // load all occurrences for that definition
-        var occIds = await _occurrences.Query()
-            .Where(o => o.ScheduledJobDefinitionId == jobDefinitionId)
-            .Select(o => o.JobOccurrenceId)
-            .ToArrayAsync();
-
         var q = _reminders.Query()
-            .Where(r => occIds.Contains(r.JobOccurrenceId));
+            .Where(r => r.ScheduledJobDefinitionId == scheduledJobDefinitionId);
 
         if (isSent.HasValue)
             q = q.Where(r => r.IsSent == isSent.Value);
@@ -67,9 +62,9 @@ public class JobReminderRepository : IJobReminderRepository
         bool? isSent = null)
     {
         var q = _context.Set<JobReminder>()
-            .Include(r => r.JobOccurrence)
-            .ThenInclude(o => o.ScheduledJobDefinition)
-            .Where(r => r.JobOccurrence.ScheduledJobDefinition.CustomerId == customerId);
+            .Include(r => r.ScheduledJobDefinition)
+            .ThenInclude(o => o.Customer)
+            .Where(r => r.ScheduledJobDefinition.CustomerId == customerId);
 
         if (isSent.HasValue)
             q = q.Where(r => r.IsSent == isSent.Value);
@@ -78,10 +73,11 @@ public class JobReminderRepository : IJobReminderRepository
         return list.Select(ToDomain);
     }
 
-    public async Task<IEnumerable<JobReminderDomainModel>> ListUnsentAsync()
+    public async Task<IEnumerable<JobReminderDomainModel>> ListUnsentAsync(ScheduledJobDefinitionId scheduledJobDefinitionId)
     {
         var list = await _context.Set<JobReminder>()
-            .Include(r => r.JobOccurrence)
+            .Include(r => r.ScheduledJobDefinition)
+            .ThenInclude(o => o.Customer)
             .Where(r => !r.IsSent)
             .ToListAsync();
 
@@ -91,7 +87,7 @@ public class JobReminderRepository : IJobReminderRepository
     public async Task<IEnumerable<JobReminderDomainModel>> ListDueAsync(DateTime upTo)
     {
         var list = await _context.Set<JobReminder>()
-            .Include(r => r.JobOccurrence)
+            .Include(r => r.ScheduledJobDefinition)
             .Where(r => r.ReminderDateTime <= upTo)
             .ToListAsync();
 
@@ -101,7 +97,7 @@ public class JobReminderRepository : IJobReminderRepository
     public async Task<JobReminderDomainModel?> GetByIdAsync(JobReminderId id)
     {
         var e = await _context.Set<JobReminder>()
-            .Include(r => r.JobOccurrence)
+            .Include(r => r.ScheduledJobDefinition)
             .FirstOrDefaultAsync(r => r.JobReminderId == id);
 
         return e == null ? null : ToDomain(e);
@@ -111,30 +107,29 @@ public class JobReminderRepository : IJobReminderRepository
     {
         var e = new JobReminder
         {
-            JobOccurrenceId  = reminder.JobOccurrenceId,
             ReminderDateTime = reminder.ReminderDateTime,
-            Message          = reminder.Message,
-            IsSent           = reminder.IsSent,
-            SentDate         = reminder.SentDate
+            Message = reminder.Message,
+            IsSent = reminder.IsSent,
+            SentDate = reminder.SentDate,
+            ScheduledJobDefinitionId = reminder.ScheduledJobDefinitionId,
         };
 
         _context.Add(e);
         await _context.SaveChangesAsync();
-        reminder.Id = e.JobReminderId;
-        reminder.JobOccurrenceId = e.JobOccurrenceId;
-        reminder.ScheduledJobDefinitionId = e.JobOccurrence.ScheduledJobDefinitionId;
+        reminder.SetJobReminderId(e.JobReminderId);
+        reminder.SetScheduledJobDefinitionId(e.ScheduledJobDefinitionId);
     }
 
     public async Task UpdateAsync(JobReminderDomainModel reminder)
     {
         var e = await _context.Set<JobReminder>()
-                    .FirstOrDefaultAsync(r => r.JobReminderId == reminder.Id)
-                ?? throw new InvalidOperationException($"Reminder {reminder.Id} not found");
+                    .FirstOrDefaultAsync(r => r.JobReminderId == reminder.JobReminderId)
+                ?? throw new InvalidOperationException($"Reminder {reminder.JobReminderId} not found");
 
         e.ReminderDateTime = reminder.ReminderDateTime;
-        e.Message          = reminder.Message;
-        e.IsSent           = reminder.IsSent;
-        e.SentDate         = reminder.SentDate;
+        e.Message = reminder.Message;
+        e.IsSent = reminder.IsSent;
+        e.SentDate = reminder.SentDate;
 
         await _context.SaveChangesAsync();
     }
@@ -142,22 +137,23 @@ public class JobReminderRepository : IJobReminderRepository
     public async Task DeleteAsync(JobReminderDomainModel reminder)
     {
         var e = await _context.Set<JobReminder>()
-                    .FirstOrDefaultAsync(r => r.JobReminderId == reminder.Id)
-                ?? throw new InvalidOperationException($"Reminder {reminder.Id} not found");
+                    .FirstOrDefaultAsync(r => r.JobReminderId == reminder.JobReminderId)
+                ?? throw new InvalidOperationException($"Reminder {reminder.JobReminderId} not found");
 
         _context.Remove(e);
         await _context.SaveChangesAsync();
     }
 
     private static JobReminderDomainModel ToDomain(JobReminder e)
-        => new JobReminderDomainModel
-        {
-            Id                       = e.JobReminderId,
-            JobOccurrenceId          = e.JobOccurrenceId,
-            ScheduledJobDefinitionId = e.JobOccurrence.ScheduledJobDefinitionId,
-            ReminderDateTime         = e.ReminderDateTime,
-            Message                  = e.Message,
-            IsSent                   = e.IsSent,
-            SentDate                 = e.SentDate
-        };
+    {
+        var reminder = new JobReminderDomainModel(
+            scheduledJobDefinitionId: e.ScheduledJobDefinitionId,
+            reminderDateTime: e.ReminderDateTime,
+            message: e.Message,
+            isSent: e.IsSent,
+            sentDate: e.SentDate);
+
+        reminder.SetJobReminderId(e.JobReminderId);
+        return reminder;
+    }
 }

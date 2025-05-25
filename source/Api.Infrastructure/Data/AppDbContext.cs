@@ -142,6 +142,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
                     .WithOne(o => o.ScheduledJobDefinition)
                     .HasForeignKey(o => o.ScheduledJobDefinitionId)
                     .OnDelete(DeleteBehavior.Cascade);
+                def.HasMany(o => o.JobReminders)
+                    .WithOne(r => r.ScheduledJobDefinition)
+                    .HasForeignKey(r => r.ScheduledJobDefinitionId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
         // Occurrence → Reminders
@@ -156,10 +160,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
                 oc.Property(o => o.OccurrenceDate).IsRequired();
                 oc.Property(o => o.ScheduledJobDefinitionId).HasConversion<ScheduledJobDefinitionIdConverter>();
                 oc.Property(o => o.CustomerId).HasConversion<CustomerIdConverter>();
-                oc.HasMany(o => o.JobReminders)
-                    .WithOne(r => r.JobOccurrence)
-                    .HasForeignKey(r => r.JobOccurrenceId)
-                    .OnDelete(DeleteBehavior.Cascade);
             });
 
         modelBuilder.Entity<JobReminder>(entity =>
@@ -171,9 +171,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
                 .HasValueGenerator<JobReminderIdValueGenerator>()
                 .ValueGeneratedOnAdd();
             entity.Property(e => e.Message).IsRequired();
-            entity.HasOne(e => e.JobOccurrence)
+            entity.HasOne(e => e.ScheduledJobDefinition)
                 .WithMany(e => e.JobReminders)
-                .HasForeignKey(e => e.JobOccurrenceId)
+                .HasForeignKey(e => e.ScheduledJobDefinitionId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

@@ -3,7 +3,6 @@ using Api.Business.Repositories;
 using Api.Infrastructure.Data;
 using Api.Infrastructure.DbTables.Jobs;
 using Api.ValueTypes;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Infrastructure.Repositories;
@@ -22,7 +21,7 @@ public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepositor
         var entity = await _context.ScheduledJobDefinitions
             .Include(x => x.Customer)
             .Include(d => d.JobOccurrences)
-            .ThenInclude(o => o.JobReminders)
+            .Include(d => d.JobReminders)
             .FirstOrDefaultAsync(d => d.ScheduledJobDefinitionId == id);
         return entity?.ToDomain();
     }
@@ -32,7 +31,7 @@ public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepositor
         var list = await _context.ScheduledJobDefinitions
             .Include(x => x.Customer)
             .Include(d => d.JobOccurrences)
-            .ThenInclude(o => o.JobReminders)
+            .Include(o => o.JobReminders)
             .Where(d => d.CustomerId == customerId)
             .ToListAsync();
         return list.Select(e => e.ToDomain()).ToList();
@@ -43,7 +42,7 @@ public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepositor
         var entities = await _context.ScheduledJobDefinitions
             .Include(x => x.Customer)
             .Include(d => d.JobOccurrences)
-            .ThenInclude(o => o.JobReminders)
+            .Include(o => o.JobReminders)
             .ToListAsync();
 
         return entities.Select(e => e.ToDomain()).ToList();
@@ -63,7 +62,7 @@ public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepositor
         var entity = await _context.ScheduledJobDefinitions
             .Include(x => x.Customer)
             .Include(d => d.JobOccurrences)
-            .ThenInclude(o => o.JobReminders)
+            .Include(o => o.JobReminders)
             .FirstOrDefaultAsync(d => d.ScheduledJobDefinitionId == def.ScheduledJobDefinitionId);
 
         if (entity == null)
@@ -103,24 +102,7 @@ internal static class JobDefinitionMappings
                     JobDescription = e.Description,
                     JobTitle = e.Title,
                     CompletedDate = o.CompletedDate,
-                    MarkedAsComplete = o.MarkedAsCompleted,
-                    JobReminders = o.JobReminders
-                        .Select(r =>
-                        {
-                            var model = new JobReminderDomainModel
-                            {
-                                ReminderDateTime = r.ReminderDateTime,
-                                JobOccurrenceId = o.JobOccurrenceId,
-                                ScheduledJobDefinitionId = o.ScheduledJobDefinitionId,
-                                Id = r.JobReminderId,
-                                IsSent = r.IsSent,
-                                SentDate = r.SentDate,
-                                Message = r.Message
-                            };
-
-
-                            return model;
-                        }).ToList()
+                    MarkedAsComplete = o.MarkedAsCompleted
                 })
                 .ToList()
         };
@@ -140,12 +122,7 @@ internal static class JobDefinitionMappings
                 {
                     JobOccurrenceId = o.Id,
                     ScheduledJobDefinitionId = d.ScheduledJobDefinitionId,
-                    OccurrenceDate = o.OccurrenceDate,
-                    JobReminders = o.JobReminders
-                        .Select(r => new JobReminder
-                        {
-                            ReminderDateTime = r.ReminderDateTime
-                        }).ToList()
+                    OccurrenceDate = o.OccurrenceDate
                 }).ToList()
         };
         return e;

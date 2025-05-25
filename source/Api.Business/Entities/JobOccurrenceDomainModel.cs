@@ -24,8 +24,6 @@ public class JobOccurrenceDomainModel : DomainModelBase<JobOccurrenceDto>
     /// </summary>
     public string JobTitle { get; set; } = string.Empty;
 
-    // All reminders for this occurrence
-    public List<JobReminderDomainModel> JobReminders { get; set; } = new();
 
     public override JobOccurrenceDto ToDto()
     {
@@ -37,8 +35,7 @@ public class JobOccurrenceDomainModel : DomainModelBase<JobOccurrenceDto>
             CompletedDate: CompletedDate,
             JobTitle: JobTitle,
             JobDescription: JobDescription,
-            MarkedAsCompleted: MarkedAsComplete,
-            JobReminders: JobReminders.Select(r => r.ToDto()).ToList()
+            MarkedAsCompleted: MarkedAsComplete
         );
     }
 
@@ -55,13 +52,5 @@ public class JobOccurrenceDomainModel : DomainModelBase<JobOccurrenceDto>
         JobTitle = dto.JobTitle;
         JobDescription = dto.JobDescription;
         MarkedAsComplete = dto.MarkedAsCompleted;
-        JobReminders = dto.JobReminders
-            .Select(r =>
-            {
-                var m = new JobReminderDomainModel();
-                m.FromDto(r);
-                return m;
-            })
-            .ToList();
     }
 }

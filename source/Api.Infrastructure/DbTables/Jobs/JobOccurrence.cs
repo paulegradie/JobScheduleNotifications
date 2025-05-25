@@ -21,8 +21,6 @@ public class JobOccurrence
     public ScheduledJobDefinitionId ScheduledJobDefinitionId { get; set; }
 
     // DOWN
-    public virtual ICollection<JobReminder> JobReminders { get; set; } = new List<JobReminder>();
-
     public JobOccurrenceStatus JobOccurrenceStatus { get; set; }
 }
 

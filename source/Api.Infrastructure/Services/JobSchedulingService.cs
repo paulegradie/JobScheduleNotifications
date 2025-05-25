@@ -31,7 +31,7 @@ public class JobSchedulingService : IJobSchedulingService
         foreach (var def in allDefs)
         {
             // 1) Grab the user’s chosen anchor (or last‐saved anchor)
-            var anchorUtc = def.AnchorDate;
+            var anchorDateTime = def.AnchorDate;
 
             // 2) Build the CronSchedule once
             var cronSchedule = new CronSchedule(
@@ -39,17 +39,17 @@ public class JobSchedulingService : IJobSchedulingService
             );
 
             // 3) Step the anchor forward until the *next* occurrence is in the future
-            DateTime nextUtc = _calculator.GetNextOccurrence(cronSchedule, anchorUtc);
+            var nextOccurrence = _calculator.GetNextOccurrence(cronSchedule, anchorDateTime);
 
             // If that “next” is still <= now, we’ve missed one (or more).
             // Loop until nextUtc > nowUtc.
-            while (nextUtc < nowUtc)
+            while (nextOccurrence < nowUtc)
             {
                 // advance the anchor
-                anchorUtc = nextUtc;
+                anchorDateTime = nextOccurrence;
 
                 // compute from that new anchor
-                nextUtc = _calculator.GetNextOccurrence(cronSchedule, anchorUtc);
+                nextOccurrence = _calculator.GetNextOccurrence(cronSchedule, anchorDateTime);
             }
             
             // todo add check to confirm that we're not starting after once cycle after the current cycle
@@ -59,21 +59,14 @@ public class JobSchedulingService : IJobSchedulingService
             //     nextUtc = the *next* occurrence > now
             //
             //    Persist the moved‐forward anchor:
-            def.AnchorDate = anchorUtc;
+            def.AnchorDate = anchorDateTime;
             await _repo.UpdateAsync(def);
 
             // 5) And fire off your new occurrence (nextUtc) if you want to record it now:
             //    (Or you can choose to let callers pull nextUtc themselves.)
             var occ = new JobOccurrenceDomainModel
             {
-                OccurrenceDate = nextUtc,
-                JobReminders =
-                [
-                    new JobReminderDomainModel
-                    {
-                        ReminderDateTime = nextUtc.AddDays(-1)
-                    }
-                ]
+                OccurrenceDate = nextOccurrence
             };
             def.JobOccurrences.Add(occ);
 
