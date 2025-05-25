@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.RepositoryAbstractions;
 
-namespace Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences.JobReminders;
+namespace Mobile.UI.Pages.Customers.ScheduledJobs.JobReminders;
 
 /// <summary>
 /// ViewModel for a single Job Reminder.

@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Maui.Markup;
-using CommunityToolkit.Maui.Markup.RightToLeft;
 using Mobile.UI.Pages.Base;
 using Server.Contracts.Dtos;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;

@@ -1,11 +1,9 @@
-using System.Text.Json;
 using Api.Infrastructure.Data.TypeConverters;
 using Api.Infrastructure.DbTables.Jobs;
 using Api.Infrastructure.DbTables.OrganizationModels;
 using Api.Infrastructure.EntityFramework;
 using Api.Infrastructure.Services;
 using Api.ValueTypes;
-using Api.ValueTypes.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

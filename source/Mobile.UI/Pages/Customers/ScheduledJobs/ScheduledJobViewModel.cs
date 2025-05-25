@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
+using Mobile.UI.Pages.Customers.ScheduledJobs.JobReminders;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Dtos;
 
@@ -29,8 +30,6 @@ public partial class ScheduledJobViewModel : BaseViewModel
 
     [ObservableProperty] private int _interval = 1;
 
-    [ObservableProperty] private ObservableCollection<WeekDay> _selectedWeekDays = [];
-
     [ObservableProperty] private int? _dayOfMonth;
 
     [ObservableProperty] private string _cronExpression;
@@ -38,10 +37,10 @@ public partial class ScheduledJobViewModel : BaseViewModel
     [ObservableProperty] private string _description = string.Empty;
     [ObservableProperty] private string _customerName = string.Empty;
     [ObservableProperty] private ObservableCollection<JobOccurrenceDto> _jobOccurrences = [];
+    [ObservableProperty] private ObservableCollection<JobReminderDto> _jobReminders = [];
 
     private CustomerId CustomerId { get; set; }
     private ScheduledJobDefinitionId ScheduledJobDefinitionId { get; set; }
-    
 
     public Details Details { get; set; }
 
@@ -73,6 +72,8 @@ public partial class ScheduledJobViewModel : BaseViewModel
         });
     }
 
+    private CustomerJobAndOccurrenceIds? CustomerJobAndOccurrenceIds { get; set; }
+
     [RelayCommand]
     private async Task LoadScheduledJob(Details details)
     {
@@ -84,6 +85,13 @@ public partial class ScheduledJobViewModel : BaseViewModel
             {
                 var scheduledJob = scheduledJobResult.Value;
                 var customerId = scheduledJobResult.Value.CustomerId;
+                var reminders = scheduledJob.JobReminders;
+                JobReminders.Clear();
+                foreach (var reminder in reminders)
+                {
+                    JobReminders.Add(reminder);
+                }
+
                 var customerResult = await _customerRepository.GetCustomerByIdAsync(customerId);
                 if (customerResult.IsSuccess)
                 {
@@ -115,5 +123,18 @@ public partial class ScheduledJobViewModel : BaseViewModel
                 OnPropertyChanged(nameof(JobOccurrences));
             }
         });
+    }
+
+    [RelayCommand]
+    private async Task NavigateToReminderAsync()
+    {
+        var ids = CustomerJobAndOccurrenceIds;
+        if (ids == null) return;
+        await _navigation.GoToAsync($"{nameof(JobReminderPage)}", new Dictionary<string, object>()
+            {
+                ["CustomerId"] = ids.CustomerId.Value.ToString(),
+                ["ScheduledJobDefinitionId"] = ids.ScheduledJobDefinitionId.Value.ToString(),
+            }
+        );
     }
 }

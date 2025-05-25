@@ -1,5 +1,4 @@
 using Api.ValueTypes;
-using Api.ValueTypes.Enums;
 
 namespace Server.Contracts.Dtos;
 

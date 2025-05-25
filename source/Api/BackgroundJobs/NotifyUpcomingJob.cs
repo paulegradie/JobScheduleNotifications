@@ -1,5 +1,4 @@
-﻿using System.Net.Mail;
-using Api.Business.Entities;
+﻿using Api.Business.Entities;
 using Api.Business.Repositories;
 using Api.Business.Services;
 using Server.Contracts.Cron;

@@ -1,5 +1,4 @@
 ﻿using Api.ValueTypes;
-using Api.ValueTypes.Enums;
 using Server.Contracts.Common.Request;
 
 namespace Server.Contracts.Endpoints.ScheduledJobs.Contracts;

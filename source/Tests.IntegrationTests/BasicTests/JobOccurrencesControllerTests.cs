@@ -1,5 +1,4 @@
 ﻿using Api.ValueTypes;
-using Api.ValueTypes.Enums;
 using IntegrationTests.Base;
 using IntegrationTests.Utils;
 using Server.Contracts.Endpoints.JobOccurence.Contracts;

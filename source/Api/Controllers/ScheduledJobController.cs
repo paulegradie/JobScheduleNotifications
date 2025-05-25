@@ -2,15 +2,11 @@
 using Api.Business.Repositories;
 using Api.Business.Services;
 using Api.Infrastructure.Data;
-using Api.Infrastructure.DbTables.Jobs;
 using Api.ValueTypes;
-using Api.ValueTypes.Enums;
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NCrontab;
 using Server.Contracts.Cron;
-using Server.Contracts.Dtos;
 using Server.Contracts.Endpoints.ScheduledJobs.Contracts;
 
 namespace Api.Controllers;
