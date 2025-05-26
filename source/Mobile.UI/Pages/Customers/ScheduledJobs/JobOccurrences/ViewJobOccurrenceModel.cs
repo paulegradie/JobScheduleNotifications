@@ -58,11 +58,40 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
             var success = await _repo
                 .MarkOccurrenceAsCompletedAsync(ids.CustomerId, ids.ScheduledJobDefinitionId, ids.JobOccurrenceId, CancellationToken.None);
 
-            if (success.IsSuccess) return;
+            if (!success.IsSuccess) return;
+
+            MarkedAsComplete = true;
+            CompletedDate = DateTime.Now;
+            CanMarkComplete = false;
+
+            // await LoadAsync(ids);
+            OnPropertyChanged(nameof(CompletedDate));
+            OnPropertyChanged(nameof(CanMarkComplete));
+            OnPropertyChanged(nameof(MarkedAsComplete));
+
             await _navigationRepository.ShowAlertAsync("Job Done!", "The job has been marked as complete.");
         });
-        OnPropertyChanged(nameof(MarkedAsComplete));
+    }
+
+    [RelayCommand]
+    private async Task GoBackAsync()
+    {
+        await _navigationRepository.GoBackAsync();
     }
     
+    [RelayCommand]
+    private async Task CreateInvoiceAsync()
+    {
+        if (CustomerJobAndOccurrenceIds == null) return;
 
+        await _navigationRepository.GoToAsync(
+            "InvoiceCreatePage",
+            new Dictionary<string, object?>
+            {
+                { "CustomerId", CustomerJobAndOccurrenceIds.CustomerId.ToString() },
+                { "ScheduledJobDefinitionId", CustomerJobAndOccurrenceIds.ScheduledJobDefinitionId.ToString() },
+                { "JobOccurrenceId", CustomerJobAndOccurrenceIds.JobOccurrenceId.ToString() },
+                { "JobDescription", JobDescription }
+            });
+    }
 }

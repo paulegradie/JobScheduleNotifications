@@ -89,16 +89,11 @@ namespace Api.Controllers
         // PUT: …/occurrences/{occurrenceId}
         [HttpPut(UpdateJobOccurrenceRequest.Route)]
         public async Task<ActionResult<UpdateJobOccurrenceResponse>> Update(
-            [FromBody] UpdateJobOccurrenceRequest req)
+            [FromBody] UpdateJobOccurrenceRequest req, string customerId, string jobDefinitionId, string jobOccurenceId)
         {
             var def = await _scheduledJobDefRepo.GetAsync(req.ScheduledJobDefinitionId);
             if (def == null || def.CustomerId != req.CustomerId || def.JobOccurrences.All(o => o.Id != req.JobOccurrenceId))
                 return NotFound();
-
-            def.JobOccurrences
-                .Where(o => o.Id == req.JobOccurrenceId)
-                .ToList()
-                .ForEach(o => o.OccurrenceDate = req.OccurrenceDate);
 
             var occ = await _occRepo.GetByIdAsync(req.JobOccurrenceId);
             if (occ == null || occ.ScheduledJobDefinitionId != req.ScheduledJobDefinitionId)

@@ -13,4 +13,13 @@ public record JobOccurrenceDto(
     DateTime? CompletedDate,
     string JobTitle,
     string JobDescription,
-    bool MarkedAsCompleted);
+    bool MarkedAsCompleted,
+    JobOccurrenceDomainStatus JobOccurrenceDomainStatus);
+
+public enum JobOccurrenceDomainStatus
+{
+    NotStarted,
+    InProgress,
+    Completed,
+    Canceled
+}

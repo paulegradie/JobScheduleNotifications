@@ -1,16 +1,17 @@
 using System.Collections.ObjectModel;
 using Api.ValueTypes;
-using Api.ValueTypes.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.Pages.Base;
+using Mobile.UI.Pages.Customers.ScheduledJobs;
 using Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
 using Mobile.UI.Pages.Customers.ScheduledJobs.JobReminders;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Dtos;
 
-namespace Mobile.UI.Pages.Customers.ScheduledJobs;
-
+/// <summary>
+/// ViewModel for displaying a scheduled job and its occurrences with "load more" paging.
+/// </summary>
 public partial class ScheduledJobViewModel : BaseViewModel
 {
     private readonly IJobRepository _jobRepository;
@@ -18,31 +19,40 @@ public partial class ScheduledJobViewModel : BaseViewModel
     private readonly INavigationRepository _navigation;
     private readonly IJobOccurrenceRepository _jobOccurrenceRepository;
 
-    [ObservableProperty] private ObservableCollection<CustomerDto> _customers = [];
+    private const int OccurrencePageSize = 3;
+    private List<JobOccurrenceDto> _allOccurrences = new();
+    private int _occurrenceCursor;
 
-    [ObservableProperty] private CustomerDto _selectedCustomer;
+    [ObservableProperty]
+    private ObservableCollection<JobOccurrenceDto> _jobOccurrences = new();
 
-    [ObservableProperty] private string _title = "Schedule Job";
+    [ObservableProperty]
+    private ObservableCollection<JobReminderDto> _jobReminders = new();
 
-    [ObservableProperty] private DateTime _anchorDate = DateTime.Now;
+    [ObservableProperty]
+    private bool _hasMoreOccurrences;
 
-    [ObservableProperty] private Frequency _frequency = Frequency.Daily;
+    [ObservableProperty]
+    private string _title = string.Empty;
 
-    [ObservableProperty] private int _interval = 1;
+    [ObservableProperty]
+    private string _customerName = string.Empty;
 
-    [ObservableProperty] private int? _dayOfMonth;
+    [ObservableProperty]
+    private DateTime _anchorDate;
 
-    [ObservableProperty] private string _cronExpression;
+    [ObservableProperty]
+    private string _description = string.Empty;
 
-    [ObservableProperty] private string _description = string.Empty;
-    [ObservableProperty] private string _customerName = string.Empty;
-    [ObservableProperty] private ObservableCollection<JobOccurrenceDto> _jobOccurrences = [];
-    [ObservableProperty] private ObservableCollection<JobReminderDto> _jobReminders = [];
+    [ObservableProperty]
+    private string _cronExpression = string.Empty;
 
     private CustomerId CustomerId { get; set; }
     private ScheduledJobDefinitionId ScheduledJobDefinitionId { get; set; }
 
     public Details Details { get; set; }
+    public JobOccurrenceId JobOccurrenceId { get; set; }
+    private CustomerJobAndOccurrenceIds? CustomerJobAndOccurrenceIds { get; set; }
 
     public ScheduledJobViewModel(
         IJobRepository jobRepository,
@@ -54,74 +64,107 @@ public partial class ScheduledJobViewModel : BaseViewModel
         _customerRepository = customerRepository;
         _navigation = navigation;
         _jobOccurrenceRepository = jobOccurrenceRepository;
+        _anchorDate = DateTime.Now;
     }
 
-    public JobOccurrenceId JobOccurrenceId { get; set; }
-
     [RelayCommand]
-    private async Task NavigateToOccurrenceAsync(JobOccurrenceId jobOccurrenceId)
-    {
-        await RunWithSpinner(async () =>
-        {
-            await _navigation.GoToAsync(nameof(ViewJobOccurrencePage), new Dictionary<string, object>
-            {
-                ["JobOccurrenceId"] = jobOccurrenceId.Value.ToString(),
-                ["CustomerId"] = Details.CustomerId.Value.ToString(),
-                ["ScheduledJobDefinitionId"] = Details.ScheduledJobDefinitionId.Value.ToString()
-            });
-        });
-    }
-
-    private CustomerJobAndOccurrenceIds? CustomerJobAndOccurrenceIds { get; set; }
-
-    [RelayCommand]
-    private async Task LoadScheduledJob(Details details)
+    private async Task LoadScheduledJobAsync(Details details)
     {
         Details = details;
         await RunWithSpinner(async () =>
         {
-            var scheduledJobResult = await _jobRepository.GetJobByIdAsync(details.CustomerId, details.ScheduledJobDefinitionId);
-            if (scheduledJobResult.IsSuccess)
-            {
-                var scheduledJob = scheduledJobResult.Value;
-                var customerId = scheduledJobResult.Value.CustomerId;
-                var reminders = scheduledJob.JobReminders;
-                JobReminders.Clear();
-                foreach (var reminder in reminders)
-                {
-                    JobReminders.Add(reminder);
-                }
+            var scheduledJobResult = await _jobRepository.GetJobByIdAsync(
+                details.CustomerId, details.ScheduledJobDefinitionId);
+            if (!scheduledJobResult.IsSuccess) return;
 
-                var customerResult = await _customerRepository.GetCustomerByIdAsync(customerId);
-                if (customerResult.IsSuccess)
-                {
-                    var customer = customerResult.Value;
-                    Title = scheduledJob.Title;
-                    CustomerName = customer.FullName;
-                    AnchorDate = scheduledJob.AnchorDate;
-                    Description = scheduledJob.Description;
-                    CronExpression = scheduledJob.CronExpression;
-                    JobOccurrences = new ObservableCollection<JobOccurrenceDto>(scheduledJob.JobOccurrences);
-                }
-            }
+            var scheduledJob = scheduledJobResult.Value;
+            CustomerId = scheduledJob.CustomerId;
+            ScheduledJobDefinitionId = scheduledJob.ScheduledJobDefinitionId;
+
+            var customerResult = await _customerRepository.GetCustomerByIdAsync(CustomerId);
+            if (!customerResult.IsSuccess) return;
+
+            Title = scheduledJob.Title;
+            CustomerName = customerResult.Value.FullName;
+            AnchorDate = scheduledJob.AnchorDate;
+            Description = scheduledJob.Description;
+            CronExpression = scheduledJob.CronExpression;
+
+            // setup occurrences paging
+            _allOccurrences = scheduledJob.JobOccurrences
+                .OrderByDescending(x => x.OccurrenceDate)
+                .ToList();
+            JobOccurrences.Clear();
+            _occurrenceCursor = 0;
+            HasMoreOccurrences = true;
+            LoadMoreOccurrences();
+
+            // load reminders
+            JobReminders.Clear();
+            foreach (var reminder in scheduledJob.JobReminders)
+                JobReminders.Add(reminder);
         });
     }
+
+    [RelayCommand(CanExecute = nameof(CanLoadMoreOccurrences))]
+    private void LoadMoreOccurrences()
+    {
+        var nextBatch = _allOccurrences
+            .Skip(_occurrenceCursor)
+            .Take(OccurrencePageSize)
+            .ToList();
+
+        foreach (var occ in nextBatch)
+            JobOccurrences.Add(occ);
+
+        _occurrenceCursor += nextBatch.Count;
+        HasMoreOccurrences = _occurrenceCursor < _allOccurrences.Count;
+        LoadMoreOccurrencesCommand.NotifyCanExecuteChanged();
+    }
+
+    private bool CanLoadMoreOccurrences() => HasMoreOccurrences;
 
     [RelayCommand]
     private async Task AddOccurrenceAsync()
     {
-        var details = Details;
         await RunWithSpinner(async () =>
         {
             var results = await _jobOccurrenceRepository
-                .CreateNewOccurrence(details.CustomerId, details.ScheduledJobDefinitionId, CancellationToken.None);
+                .CreateNewOccurrence(
+                    Details.CustomerId,
+                    Details.ScheduledJobDefinitionId,
+                    CancellationToken.None);
 
-            if (results.IsSuccess)
-            {
-                var jobOccurrenceDto = results.Value.Occurrence;
-                JobOccurrences.Add(jobOccurrenceDto);
-                OnPropertyChanged(nameof(JobOccurrences));
-            }
+            if (!results.IsSuccess) return;
+
+            // insert new occurrence and reload pages
+            _allOccurrences.Insert(0, results.Value.Occurrence);
+            JobOccurrences.Clear();
+            _occurrenceCursor = 0;
+            HasMoreOccurrences = true;
+            LoadMoreOccurrences();
+            
+        });
+    }
+
+    [RelayCommand]
+    private async Task NavigateToOccurrenceAsync(JobOccurrenceId jobOccurrenceId)
+    {
+        CustomerJobAndOccurrenceIds = new CustomerJobAndOccurrenceIds(
+            Details.CustomerId,
+            Details.ScheduledJobDefinitionId,
+            jobOccurrenceId);
+
+        await RunWithSpinner(async () =>
+        {
+            await _navigation.GoToAsync(
+                nameof(ViewJobOccurrencePage),
+                new Dictionary<string, object>
+                {
+                    ["CustomerId"] = Details.CustomerId.Value.ToString(),
+                    ["ScheduledJobDefinitionId"] = Details.ScheduledJobDefinitionId.Value.ToString(),
+                    ["JobOccurrenceId"] = jobOccurrenceId.Value.ToString()
+                });
         });
     }
 
@@ -130,11 +173,13 @@ public partial class ScheduledJobViewModel : BaseViewModel
     {
         var ids = CustomerJobAndOccurrenceIds;
         if (ids == null) return;
-        await _navigation.GoToAsync($"{nameof(JobReminderPage)}", new Dictionary<string, object>()
+
+        await _navigation.GoToAsync(
+            nameof(JobReminderPage),
+            new Dictionary<string, object>
             {
                 ["CustomerId"] = ids.CustomerId.Value.ToString(),
                 ["ScheduledJobDefinitionId"] = ids.ScheduledJobDefinitionId.Value.ToString(),
-            }
-        );
+            });
     }
 }

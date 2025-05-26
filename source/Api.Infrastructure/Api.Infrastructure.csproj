@@ -27,4 +27,8 @@
     <ProjectReference Include="..\Server.Client\Server.Client.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Pdfs\" />
+  </ItemGroup>
+
 </Project>

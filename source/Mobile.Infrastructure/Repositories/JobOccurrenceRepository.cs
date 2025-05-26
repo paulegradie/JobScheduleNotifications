@@ -35,7 +35,7 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
         if (!result.IsSuccess) throw new Exception("Failed to get occurrence");
         var occurrenceDto = result.Value.JobOccurrence;
 
-        var newDto = occurrenceDto with { JobOccurrenceId = jobOccurrenceId, CompletedDate = DateTime.UtcNow, MarkedAsCompleted = true };
+        var newDto = occurrenceDto with { JobDescription = occurrenceDto.JobDescription, JobOccurrenceId = jobOccurrenceId, CompletedDate = DateTime.UtcNow, MarkedAsCompleted = true };
 
         var request = new UpdateJobOccurrenceRequest(
             CustomerId: occurrenceDto.CustomerId,

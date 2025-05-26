@@ -47,7 +47,7 @@ public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
                     // Mark as Completed
                     new Button()
                         .Text("Mark as Completed")
-                        .Bind(Button.IsVisibleProperty, nameof(ViewModel.CanMarkComplete))
+                        .Bind(IsVisibleProperty, nameof(ViewModel.CanMarkComplete))
                         .Bind(Button.CommandProperty, nameof(ViewModel.MarkCompletedCommand)),
 
                     // Upload Photo stub
@@ -58,7 +58,11 @@ public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
                     // Create Invoice stub
                     new Button()
                         .Text("Create Invoice")
-                        .IsEnabled(false)
+                        .Bind(Button.CommandProperty, nameof(ViewModel.CreateInvoiceCommand)),
+                    new Button()
+                        .Text("Go Back")
+                        .IsEnabled(true)
+                        .Bind(Button.CommandProperty, nameof(ViewModel.GoBackCommand))
 
                 }
             }

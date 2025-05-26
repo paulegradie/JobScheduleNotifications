@@ -50,6 +50,7 @@
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2"/>
         <PackageReference Include="CommunityToolkit.Maui" Version="9.1.0"/>
         <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.8"/>
+        <PackageReference Include="QuestPDF" Version="2025.5.0" />
         <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.10"/>
         <PackageReference Include="Syncfusion.Maui.Toolkit" Version="1.0.2"/>
     </ItemGroup>
@@ -110,6 +111,9 @@
       </Compile>
       <Compile Update="Pages\Customers\ScheduledJobs\JobOccurrences\JobReminders\JobReminderModel.cs">
         <DependentUpon>JobReminderPage.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\Customers\ScheduledJobs\JobOccurrences\InvoiceCreateModel.cs">
+        <DependentUpon>InvoiceCreatePage.cs</DependentUpon>
       </Compile>
     </ItemGroup>
 

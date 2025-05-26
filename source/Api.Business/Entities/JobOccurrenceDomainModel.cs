@@ -12,6 +12,8 @@ public class JobOccurrenceDomainModel : DomainModelBase<JobOccurrenceDto>
     public DateTime OccurrenceDate { get; set; }
     public bool MarkedAsComplete { get; set; }
 
+    public JobOccurrenceDomainStatus JobOccurrenceDomainStatus { get; set; }
+
     /// <summary>
     /// When this occurrence was marked complete, or null if not done yet.
     /// </summary>
@@ -35,7 +37,8 @@ public class JobOccurrenceDomainModel : DomainModelBase<JobOccurrenceDto>
             CompletedDate: CompletedDate,
             JobTitle: JobTitle,
             JobDescription: JobDescription,
-            MarkedAsCompleted: MarkedAsComplete
+            MarkedAsCompleted: MarkedAsComplete,
+            JobOccurrenceDomainStatus: JobOccurrenceDomainStatus
         );
     }
 
@@ -52,5 +55,7 @@ public class JobOccurrenceDomainModel : DomainModelBase<JobOccurrenceDto>
         JobTitle = dto.JobTitle;
         JobDescription = dto.JobDescription;
         MarkedAsComplete = dto.MarkedAsCompleted;
+        JobOccurrenceDomainStatus = dto.JobOccurrenceDomainStatus;
     }
 }
+

@@ -4,6 +4,7 @@ using Api.Infrastructure.Data;
 using Api.Infrastructure.DbTables.Jobs;
 using Api.ValueTypes;
 using Microsoft.EntityFrameworkCore;
+using Server.Contracts.Dtos;
 
 namespace Api.Infrastructure.Repositories;
 
@@ -56,6 +57,13 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
 
         entity.OccurrenceDate = occurrence.OccurrenceDate;
         entity.ScheduledJobDefinitionId = occurrence.ScheduledJobDefinitionId;
+        entity.CompletedDate = occurrence.CompletedDate;
+
+        if (entity.CompletedDate is not null)
+        {
+            entity.JobOccurrenceStatus = JobOccurrenceStatus.Completed;
+        }
+        
         _context.JobOccurrences.Update(entity);
         await _context.SaveChangesAsync();
         occurrence.Id = entity.JobOccurrenceId;
@@ -78,7 +86,12 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
         {
             Id = e.JobOccurrenceId,
             ScheduledJobDefinitionId = e.ScheduledJobDefinitionId,
-            OccurrenceDate = e.OccurrenceDate
+            OccurrenceDate = e.OccurrenceDate,
+            JobDescription = e.ScheduledJobDefinition.Description,
+            JobTitle = e.ScheduledJobDefinition.Title,
+            MarkedAsComplete = e.MarkedAsCompleted,
+            CompletedDate = e.CompletedDate,
+            CustomerId = e.CustomerId
         };
 }
 
@@ -92,7 +105,12 @@ internal static class JobOccurrenceMappings
         {
             Id = e.JobOccurrenceId,
             ScheduledJobDefinitionId = e.ScheduledJobDefinitionId,
-            OccurrenceDate = e.OccurrenceDate
+            OccurrenceDate = e.OccurrenceDate,
+            JobDescription = e.ScheduledJobDefinition.Description,
+            JobTitle = e.ScheduledJobDefinition.Title,
+            MarkedAsComplete = e.MarkedAsCompleted,
+            CompletedDate = e.CompletedDate,
+            CustomerId = e.CustomerId
         };
 
     /// <summary>
@@ -105,6 +123,19 @@ internal static class JobOccurrenceMappings
             CustomerId = d.CustomerId,
             CompletedDate = d.CompletedDate,
             ScheduledJobDefinitionId = d.ScheduledJobDefinitionId,
-            OccurrenceDate = d.OccurrenceDate
+            OccurrenceDate = d.OccurrenceDate,
+            JobOccurrenceStatus = MapJobOccurrenceDomainStatus(d.JobOccurrenceDomainStatus)
         };
+
+    private static JobOccurrenceStatus MapJobOccurrenceDomainStatus(JobOccurrenceDomainStatus status)
+    {
+        return status switch
+        {
+            JobOccurrenceDomainStatus.Completed => JobOccurrenceStatus.Completed,
+            JobOccurrenceDomainStatus.Canceled => JobOccurrenceStatus.Canceled,
+            JobOccurrenceDomainStatus.InProgress => JobOccurrenceStatus.InProgress,
+            JobOccurrenceDomainStatus.NotStarted => JobOccurrenceStatus.NotStarted,
+            _ => throw new Exception("JobOccurrenceDomainStatus mapping failed")
+        };
+    }
 }
