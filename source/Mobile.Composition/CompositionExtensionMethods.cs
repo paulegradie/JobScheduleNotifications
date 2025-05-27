@@ -43,6 +43,7 @@ public static class CompositionExtensionMethods
         services.RegisterPageAndModel<ScheduledJobViewPage, ScheduledJobViewModel>();
 
         services.RegisterPageAndModel<ViewJobOccurrencePage, ViewJobOccurrenceModel>();
+        services.RegisterPageAndModel<InvoiceCreatePage, InvoiceCreateModel>();
 
         // Service
         services.AddRepositories();

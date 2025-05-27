@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.Controls;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.RepositoryAbstractions;
 using QuestPDF.Fluent;
@@ -9,37 +8,50 @@ using QuestPDF.Infrastructure;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
 
+public record InvoiceItem(string Description, decimal Price);
+
 public partial class InvoiceCreateModel : BaseViewModel
 {
     private readonly INavigationRepository _navigationRepository;
-    [ObservableProperty] private string currentItemDescription = string.Empty;
-    [ObservableProperty] private string currentItemPrice = string.Empty;
+    [ObservableProperty] private string _currentItemDescription = string.Empty;
+    [ObservableProperty] private string _currentItemPrice = string.Empty;
+    [ObservableProperty] private string _today = DateTime.Now.ToString("yyyy-MM-dd");
 
-    public ObservableCollection<string> InvoiceItems { get; } = new();
-
+    [ObservableProperty] private string _total;
+    public ObservableCollection<InvoiceItem> InvoiceItems { get; } = new();
+    
+    [ObservableProperty]
+    private string? _previewFilePath;
+    
     private string? _jobDescription;
 
     public InvoiceCreateModel(INavigationRepository navigationRepository)
     {
         _navigationRepository = navigationRepository;
     }
-    
+
     public void Initialize(string customerId, string scheduledJobDefinitionId, string jobOccurrenceId, string jobDescription)
     {
         _jobDescription = jobDescription;
-        InvoiceItems.Add($"Job Description: {_jobDescription}");
+        Total = InvoiceItems.Sum(x => x.Price).ToString("C");
+        OnPropertyChanged(nameof(InvoiceItems));
+        OnPropertyChanged(nameof(Total));
     }
 
     [RelayCommand]
     private void AddItem()
     {
-        if (!string.IsNullOrWhiteSpace(CurrentItemDescription) &&
-            int.TryParse(CurrentItemPrice, out var price))
-        {
-            InvoiceItems.Add($"{CurrentItemDescription} - ${price}");
-            CurrentItemDescription = string.Empty;
-            CurrentItemPrice = string.Empty;
-        }
+        if (string.IsNullOrWhiteSpace(CurrentItemDescription) ||
+            !int.TryParse(CurrentItemPrice, out var price)) return;
+        InvoiceItems.Add(new InvoiceItem(CurrentItemDescription, price));
+        CurrentItemDescription = string.Empty;
+        CurrentItemPrice = string.Empty;
+        Total = InvoiceItems.Sum(x => x.Price).ToString("C");
+
+        OnPropertyChanged(nameof(InvoiceItems));
+        OnPropertyChanged(nameof(CurrentItemDescription));
+        OnPropertyChanged(nameof(CurrentItemPrice));
+        OnPropertyChanged(nameof(Total));
     }
 
     [RelayCommand]
@@ -48,6 +60,7 @@ public partial class InvoiceCreateModel : BaseViewModel
         var outputPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
             $"Invoice_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
+        PreviewFilePath = outputPath;
 
         QuestPDF.Settings.License = LicenseType.Community;
 
@@ -68,6 +81,7 @@ public partial class InvoiceCreateModel : BaseViewModel
                 });
             });
         }).GeneratePdf(outputPath);
+        OnPropertyChanged(nameof(PreviewFilePath));
 
         await _navigationRepository.ShowAlertAsync("Success", $"Invoice saved to:\n{outputPath}");
     }

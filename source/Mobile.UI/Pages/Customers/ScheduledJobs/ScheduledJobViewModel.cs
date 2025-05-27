@@ -9,9 +9,7 @@ using Mobile.UI.Pages.Customers.ScheduledJobs.JobReminders;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Dtos;
 
-/// <summary>
-/// ViewModel for displaying a scheduled job and its occurrences with "load more" paging.
-/// </summary>
+
 public partial class ScheduledJobViewModel : BaseViewModel
 {
     private readonly IJobRepository _jobRepository;

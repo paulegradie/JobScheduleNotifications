@@ -29,6 +29,7 @@ public partial class AppShell : Shell
         AddPageToApp<ScheduledJobEditPage>();
         AddPageToApp<ScheduledJobCreatePage>();
         AddPageToApp<ViewJobOccurrencePage>();
+        AddPageToApp<InvoiceCreatePage>();
 
         var currentTheme = Application.Current!.UserAppTheme;
         ThemeSegmentedControl.SelectedIndex = currentTheme == AppTheme.Light ? 0 : 1;

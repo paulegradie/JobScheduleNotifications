@@ -43,7 +43,7 @@ public static class MauiProgram
             var log = app.Services.GetRequiredService<ILogger<ErrorWatcher>>();
             log.LogError(winArgs.Exception, "WinUI UnhandledException");
             // winArgs.Handled = true; // if you want to swallow it
-        };
+         };
 #endif
 
         //  ─── catch any AppDomain‐level exceptions (cross‐platform) ────────────────────────────────────
