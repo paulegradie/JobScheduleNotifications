@@ -24,6 +24,7 @@ internal class ServerClient : IServerClient
         ScheduledJobs = new ScheduledJobsEndpoint(client);
         JobOccurrences = new JobOccurrencesEndpoint(client);
         JobReminders = new JobRemindersEndpoint(client);
+        Invoices = new InvoiceEndpoint(client);
     }
 
     public IJobOccurrencesEndpoint JobOccurrences { get; init; }
@@ -34,6 +35,7 @@ internal class ServerClient : IServerClient
     public ICustomersEndpoint Customers { get; init; }
     public IAuthenticationEndpoint Auth { get; init; }
     public IScheduledJobsEndpoint ScheduledJobs { get; init; }
+    public IInvoiceEndpoint Invoices { get; init; }
 }
 
 internal class AuthClient : IAuthClient

@@ -3,20 +3,23 @@ using Server.Contracts.Common.Request;
 
 namespace Server.Contracts.Endpoints.Reminders.Contracts;
 
-public record AcknowledgeJobReminderRequest(
+public record SendInvoiceRequest(
     CustomerId CustomerId,
     ScheduledJobDefinitionId ScheduledJobDefinitionId,
-    JobReminderId ReminderId)
-    : RequestBase(Route)
+    JobOccurrenceId JobOccurrenceId,
+    Stream PdfStream,
+    string FileName
+) : RequestBase(Route)
 {
-    public const string Route = $"api/customers/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/reminders/{JobReminderIdSegmentParam}/ack";
+    public const string Route = $"api/invoices/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/reminders/{JobOccurenceIdSegmentParam}/send";
+
 
     public override ApiRoute GetApiRoute()
     {
         var route = base.GetApiRoute();
         route.AddRouteParam(CustomerIdSegmentParam, CustomerId.ToString());
         route.AddRouteParam(JobDefinitionIdSegmentParam, ScheduledJobDefinitionId.ToString());
-        route.AddRouteParam(JobReminderIdSegmentParam, ReminderId.ToString());
+        route.AddRouteParam(JobOccurenceIdSegmentParam, JobOccurrenceId.ToString());
         return route;
     }
 }

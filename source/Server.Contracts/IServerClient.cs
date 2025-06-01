@@ -15,6 +15,7 @@ public interface IServerClient
     public IScheduledJobsEndpoint ScheduledJobs { get; init; }
     public IJobOccurrencesEndpoint JobOccurrences { get; init; }
     public IJobRemindersEndpoint JobReminders { get; init; }
+    public IInvoiceEndpoint Invoices { get; init; }
 
 
     public HttpClient Http { get; set; }

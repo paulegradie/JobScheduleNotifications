@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.Pages.Base;
@@ -13,27 +14,34 @@ public record InvoiceItem(string Description, decimal Price);
 public partial class InvoiceCreateModel : BaseViewModel
 {
     private readonly INavigationRepository _navigationRepository;
+    private readonly IInvoiceRepository _invoiceRepository;
     [ObservableProperty] private string _currentItemDescription = string.Empty;
     [ObservableProperty] private string _currentItemPrice = string.Empty;
     [ObservableProperty] private string _today = DateTime.Now.ToString("yyyy-MM-dd");
 
     [ObservableProperty] private string _total;
     public ObservableCollection<InvoiceItem> InvoiceItems { get; } = new();
-    
-    [ObservableProperty]
-    private string? _previewFilePath;
-    
+
+    [ObservableProperty] private string? _previewFilePath;
+
     private string? _jobDescription;
 
-    public InvoiceCreateModel(INavigationRepository navigationRepository)
+    private CustomerJobAndOccurrenceIds CusterCustomerJobAndOccurrenceIds { get; set; }
+
+    public InvoiceCreateModel(INavigationRepository navigationRepository, IInvoiceRepository invoiceRepository)
     {
         _navigationRepository = navigationRepository;
+        _invoiceRepository = invoiceRepository;
     }
 
     public void Initialize(string customerId, string scheduledJobDefinitionId, string jobOccurrenceId, string jobDescription)
     {
         _jobDescription = jobDescription;
         Total = InvoiceItems.Sum(x => x.Price).ToString("C");
+        CusterCustomerJobAndOccurrenceIds = new CustomerJobAndOccurrenceIds(
+            new CustomerId(Guid.Parse(customerId)),
+            new ScheduledJobDefinitionId(Guid.Parse(scheduledJobDefinitionId)),
+            new JobOccurrenceId(Guid.Parse(jobOccurrenceId)));
         OnPropertyChanged(nameof(InvoiceItems));
         OnPropertyChanged(nameof(Total));
     }
@@ -83,6 +91,11 @@ public partial class InvoiceCreateModel : BaseViewModel
         }).GeneratePdf(outputPath);
         OnPropertyChanged(nameof(PreviewFilePath));
 
+        await _invoiceRepository.SendInvoiceAsync(
+            outputPath,
+            CusterCustomerJobAndOccurrenceIds.CustomerId,
+            CusterCustomerJobAndOccurrenceIds.ScheduledJobDefinitionId,
+            CusterCustomerJobAndOccurrenceIds.JobOccurrenceId);
         await _navigationRepository.ShowAlertAsync("Success", $"Invoice saved to:\n{outputPath}");
     }
 }
