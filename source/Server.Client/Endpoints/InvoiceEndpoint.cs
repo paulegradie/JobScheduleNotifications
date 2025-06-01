@@ -2,28 +2,28 @@
 using Server.Client.Base;
 using Server.Client.Exceptions;
 using Server.Contracts.Endpoints;
-using Server.Contracts.Endpoints.Reminders;
-using Server.Contracts.Endpoints.Reminders.Contracts;
+using Server.Contracts.Endpoints.Invoices;
+using Server.Contracts.Endpoints.Invoices.Contracts;
 
 namespace Server.Client.Endpoints;
 
 internal sealed class InvoiceEndpoint : EndpointBase, IInvoiceEndpoint
 {
-    public InvoiceEndpoint(HttpClient client) : base(client) { }
+    public InvoiceEndpoint(HttpClient client) : base(client)
+    {
+    }
 
     public async Task<OperationResult<InvoiceSentResponse>> SendInvoice(
         SendInvoiceRequest request,
         CancellationToken ct)
     {
-        var uri = new Uri(request.GetApiRoute().ToString());
-
         using var form = new MultipartFormDataContent();
         using var fileContent = new StreamContent(request.PdfStream);
 
         fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
         form.Add(fileContent, "file", request.FileName);
 
-        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, uri)
+        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, request.ApiRoute)
         {
             Content = form
         };
@@ -52,7 +52,9 @@ internal sealed class InvoiceEndpoint : EndpointBase, IInvoiceEndpoint
                 if (err?.Messages?.Any() == true)
                     errorMsg = string.Join(", ", err.Messages);
             }
-            catch { }
+            catch
+            {
+            }
 
             return OperationResult<InvoiceSentResponse>.Failure(errorMsg, response.StatusCode);
         }
@@ -68,7 +70,7 @@ internal sealed class InvoiceEndpoint : EndpointBase, IInvoiceEndpoint
         catch (JsonException ex)
         {
             throw new ResponseDeserializationException(
-                $"Failed to parse response from {uri}",
+                $"Failed to parse response from {request.ApiRoute}",
                 ex
             );
         }

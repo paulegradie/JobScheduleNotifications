@@ -4,7 +4,9 @@ using Server.Contracts;
 using Server.Contracts.Endpoints.Auth;
 using Server.Contracts.Endpoints.Customers;
 using Server.Contracts.Endpoints.Home;
+using Server.Contracts.Endpoints.Invoices;
 using Server.Contracts.Endpoints.JobOccurence;
+using Server.Contracts.Endpoints.JobPhotos;
 using Server.Contracts.Endpoints.Reminders;
 using Server.Contracts.Endpoints.ScheduledJobs;
 
@@ -25,10 +27,12 @@ internal class ServerClient : IServerClient
         JobOccurrences = new JobOccurrencesEndpoint(client);
         JobReminders = new JobRemindersEndpoint(client);
         Invoices = new InvoiceEndpoint(client);
+        JobPhotos = new JobPhotosEndpoint(client);
     }
 
     public IJobOccurrencesEndpoint JobOccurrences { get; init; }
     public IJobRemindersEndpoint JobReminders { get; init; }
+    public IJobPhotosEndpoint JobPhotos { get; init; }
     public HttpClient Http { get; set; }
 
     public IHomeEndpoint Home { get; init; }

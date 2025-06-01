@@ -1,19 +1,18 @@
 ﻿using Api.ValueTypes;
 using Server.Contracts.Common.Request;
 
-namespace Server.Contracts.Endpoints.JobOccurence.Contracts;
+namespace Server.Contracts.Endpoints.Invoices.Contracts;
 
-public sealed record UpdateJobOccurrenceRequest(
+public record SendInvoiceRequest(
     CustomerId CustomerId,
     ScheduledJobDefinitionId ScheduledJobDefinitionId,
     JobOccurrenceId JobOccurrenceId,
-    DateTime OccurrenceDate,
-    bool MarkAsCompleted,
-    string JobTitle,
-    string JobDescription)
-    : RequestBase(Route)
+    Stream PdfStream,
+    string FileName
+) : RequestBase(Route)
 {
-    public const string Route = $"api/customers/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/occurrences/{JobOccurenceIdSegmentParam}";
+    public const string Route = $"api/invoices/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/occurences/{JobOccurenceIdSegmentParam}/send";
+
 
     protected override ApiRoute GetApiRoute()
     {

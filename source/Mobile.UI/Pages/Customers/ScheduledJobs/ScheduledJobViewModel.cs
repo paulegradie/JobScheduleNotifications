@@ -3,12 +3,12 @@ using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.Pages.Base;
-using Mobile.UI.Pages.Customers.ScheduledJobs;
 using Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
 using Mobile.UI.Pages.Customers.ScheduledJobs.JobReminders;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Dtos;
 
+namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
 public partial class ScheduledJobViewModel : BaseViewModel
 {
@@ -17,7 +17,7 @@ public partial class ScheduledJobViewModel : BaseViewModel
     private readonly INavigationRepository _navigation;
     private readonly IJobOccurrenceRepository _jobOccurrenceRepository;
 
-    private const int OccurrencePageSize = 3;
+    private const int occurrencePageSize = 3;
     private List<JobOccurrenceDto> _allOccurrences = new();
     private int _occurrenceCursor;
 
@@ -109,7 +109,7 @@ public partial class ScheduledJobViewModel : BaseViewModel
     {
         var nextBatch = _allOccurrences
             .Skip(_occurrenceCursor)
-            .Take(OccurrencePageSize)
+            .Take(occurrencePageSize)
             .ToList();
 
         foreach (var occ in nextBatch)

@@ -4,7 +4,7 @@ namespace Server.Contracts.Common.Request;
 
 public abstract record RequestBase(string RouteInternal)
 {
-    public virtual ApiRoute GetApiRoute()
+    protected virtual ApiRoute GetApiRoute()
     {
         return new ApiRoute(RouteInternal);
     }

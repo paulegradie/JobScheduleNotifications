@@ -11,7 +11,7 @@ public record AcknowledgeJobReminderRequest(
 {
     public const string Route = $"api/customers/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/reminders/{JobReminderIdSegmentParam}/ack";
 
-    public override ApiRoute GetApiRoute()
+    protected override ApiRoute GetApiRoute()
     {
         var route = base.GetApiRoute();
         route.AddRouteParam(CustomerIdSegmentParam, CustomerId.ToString());

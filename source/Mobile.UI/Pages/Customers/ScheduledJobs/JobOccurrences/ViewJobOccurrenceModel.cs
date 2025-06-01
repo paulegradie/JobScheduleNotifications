@@ -10,6 +10,7 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
 {
     private readonly IJobOccurrenceRepository _repo;
     private readonly INavigationRepository _navigationRepository;
+    private readonly IJobPhotoRepository _photoRepository;
 
     [ObservableProperty] private string _jobTitle;
     [ObservableProperty] private string _jobDescription;
@@ -19,10 +20,11 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
     [ObservableProperty] private bool _markedAsComplete;
     [ObservableProperty] private ICollection<JobReminderDto> _jobReminderDtos;
 
-    public ViewJobOccurrenceModel(IJobOccurrenceRepository repo, INavigationRepository navigationRepository)
+    public ViewJobOccurrenceModel(IJobOccurrenceRepository repo, INavigationRepository navigationRepository, IJobPhotoRepository photoRepository)
     {
         _repo = repo;
         _navigationRepository = navigationRepository;
+        _photoRepository = photoRepository;
     }
 
     private CustomerJobAndOccurrenceIds? CustomerJobAndOccurrenceIds { get; set; }
@@ -78,7 +80,7 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
     {
         await _navigationRepository.GoBackAsync();
     }
-    
+
     [RelayCommand]
     private async Task CreateInvoiceAsync()
     {
@@ -94,4 +96,148 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
                 { "JobDescription", JobDescription }
             });
     }
+    //
+    // [RelayCommand]
+    // private async Task UploadPhotoAsync()
+    // {
+    //     if (CustomerJobAndOccurrenceIds is null)
+    //         return;
+    //
+    //     string action = await Application.Current.MainPage.DisplayActionSheet(
+    //         "Upload Photo",
+    //         "Cancel",
+    //         null,
+    //         "Take Photo",
+    //         "Pick from Gallery");
+    //
+    //     FileResult? photo = null;
+    //
+    //     try
+    //     {
+    //         if (action == "Take Photo")
+    //         {
+    //             if (MediaPicker.Default.IsCaptureSupported)
+    //             {
+    //                 photo = await MediaPicker.Default.CapturePhotoAsync();
+    //             }
+    //             else
+    //             {
+    //                 await _navigationRepository.ShowAlertAsync("Camera Unavailable", "Camera is not supported on this device.");
+    //                 return;
+    //             }
+    //         }
+    //         else if (action == "Pick from Gallery")
+    //         {
+    //             var options = new MediaPickerOptions { Title = "Pick a photo that you've previously taken" };
+    //             photo = await MediaPicker.Default.PickPhotoAsync(options);
+    //         }
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         await _navigationRepository.ShowAlertAsync("Error", $"An error occurred: {ex.Message}");
+    //         return;
+    //     }
+    //
+    //     if (photo == null)
+    //         return;
+    //
+    //     var localFilePath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
+    //
+    //     using (var sourceStream = await photo.OpenReadAsync())
+    //     using (var localFileStream = File.OpenWrite(localFilePath))
+    //     {
+    //         await sourceStream.CopyToAsync(localFileStream);
+    //     }
+    //
+    //     await RunWithSpinner(async () =>
+    //     {
+    //         var success = await _photoRepository.UploadPhotoAsync(
+    //             localFilePath,
+    //             CustomerJobAndOccurrenceIds.CustomerId,
+    //             CustomerJobAndOccurrenceIds.ScheduledJobDefinitionId,
+    //             CustomerJobAndOccurrenceIds.JobOccurrenceId);
+    //
+    //         if (success)
+    //             await _navigationRepository.ShowAlertAsync("Photo Uploaded", "The photo has been successfully uploaded.");
+    //         else
+    //             await _navigationRepository.ShowAlertAsync("Upload Failed", "Something went wrong uploading the photo.");
+    //     });
+    // }
+    
+    [RelayCommand]
+private async Task UploadPhotoAsync()
+{
+    if (CustomerJobAndOccurrenceIds is null)
+        return;
+
+    string action = await Application.Current.MainPage.DisplayActionSheet(
+        "Upload Photo",
+        "Cancel",
+        null,
+        "Take Photo",
+        "Pick from Gallery");
+
+    FileResult? photo = null;
+
+    try
+    {
+        if (action == "Take Photo")
+        {
+            if (MediaPicker.Default.IsCaptureSupported)
+            {
+                photo = await MediaPicker.Default.CapturePhotoAsync();
+            }
+            else
+            {
+                await _navigationRepository.ShowAlertAsync("Camera Unavailable", "Camera is not supported on this device.");
+                return;
+            }
+        }
+        else if (action == "Pick from Gallery")
+        {
+// #if WINDOWS
+            var result = await FilePicker.Default.PickAsync(new PickOptions
+            {
+                PickerTitle = "Select a photo",
+                FileTypes = FilePickerFileType.Images
+            });
+            photo = result;
+// #else
+//             var options = new MediaPickerOptions { Title = "Pick a photo that you've previously taken" };
+//             photo = await MediaPicker.Default.PickPhotoAsync(options);
+// #endif
+        }
+    }
+    catch (Exception ex)
+    {
+        await _navigationRepository.ShowAlertAsync("Error", $"An error occurred: {ex.Message}");
+        return;
+    }
+
+    if (photo == null)
+        return;
+
+    var localFilePath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
+
+    using (var sourceStream = await photo.OpenReadAsync())
+    using (var localFileStream = File.OpenWrite(localFilePath))
+    {
+        await sourceStream.CopyToAsync(localFileStream);
+    }
+
+    await RunWithSpinner(async () =>
+    {
+        var success = await _photoRepository.UploadPhotoAsync(
+            localFilePath,
+            CustomerJobAndOccurrenceIds.CustomerId,
+            CustomerJobAndOccurrenceIds.ScheduledJobDefinitionId,
+            CustomerJobAndOccurrenceIds.JobOccurrenceId);
+
+        if (success)
+            await _navigationRepository.ShowAlertAsync("Photo Uploaded", "The photo has been successfully uploaded.");
+        else
+            await _navigationRepository.ShowAlertAsync("Upload Failed", "Something went wrong uploading the photo.");
+    });
+}
+    
 }

@@ -1,7 +1,9 @@
 ﻿using Server.Contracts.Endpoints.Auth;
 using Server.Contracts.Endpoints.Customers;
 using Server.Contracts.Endpoints.Home;
+using Server.Contracts.Endpoints.Invoices;
 using Server.Contracts.Endpoints.JobOccurence;
+using Server.Contracts.Endpoints.JobPhotos;
 using Server.Contracts.Endpoints.Reminders;
 using Server.Contracts.Endpoints.ScheduledJobs;
 
@@ -16,6 +18,7 @@ public interface IServerClient
     public IJobOccurrencesEndpoint JobOccurrences { get; init; }
     public IJobRemindersEndpoint JobReminders { get; init; }
     public IInvoiceEndpoint Invoices { get; init; }
+    public IJobPhotosEndpoint JobPhotos { get; init; }
 
 
     public HttpClient Http { get; set; }

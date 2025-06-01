@@ -873,3 +873,6 @@ temp
 
 
 *.db-*
+
+*UploadedPhotos*
+*UploadedInvoices*

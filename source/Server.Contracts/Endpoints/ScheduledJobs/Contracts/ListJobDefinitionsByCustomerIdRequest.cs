@@ -8,7 +8,7 @@ public record ListJobDefinitionsByCustomerIdRequest(CustomerId CustomerId) : Req
     public const string Route = $"api/customers/{CustomerIdSegmentParam}/jobs";
 
 
-    public override ApiRoute GetApiRoute()
+    protected override ApiRoute GetApiRoute()
     {
         var route = base.GetApiRoute();
         route.AddRouteParam(CustomerIdSegmentParam, CustomerId.ToString());

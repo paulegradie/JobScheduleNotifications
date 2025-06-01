@@ -1,20 +1,19 @@
 ﻿using Api.ValueTypes;
 using Server.Contracts.Common.Request;
 
-namespace Server.Contracts.Endpoints.Reminders.Contracts;
+namespace Server.Contracts.Endpoints.JobPhotos.Contracts;
 
-public record SendInvoiceRequest(
+public sealed record UploadJobPhotoRequest(
     CustomerId CustomerId,
     ScheduledJobDefinitionId ScheduledJobDefinitionId,
     JobOccurrenceId JobOccurrenceId,
-    Stream PdfStream,
+    Stream PhotoStream,
     string FileName
 ) : RequestBase(Route)
 {
-    public const string Route = $"api/invoices/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/reminders/{JobOccurenceIdSegmentParam}/send";
+    public const string Route = $"api/photos/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/occurrences/{JobOccurenceIdSegmentParam}/upload";
 
-
-    public override ApiRoute GetApiRoute()
+    protected override ApiRoute GetApiRoute()
     {
         var route = base.GetApiRoute();
         route.AddRouteParam(CustomerIdSegmentParam, CustomerId.ToString());

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Server.Contracts.Dtos;
+using Server.Contracts.Endpoints.Invoices.Contracts;
 using Server.Contracts.Endpoints.Reminders.Contracts;
 
 namespace Api.Controllers;
@@ -20,8 +21,8 @@ public class InvoicesController : ControllerBase
     public async Task<ActionResult<InvoiceSentResponse>> UploadInvoice(
         [FromRoute] string customerId,
         [FromRoute] string jobDefinitionId,
-        [FromRoute] string jobOccurrenceId,
-        [FromForm] IFormFile file)
+        [FromRoute] string jobOccurenceId,
+        [FromForm(Name = "file")] IFormFile file)
     {
         if (file is null || file.Length == 0)
             return BadRequest("No file provided.");

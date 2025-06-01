@@ -12,7 +12,7 @@ public sealed record CreateScheduledJobDefinitionRequest(
 {
     public const string Route = $"api/customers/{CustomerIdSegmentParam}/jobs";
 
-    public override ApiRoute GetApiRoute()
+    protected override ApiRoute GetApiRoute()
     {
         var route = base.GetApiRoute();
         route.AddRouteParam(CustomerIdSegmentParam, Id.ToString());

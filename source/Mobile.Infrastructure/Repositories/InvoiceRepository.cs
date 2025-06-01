@@ -1,6 +1,7 @@
 ﻿using Api.ValueTypes;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts;
+using Server.Contracts.Endpoints.Invoices.Contracts;
 using Server.Contracts.Endpoints.Reminders.Contracts;
 
 namespace Mobile.Infrastructure.Repositories;

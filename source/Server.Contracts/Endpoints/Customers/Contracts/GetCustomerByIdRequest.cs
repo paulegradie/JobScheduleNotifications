@@ -7,7 +7,7 @@ public sealed record GetCustomerByIdRequest(CustomerId Id) : RequestBase(Route)
 {
     public const string Route = $"api/customers/{CustomerIdSegmentParam}";
 
-    public override ApiRoute GetApiRoute()
+    protected override ApiRoute GetApiRoute()
     {
         var route = base.GetApiRoute();
         route.AddRouteParam(CustomerIdSegmentParam, Id.ToString());
