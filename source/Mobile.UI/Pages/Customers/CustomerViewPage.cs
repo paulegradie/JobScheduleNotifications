@@ -1,4 +1,8 @@
-﻿using CommunityToolkit.Maui.Markup;
+﻿using System;
+using System.Collections.Generic;
+using CommunityToolkit.Maui.Markup;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
 using Mobile.UI.Pages.Base;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 

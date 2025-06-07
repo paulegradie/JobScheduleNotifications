@@ -1,5 +1,8 @@
 // CustomerViewModel.cs
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;

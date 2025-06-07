@@ -1,6 +1,10 @@
+using System;
 using System.Net.Http.Headers;
+using System.Threading;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.Controls;
 using Mobile.UI.Pages.Customers;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts;
@@ -87,7 +91,7 @@ public partial class LandingPageModel : Base.BaseViewModel
             new AuthenticationHeaderValue("Bearer", token.Value.AccessToken);
 
         // — now navigate to Dashboard —
-        await _navigation.GoToAsync(nameof(CustomerListPage));
+        await _navigation.GoToAsync(nameof(DashboardPage));
 #endif
     }
 }

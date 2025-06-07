@@ -1,4 +1,5 @@
-﻿using Server.Contracts.Endpoints.Auth.Contracts;
+﻿using System.Threading.Tasks;
+using Server.Contracts.Endpoints.Auth.Contracts;
 
 namespace Mobile.UI.RepositoryAbstractions;
 

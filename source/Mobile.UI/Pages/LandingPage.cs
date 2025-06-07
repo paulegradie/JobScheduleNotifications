@@ -1,5 +1,9 @@
-﻿using CommunityToolkit.Maui.Markup;
-
+﻿using System;
+using CommunityToolkit.Maui.Markup;
+using Microsoft.Maui;
+using Microsoft.Maui.Accessibility;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
 using Mobile.UI.Pages.Base;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
@@ -107,7 +111,7 @@ public sealed class LandingPage : BasePage<LandingPageModel>
 #if DEBUG
         await _vm.AutoLoginForDev();
 #endif
-        
+
         try
         {
             if (SemanticScreenReader.Default != null)

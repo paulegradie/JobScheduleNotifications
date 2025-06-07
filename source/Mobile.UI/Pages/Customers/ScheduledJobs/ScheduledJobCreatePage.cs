@@ -1,5 +1,9 @@
-﻿using Api.ValueTypes.Enums;
+﻿using System;
+using Api.ValueTypes.Enums;
 using CommunityToolkit.Maui.Markup;
+using Microsoft.Maui;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Layouts;
 using Mobile.UI.Pages.Base;
 using Server.Contracts.Dtos;

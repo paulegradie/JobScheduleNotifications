@@ -2,7 +2,6 @@
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts;
 using Server.Contracts.Endpoints.JobPhotos.Contracts;
-using Server.Contracts.Endpoints.Reminders.Contracts;
 
 namespace Mobile.Infrastructure.Repositories;
 

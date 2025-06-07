@@ -1,5 +1,5 @@
-﻿// BaseViewModel.cs
-
+﻿using System;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Mobile.UI.Pages.Base;
@@ -12,7 +12,6 @@ public abstract partial class BaseViewModel : ObservableObject
     [ObservableProperty] private string _errorMessage = string.Empty;
 
     // optional: a base “Refresh” command pattern
-
 
     protected async Task RunWithSpinner(Func<Task> operation, string? errorMessage = null)
     {

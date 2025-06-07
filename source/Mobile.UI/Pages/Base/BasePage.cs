@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
+using System.Linq;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Maui.Controls;
 
 namespace Mobile.UI.Pages.Base;
 

@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Maui.Markup;
-
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
 using Mobile.UI.Pages.Base;
 
 namespace Mobile.UI.Pages.Customers;

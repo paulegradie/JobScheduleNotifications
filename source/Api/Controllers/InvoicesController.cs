@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Server.Contracts.Dtos;
 using Server.Contracts.Endpoints.Invoices.Contracts;
-using Server.Contracts.Endpoints.Reminders.Contracts;
 
 namespace Api.Controllers;
 
