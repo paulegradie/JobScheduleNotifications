@@ -12,26 +12,26 @@ public class CurrentUserMiddleware
 
     public CurrentUserMiddleware(RequestDelegate next) => _next = next;
 
-    public async Task InvokeAsync(HttpContext context, ICurrentUserService currentUserService)
+    public async Task InvokeAsync(HttpContext context, ICurrentUserContext currentUserContext)
     {
         if (context.User.Identity?.IsAuthenticated == true)
         {
             var userIdStr = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (Guid.TryParse(userIdStr, out var uid))
             {
-                currentUserService.UserId = uid;
+                currentUserContext.UserId = uid;
             }
 
             var custIdStr = context.User.FindFirstValue("customer_id");
             if (Guid.TryParse(custIdStr, out var cid))
             {
-                currentUserService.CustomerId = cid;
+                currentUserContext.CustomerId = cid;
             }
 
             var orgIdStr = context.User.FindFirstValue("organization_id");
             if (Guid.TryParse(orgIdStr, out var oid))
             {
-                currentUserService.OrganizationId = oid;
+                currentUserContext.OrganizationId = oid;
             }
         }
 

@@ -3,9 +3,6 @@ using Api.ValueTypes;
 
 namespace Api.Business.Repositories;
 
-/// <summary>
-/// A repository for querying and managing job‐reminder domain models.
-/// </summary>
 public interface IJobReminderRepository
 {
     /// <summary>

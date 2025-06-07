@@ -16,18 +16,18 @@ namespace Api.Controllers;
 public class CustomersController : ControllerBase
 {
     private readonly ICrudRepository<Customer, CustomerId> _customerCrudRepository;
-    private readonly ICurrentUserService _currentUserService;
+    private readonly ICurrentUserContext _currentUserContext;
     private readonly ICustomerService _customerService;
     private readonly IMapperFactory _mapper;
 
     public CustomersController(
         ICrudRepository<Customer, CustomerId> customerCrudRepository,
-        ICurrentUserService currentUserService,
+        ICurrentUserContext currentUserContext,
         ICustomerService customerService,
         IMapperFactory mapper)
     {
         _customerCrudRepository = customerCrudRepository;
-        _currentUserService = currentUserService;
+        _currentUserContext = currentUserContext;
         _customerService = customerService;
         _mapper = mapper;
     }
@@ -64,10 +64,10 @@ public class CustomersController : ControllerBase
     [HttpPost(CreateCustomerRequest.Route)]
     public async Task<ActionResult<CreateCustomerResponse>> Create(CreateCustomerRequest req)
     {
-        var userId = _currentUserService.UserId
+        var userId = _currentUserContext.UserId
                      ?? throw new InvalidOperationException("User not logged in");
 
-        var orgId = _currentUserService.OrganizationId ?? throw new InvalidOperationException("User not assigned to an organization.");
+        var orgId = _currentUserContext.OrganizationId ?? throw new InvalidOperationException("User not assigned to an organization.");
 
         var dto = await _customerService.CreateCustomerAsync(req, userId, orgId);
 

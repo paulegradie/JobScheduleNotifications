@@ -28,6 +28,7 @@ internal class ServerClient : IServerClient
         JobReminders = new JobRemindersEndpoint(client);
         Invoices = new InvoiceEndpoint(client);
         JobPhotos = new JobPhotosEndpoint(client);
+        DashboardEndpoint = new DashboardEndpoint(client);
     }
 
     public IJobOccurrencesEndpoint JobOccurrences { get; init; }
@@ -35,6 +36,7 @@ internal class ServerClient : IServerClient
     public IJobPhotosEndpoint JobPhotos { get; init; }
     public HttpClient Http { get; set; }
 
+    public IDashboardEndpoint DashboardEndpoint { get; init; }
     public IHomeEndpoint Home { get; init; }
     public ICustomersEndpoint Customers { get; init; }
     public IAuthenticationEndpoint Auth { get; init; }

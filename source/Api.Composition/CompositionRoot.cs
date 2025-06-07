@@ -26,7 +26,7 @@ public static class CompositionRoot
     private static void AddBusinessServices(IServiceCollection services)
     {
         services.AddScoped<ICustomerService, CustomerService>();
-        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<ICurrentUserContext, CurrentUserContext>();
         services.AddScoped<IJobSchedulingService, JobSchedulingService>();
         services.AddScoped<IRecurrenceCalculator, SimpleRecurrenceCalculator>();
     }
@@ -41,7 +41,8 @@ public static class CompositionRoot
             .AddScoped<ICrudRepository<JobReminder, JobReminderId>, CrudRepository<JobReminder, JobReminderId>>()
             .AddScoped<IScheduledJobDefinitionRepository, ScheduledJobDefinitionRepository>()
             .AddScoped<IJobOccurrenceRepository, JobOccurrenceRepository>()
-            .AddScoped<IJobReminderRepository, JobReminderRepository>();
+            .AddScoped<IJobReminderRepository, JobReminderRepository>()
+            .AddScoped<IUserSettingsRepository, UserSettingsRepository>();
     }
 
     private static void AddMappers(IServiceCollection services)

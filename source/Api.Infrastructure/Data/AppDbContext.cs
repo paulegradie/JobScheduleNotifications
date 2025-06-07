@@ -34,11 +34,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
     public AppDbContext(
         DbContextOptions options,
         IEnumerable<IEntityPropertyConvention> conventions,
-        ICurrentUserService currentUserService)
+        ICurrentUserContext currentUserContext)
         : base(options)
     {
         _conventions = conventions;
-        _currentUserId = currentUserService.UserId;
+        _currentUserId = currentUserContext.UserId;
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

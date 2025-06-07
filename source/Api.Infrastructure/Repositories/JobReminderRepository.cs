@@ -3,15 +3,47 @@ using Api.Business.Repositories;
 using Api.Business.Repositories.Internal;
 using Api.Infrastructure.Data;
 using Api.Infrastructure.DbTables.Jobs;
+using Api.Infrastructure.DbTables.OrganizationModels;
+using Api.Infrastructure.Services;
 using Api.ValueTypes;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Infrastructure.Repositories;
 
-/// <summary>
-/// EF-backed implementation of <see cref="IJobReminderRepository"/>,
-/// correctly traversing Occurrence → Definition → Customer.
-/// </summary>
+public class UserSettingsRepository : IUserSettingsRepository
+{
+    private readonly ICurrentUserContext _currentUserContext;
+    private readonly UserManager<ApplicationUserRecord> _userManager;
+    private readonly AppDbContext _dbContext;
+
+    public UserSettingsRepository(ICurrentUserContext currentUserContext, UserManager<ApplicationUserRecord> userManager, AppDbContext dbContext)
+    {
+        _currentUserContext = currentUserContext;
+        _userManager = userManager;
+        _dbContext = dbContext;
+    }
+
+    public async Task<CurrentUserSettings> GetCurrentUserSettings()
+    {
+        var user = await _dbContext
+            .ApplicationUsers
+            .Include(applicationUserRecord => applicationUserRecord.OrganizationUsers)
+            .ThenInclude(organizationUser => organizationUser.Organization)
+            .FirstOrDefaultAsync(x => x.Id == _currentUserContext.UserId);
+        if (user is null) throw new Exception("No user found");
+
+        var organization = user.OrganizationUsers.Single();
+        var businessName = organization.Organization.Name;
+
+        return new CurrentUserSettings
+        {
+            BusinessName = businessName,
+            UserName = user.UserName ?? user.Email ?? "Could not find user name or email"
+        };
+    }
+}
+
 public class JobReminderRepository : IJobReminderRepository
 {
     private readonly AppDbContext _context;

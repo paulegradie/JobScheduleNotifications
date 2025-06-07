@@ -19,6 +19,7 @@ public interface IServerClient
     public IJobRemindersEndpoint JobReminders { get; init; }
     public IInvoiceEndpoint Invoices { get; init; }
     public IJobPhotosEndpoint JobPhotos { get; init; }
+    public IDashboardEndpoint DashboardEndpoint { get; init; }
 
 
     public HttpClient Http { get; set; }

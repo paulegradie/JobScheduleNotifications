@@ -50,8 +50,6 @@ public class JobReminderDomainModel : DomainModelBase<JobReminderDto>
         SentDate = DateTime.Now;
     }
 
-
-    // [MemberNotNullWhen(true, nameof(IsSent))]
     public DateTime? SentDate { get; protected set; }
 
     public override JobReminderDto ToDto()

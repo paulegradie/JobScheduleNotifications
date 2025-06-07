@@ -1,13 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Mobile.UI.Pages.Base;
 using Mobile.UI.Pages.Customers;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts;
 using Server.Contracts.Endpoints.Auth.Contracts;
+using Server.Contracts.Endpoints.JobPhotos.Contracts;
 
 namespace Mobile.UI.Pages;
 
-public partial class DashboardViewModel : ObservableObject
+public partial class DashboardViewModel : BaseViewModel
 {
     private readonly IServerClient _serverClient;
     private readonly INavigationRepository _navigationUtility;
@@ -29,7 +31,10 @@ public partial class DashboardViewModel : ObservableObject
 
     [ObservableProperty] private bool _isBusy;
 
-    public DashboardViewModel(IServerClient serverClient, INavigationRepository navigationUtility, ITokenRepository tokenRepository)
+    public DashboardViewModel(
+        IServerClient serverClient,
+        INavigationRepository navigationUtility,
+        ITokenRepository tokenRepository)
     {
         _serverClient = serverClient;
         _navigationUtility = navigationUtility;
@@ -39,29 +44,27 @@ public partial class DashboardViewModel : ObservableObject
     [RelayCommand]
     private async Task LoadDashboardData()
     {
-        if (IsBusy) return;
+        await RunWithSpinner(async () =>
+        {
+            var dashboardResponse = await _serverClient
+                .DashboardEndpoint
+                .GetDashboardContent(new GetDashboardContentRequest(), CancellationToken.None);
 
-        try
-        {
-            IsBusy = true;
-            // TODO: Load dashboard data from API
-            // For now, using placeholder data
-            TotalCustomers = 0;
-            TotalJobs = 0;
-            PendingJobs = 0;
-            CompletedJobs = 0;
-            BusinessName = "Your Business";
-            WelcomeMessage = $"Welcome back, {BusinessName}!";
-        }
-        catch (Exception ex)
-        {
+            if (dashboardResponse.IsSuccess)
+            {
+                var content = dashboardResponse.Value.DashboardDto!;
+                TotalCustomers = content.Customers.Count;
+                TotalJobs = content.TotalJobsAcrossCustomers;
+                PendingJobs = content.PendingJobs;
+                BusinessName = content.BusinessName;
+                WelcomeMessage = $"Welcome {content.CurrentUser}";
+                CompletedJobs = content.TotalCompletedJobs;
+                return;
+            }
+
             await _navigationUtility.ShowAlertAsync("Error", "Failed to load dashboard data");
-            System.Diagnostics.Debug.WriteLine($"Dashboard Error: {ex.Message}");
-        }
-        finally
-        {
-            IsBusy = false;
-        }
+            System.Diagnostics.Debug.WriteLine($"Dashboard Error");
+        });
     }
 
     [RelayCommand]
@@ -69,7 +72,7 @@ public partial class DashboardViewModel : ObservableObject
     {
         await _navigationUtility.GoToAsync(nameof(CustomerListPage));
     }
-    
+
 
     [RelayCommand]
     private async Task Logout()
