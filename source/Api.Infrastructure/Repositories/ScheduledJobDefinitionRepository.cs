@@ -21,6 +21,7 @@ public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepositor
         var entity = await _context.ScheduledJobDefinitions
             .Include(x => x.Customer)
             .Include(d => d.JobOccurrences)
+            .ThenInclude(p => p.JobCompletedPhotos)
             .Include(d => d.JobReminders)
             .FirstOrDefaultAsync(d => d.ScheduledJobDefinitionId == id);
         return entity?.ToDomain();
@@ -31,6 +32,7 @@ public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepositor
         var list = await _context.ScheduledJobDefinitions
             .Include(x => x.Customer)
             .Include(d => d.JobOccurrences)
+            .ThenInclude(x => x.JobCompletedPhotos)
             .Include(o => o.JobReminders)
             .Where(d => d.CustomerId == customerId)
             .ToListAsync();
@@ -42,6 +44,7 @@ public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepositor
         var entities = await _context.ScheduledJobDefinitions
             .Include(x => x.Customer)
             .Include(d => d.JobOccurrences)
+            .ThenInclude(x => x.JobCompletedPhotos)
             .Include(o => o.JobReminders)
             .ToListAsync();
 
@@ -62,6 +65,7 @@ public class ScheduledJobDefinitionRepository : IScheduledJobDefinitionRepositor
         var entity = await _context.ScheduledJobDefinitions
             .Include(x => x.Customer)
             .Include(d => d.JobOccurrences)
+            .ThenInclude(x => x.JobCompletedPhotos)
             .Include(o => o.JobReminders)
             .FirstOrDefaultAsync(d => d.ScheduledJobDefinitionId == def.ScheduledJobDefinitionId);
 
@@ -102,7 +106,12 @@ internal static class JobDefinitionMappings
                     JobDescription = e.Description,
                     JobTitle = e.Title,
                     CompletedDate = o.CompletedDate,
-                    MarkedAsComplete = o.MarkedAsCompleted
+                    MarkedAsComplete = o.MarkedAsCompleted,
+                    JobCompletedPhotoDomainModel = o.JobCompletedPhotos.Select(p => new JobCompletedPhotoDomainModel(
+                            p.JobOccurrenceId,
+                            p.CustomerId,
+                            p.FilePath))
+                        .ToList()
                 })
                 .ToList()
         };
@@ -123,7 +132,8 @@ internal static class JobDefinitionMappings
                     JobOccurrenceId = o.Id,
                     ScheduledJobDefinitionId = d.ScheduledJobDefinitionId,
                     OccurrenceDate = o.OccurrenceDate
-                }).ToList()
+                })
+                .ToList()
         };
         return e;
     }

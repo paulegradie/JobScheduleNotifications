@@ -14,7 +14,8 @@ public record JobOccurrenceDto(
     string JobTitle,
     string JobDescription,
     bool MarkedAsCompleted,
-    JobOccurrenceDomainStatus JobOccurrenceDomainStatus);
+    JobOccurrenceDomainStatus JobOccurrenceDomainStatus,
+    List<JobCompletedPhotoDto> JobCompletedPhotosDto);
 
 public enum JobOccurrenceDomainStatus
 {

@@ -65,28 +65,24 @@ public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
                         .Text("Go Back")
                         .IsEnabled(true)
                         .Bind(Button.CommandProperty, nameof(ViewModel.GoBackCommand)),
-
                     new CollectionView
                         {
-                            ItemTemplate = new DataTemplate(() =>
+                            ItemTemplate = new(() =>
                             {
-                                var image = new Image()
+                                var layout = new VerticalStackLayout();
+                                layout.Children.Add(new Image()
                                     .Height(150)
-                                    .Aspect(Aspect.AspectFill);
-                                image.Bind(Image.SourceProperty, nameof(PhotoDisplayItemDto.Path));
-
-                                var removeButton = new Button()
+                                    .Aspect(Aspect.AspectFill)
+                                    .Bind(Image.SourceProperty, nameof(PhotoDisplayItem.Path)));
+                                layout.Children.Add(new Button()
                                     .Text("Remove")
-                                    .Bind(Button.CommandParameterProperty, ".")
-                                    .Bind(Button.CommandProperty, nameof(ViewModel.RemovePhotoCommand));
-
-                                return new VerticalStackLayout
-                                {
-                                    Children = { image, removeButton }
-                                };
+                                    .Bind(Button.CommandParameterProperty)
+                                    .Bind(Button.CommandProperty, nameof(ViewModel.RemovePhotoCommand)));
+                                return layout;
                             })
                         }
                         .Bind(ItemsView.ItemsSourceProperty, nameof(ViewModel.PhotoPaths))
+                        .IsEnabled(true)
                 }
             }
         };

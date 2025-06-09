@@ -77,8 +77,8 @@ internal sealed class JobCompletedPhotosEndpoint : EndpointBase, IJobCompletedPh
         return OperationResult<JobCompletedPhotoUploadResponse>.Success(value!, response.StatusCode);
     }
 
-    public async Task<OperationResult<JobCompletedPhotoUploadResponse>> Delete(DeleteJobCompletedPhotoRequest request, CancellationToken ct)
+    public async Task<OperationResult<JobCompletedPhotoDeleteResponse>> Delete(DeleteJobCompletedPhotoRequest request, CancellationToken ct)
     {
-        return await PutAsync<DeleteJobCompletedPhotoRequest, JobCompletedPhotoUploadResponse>(request, ct);
+        return await PutAsync<DeleteJobCompletedPhotoRequest, JobCompletedPhotoDeleteResponse>(request, ct);
     }
 }

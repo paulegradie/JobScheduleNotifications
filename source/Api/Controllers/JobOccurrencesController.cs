@@ -39,7 +39,6 @@ namespace Api.Controllers
             return Ok(new ListJobOccurrencesResponse(dtos));
         }
 
-        // GET: …/occurrences/{occurrenceId}
         [HttpGet(GetJobOccurrenceByIdRequest.Route)]
         public async Task<ActionResult<GetJobOccurrenceByIdResponse>> Get(
             [FromRoute] CustomerId customerId,

@@ -22,7 +22,7 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
     [ObservableProperty] private ICollection<JobReminderDto> _jobReminderDtos;
 
 
-    [ObservableProperty] private ObservableCollection<PhotoDisplayItemDto> _photoPaths = new();
+    [ObservableProperty] private ObservableCollection<PhotoDisplayItem> _photoPaths = new();
 
     public ViewJobOccurrenceModel(IJobOccurrenceRepository repo, INavigationRepository navigationRepository, IJobCompletedPhotoRepository completedPhotoRepository)
     {
@@ -50,6 +50,11 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
             JobTitle = dto.JobTitle;
             JobDescription = dto.JobDescription;
             MarkedAsComplete = dto.MarkedAsCompleted;
+
+            foreach (var photo in dto.JobCompletedPhotosDto)
+            {
+                PhotoPaths.Add(new PhotoDisplayItem(photo.JobCompletedPhotoId, photo.PhotoUri));
+            }
         });
     }
 
@@ -172,8 +177,9 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
 
             if (itemDto.IsSuccess)
             {
+                var photoDetails = itemDto.Value.CompletedPhotoUploadDto;
                 await _navigationRepository.ShowAlertAsync("Photo Uploaded", "The photo has been successfully uploaded.");
-                PhotoPaths.Add(itemDto.Value.CompletedPhotoUploadDto);
+                PhotoPaths.Add(new PhotoDisplayItem(photoDetails.JobCompletedPhotoId, photoDetails.FilePath));
             }
             else
             {
@@ -183,7 +189,7 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task RemovePhotoAsync(PhotoDisplayItemDto photo)
+    private async Task RemovePhotoAsync(PhotoDisplayItem photo)
     {
         if (CustomerJobAndOccurrenceIds is null)
             return;
@@ -204,6 +210,7 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
             }
 
             PhotoPaths.Remove(photo);
+            OnPropertyChanged(nameof(PhotoPaths));
         });
     }
 }

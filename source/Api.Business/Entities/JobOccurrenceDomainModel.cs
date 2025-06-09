@@ -11,11 +11,12 @@ public class JobOccurrenceDomainModel : DomainModelBase<JobOccurrenceDto>
     public CustomerId CustomerId { get; set; }
     public DateTime OccurrenceDate { get; set; }
     public bool MarkedAsComplete { get; set; }
+    public List<JobCompletedPhotoDomainModel> JobCompletedPhotoDomainModel { get; set; }
 
     public JobOccurrenceDomainStatus JobOccurrenceDomainStatus { get; set; }
 
     /// <summary>
-    /// When this occurrence was marked complete, or null if not done yet.
+    /// When this occurrence was marked complete or null if not done yet.
     /// </summary>
     public DateTime? CompletedDate { get; set; }
 
@@ -25,7 +26,6 @@ public class JobOccurrenceDomainModel : DomainModelBase<JobOccurrenceDto>
     /// Title of the parent Scheduled Job Definition.
     /// </summary>
     public string JobTitle { get; set; } = string.Empty;
-
 
     public override JobOccurrenceDto ToDto()
     {
@@ -38,13 +38,11 @@ public class JobOccurrenceDomainModel : DomainModelBase<JobOccurrenceDto>
             JobTitle: JobTitle,
             JobDescription: JobDescription,
             MarkedAsCompleted: MarkedAsComplete,
-            JobOccurrenceDomainStatus: JobOccurrenceDomainStatus
+            JobOccurrenceDomainStatus: JobOccurrenceDomainStatus,
+            JobCompletedPhotosDto: JobCompletedPhotoDomainModel.Select(x => x.ToDto()).ToList()
         );
     }
 
-    /// <summary>
-    /// Optional: helper to load from a DTO back into this domain model.
-    /// </summary>
     public override void FromDto(JobOccurrenceDto dto)
     {
         Id = dto.JobOccurrenceId;
@@ -58,4 +56,3 @@ public class JobOccurrenceDomainModel : DomainModelBase<JobOccurrenceDto>
         JobOccurrenceDomainStatus = dto.JobOccurrenceDomainStatus;
     }
 }
-

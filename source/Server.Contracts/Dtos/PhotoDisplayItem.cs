@@ -3,9 +3,9 @@ using Api.ValueTypes;
 
 namespace Server.Contracts.Dtos;
 
-public record PhotoDisplayItemDto
+public record PhotoDisplayItem
 {
-    public PhotoDisplayItemDto(JobCompletedPhotoId? id, string? path, bool containsPhoto = true)
+    public PhotoDisplayItem(JobCompletedPhotoId? id, string? path, bool containsPhoto = true)
     {
         Id = id;
         Path = path;
@@ -20,6 +20,6 @@ public record PhotoDisplayItemDto
 
     public bool ContainsPhoto { get; init; }
 
-    public static PhotoDisplayItemDto CreateEmpty() => new(null, null, false);
-    public static PhotoDisplayItemDto CreateWith(JobCompletedPhotoId id, string path) => new(id, path, true);
+    public static PhotoDisplayItem CreateEmpty() => new(null, null, false);
+    public static PhotoDisplayItem CreateWith(JobCompletedPhotoId id, string path) => new(id, path, true);
 };
