@@ -20,16 +20,22 @@ public class ScheduledJobDefinitionDomainModel : DomainModelBase<ScheduledJobDef
 
     public override ScheduledJobDefinitionDto ToDto()
     {
+        var occDtos = JobOccurrences.Select(o =>
+        {
+            var occ = o.ToDto();
+            return occ;
+        }).ToList();
+        var reminderDtos = JobReminders.Select(o => o.ToDto()).ToList();
         return new ScheduledJobDefinitionDto(
             CustomerId,
             ScheduledJobDefinitionId,
             AnchorDate,
             CronExpression,
-            JobOccurrences.Select(o => o.ToDto()).ToList(),
+            occDtos,
             Title,
             Description,
             DayOfMonth,
-            JobReminders.Select(r => r.ToDto()).ToList());
+            reminderDtos);
     }
 
     public override void FromDto(ScheduledJobDefinitionDto dto)

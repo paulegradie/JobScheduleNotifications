@@ -4,11 +4,7 @@ using Server.Contracts.Dtos;
 
 namespace Api.Business.Entities;
 
-public class JobCompletedPhotoDomainModel(
-    JobOccurrenceId JobOccurrenceId,
-    CustomerId CustomerId,
-    string PhotoUri
-) : DomainModelBase<JobCompletedPhotoDto>
+public class JobCompletedPhotoDomainModel() : DomainModelBase<JobCompletedPhotoDto>
 {
     public JobCompletedPhotoId JobCompletedPhotoId { get; set; }
     public string PhotoUri { get; set; } // local for now

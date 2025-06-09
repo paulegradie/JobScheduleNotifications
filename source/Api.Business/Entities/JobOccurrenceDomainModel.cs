@@ -29,6 +29,12 @@ public class JobOccurrenceDomainModel : DomainModelBase<JobOccurrenceDto>
 
     public override JobOccurrenceDto ToDto()
     {
+        var photosDto = JobCompletedPhotoDomainModel.Select(x =>
+        {
+            var photoDto = x.ToDto();
+            return photoDto;
+        }).ToList();
+
         return new JobOccurrenceDto(
             JobOccurrenceId: Id,
             ScheduledJobDefinitionId: ScheduledJobDefinitionId,
@@ -39,8 +45,7 @@ public class JobOccurrenceDomainModel : DomainModelBase<JobOccurrenceDto>
             JobDescription: JobDescription,
             MarkedAsCompleted: MarkedAsComplete,
             JobOccurrenceDomainStatus: JobOccurrenceDomainStatus,
-            JobCompletedPhotosDto: JobCompletedPhotoDomainModel.Select(x => x.ToDto()).ToList()
-        );
+            JobCompletedPhotosDto: photosDto);
     }
 
     public override void FromDto(JobOccurrenceDto dto)

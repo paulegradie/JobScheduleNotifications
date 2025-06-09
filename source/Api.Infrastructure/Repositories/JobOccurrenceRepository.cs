@@ -8,9 +8,6 @@ using Server.Contracts.Dtos;
 
 namespace Api.Infrastructure.Repositories;
 
-/// <summary>
-/// EF-backed implementation of <see cref="IJobOccurrenceRepository"/>.
-/// </summary>
 public class JobOccurrenceRepository : IJobOccurrenceRepository
 {
     private readonly AppDbContext _context;
@@ -24,6 +21,9 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
         ScheduledJobDefinitionId jobDefinitionId)
     {
         var entities = await _context.JobOccurrences
+            .Include(x => x.JobCompletedPhotos)
+            .Include(x => x.ScheduledJobDefinition)
+            .Include(x => x.Customer)
             .Where(o => o.ScheduledJobDefinitionId == jobDefinitionId)
             .ToListAsync();
 
@@ -33,6 +33,9 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
     public async Task<JobOccurrenceDomainModel?> GetByIdAsync(JobOccurrenceId occurrenceId)
     {
         var entity = await _context.JobOccurrences
+            .Include(x => x.JobCompletedPhotos)
+            .Include(x => x.ScheduledJobDefinition)
+            .Include(x => x.Customer)
             .FirstOrDefaultAsync(o => o.JobOccurrenceId == occurrenceId);
 
         return entity is null ? null : ToDomain(entity);
@@ -41,7 +44,8 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
     public async Task AddAsync(JobOccurrenceDomainModel occurrence)
     {
         var entity = occurrence.ToEntity();
-        var def = await _context.ScheduledJobDefinitions.SingleAsync(x => x.ScheduledJobDefinitionId == occurrence.ScheduledJobDefinitionId);
+        var def = await _context.ScheduledJobDefinitions
+            .SingleAsync(x => x.ScheduledJobDefinitionId == occurrence.ScheduledJobDefinitionId);
         def.JobOccurrences.Add(entity);
         await _context.SaveChangesAsync();
         occurrence.Id = entity.JobOccurrenceId;
@@ -63,7 +67,7 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
         {
             entity.JobOccurrenceStatus = JobOccurrenceStatus.Completed;
         }
-        
+
         _context.JobOccurrences.Update(entity);
         await _context.SaveChangesAsync();
         occurrence.Id = entity.JobOccurrenceId;
@@ -91,28 +95,24 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
             JobTitle = e.ScheduledJobDefinition.Title,
             MarkedAsComplete = e.MarkedAsCompleted,
             CompletedDate = e.CompletedDate,
-            CustomerId = e.CustomerId
+            CustomerId = e.CustomerId,
+            JobCompletedPhotoDomainModel = e.JobCompletedPhotos.Select(ToDomain).ToList()
         };
+
+    private static JobCompletedPhotoDomainModel ToDomain(JobCompletedPhoto e)
+    {
+        return new JobCompletedPhotoDomainModel
+        {
+            CustomerId = e.CustomerId,
+            JobCompletedPhotoId = e.JobCompletedPhotoId,
+            PhotoUri = e.FilePath,
+            JobOccurrenceId = e.JobOccurrenceId
+        };
+    }
 }
 
 internal static class JobOccurrenceMappings
 {
-    /// <summary>
-    /// Map EF entity to domain model.
-    /// </summary>
-    public static JobOccurrenceDomainModel ToDomain(this JobOccurrence e)
-        => new()
-        {
-            Id = e.JobOccurrenceId,
-            ScheduledJobDefinitionId = e.ScheduledJobDefinitionId,
-            OccurrenceDate = e.OccurrenceDate,
-            JobDescription = e.ScheduledJobDefinition.Description,
-            JobTitle = e.ScheduledJobDefinition.Title,
-            MarkedAsComplete = e.MarkedAsCompleted,
-            CompletedDate = e.CompletedDate,
-            CustomerId = e.CustomerId
-        };
-
     /// <summary>
     /// Map domain model back to EF entity, including nested reminders.
     /// </summary>
@@ -124,8 +124,16 @@ internal static class JobOccurrenceMappings
             CompletedDate = d.CompletedDate,
             ScheduledJobDefinitionId = d.ScheduledJobDefinitionId,
             OccurrenceDate = d.OccurrenceDate,
-            JobOccurrenceStatus = MapJobOccurrenceDomainStatus(d.JobOccurrenceDomainStatus)
+            JobOccurrenceStatus = MapJobOccurrenceDomainStatus(d.JobOccurrenceDomainStatus),
+            JobCompletedPhotos = d.JobCompletedPhotoDomainModel.Select(x => new JobCompletedPhoto
+            {
+                FilePath = x.PhotoUri,
+                CustomerId = x.CustomerId,
+                JobOccurrenceId = x.JobOccurrenceId,
+                JobCompletedPhotoId = x.JobCompletedPhotoId
+            }).ToList()
         };
+
 
     private static JobOccurrenceStatus MapJobOccurrenceDomainStatus(JobOccurrenceDomainStatus status)
     {

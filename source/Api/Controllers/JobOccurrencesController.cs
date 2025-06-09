@@ -53,7 +53,8 @@ namespace Api.Controllers
             if (occ == null || occ.ScheduledJobDefinitionId != jobDefinitionId)
                 return NotFound();
 
-            return Ok(new GetJobOccurrenceByIdResponse(occ.ToDto()));
+            var occurrences = occ.ToDto();
+            return Ok(new GetJobOccurrenceByIdResponse(occurrences));
         }
 
         // POST: …/occurrences

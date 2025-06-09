@@ -45,6 +45,7 @@ public class ScheduledJobController : ControllerBase
         if (def == null || def.CustomerId != customerId)
             return NotFound();
 
+        var dto = def.ToDto();
         return Ok(new GetScheduledJobDefinitionByIdResponse(def.ToDto()));
     }
 
