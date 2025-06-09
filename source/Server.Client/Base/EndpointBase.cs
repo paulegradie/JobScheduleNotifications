@@ -107,7 +107,8 @@ internal abstract class EndpointBase
             {
                 value = JsonSerializer.Deserialize<TResponse>(raw, new JsonSerializerOptions
                 {
-                    PropertyNameCaseInsensitive = true
+                    PropertyNameCaseInsensitive = true,
+                    IncludeFields = true
                 });
             }
             catch (JsonException ex)

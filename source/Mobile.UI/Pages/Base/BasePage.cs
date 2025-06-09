@@ -9,11 +9,11 @@ namespace Mobile.UI.Pages.Base;
 /// •Adds consistent padding  
 /// •Logs lifecycle events (handy while debugging)  
 /// •Optionally auto‑registers Toolkit messenger recipients
-public abstract class BasePage : ContentPage // ContentPage is MAUI’s root page type:contentReference[oaicite:0]{index=0}
+public abstract class BasePage : ContentPage
 {
     protected BasePage(object? viewModel = null)
     {
-        Padding = 12;
+        Padding = 5;
         BindingContext = viewModel;
         RegisterMessengerRecipients(viewModel);
     }

@@ -12,7 +12,7 @@ public static class RegistrationExtensionMethods
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IJobOccurrenceRepository, JobOccurrenceRepository>();
         services.AddScoped<IInvoiceRepository, InvoiceRepository>();
-        services.AddScoped<IJobPhotoRepository, JobPhotoRepository>();
+        services.AddScoped<IJobCompletedPhotoRepository, JobCompletedPhotoRepository>();
         return services;
     }
 }

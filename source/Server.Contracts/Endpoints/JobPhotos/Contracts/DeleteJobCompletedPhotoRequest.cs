@@ -3,22 +3,21 @@ using Server.Contracts.Common.Request;
 
 namespace Server.Contracts.Endpoints.JobPhotos.Contracts;
 
-public sealed record UploadJobPhotoRequest(
+public sealed record DeleteJobCompletedPhotoRequest(
     CustomerId CustomerId,
     ScheduledJobDefinitionId ScheduledJobDefinitionId,
     JobOccurrenceId JobOccurrenceId,
-    Stream PhotoStream,
-    string FileName
+    JobCompletedPhotoId JobCompletedPhotoId
 ) : RequestBase(Route)
 {
-    public const string Route = $"api/photos/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/occurrences/{JobOccurenceIdSegmentParam}/upload";
-
+    public const string Route = $"customers/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/occurrences/{JobOccurenceIdSegmentParam}/jobCompletedPhotos/{PhotoIdSegmentParam}";
     protected override ApiRoute GetApiRoute()
     {
         var route = base.GetApiRoute();
         route.AddRouteParam(CustomerIdSegmentParam, CustomerId.ToString());
         route.AddRouteParam(JobDefinitionIdSegmentParam, ScheduledJobDefinitionId.ToString());
         route.AddRouteParam(JobOccurenceIdSegmentParam, JobOccurrenceId.ToString());
+        route.AddRouteParam(PhotoIdSegmentParam, JobCompletedPhotoId.ToString());
         return route;
     }
 }

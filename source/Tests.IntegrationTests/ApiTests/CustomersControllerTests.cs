@@ -5,7 +5,7 @@ using Server.Contracts.Endpoints.Auth.Contracts;
 using Server.Contracts.Endpoints.Customers.Contracts;
 using Shouldly;
 
-namespace IntegrationTests.BasicTests;
+namespace IntegrationTests.ApiTests;
 
 public class CustomersControllerTests : AuthenticatedIntegrationTest
 {

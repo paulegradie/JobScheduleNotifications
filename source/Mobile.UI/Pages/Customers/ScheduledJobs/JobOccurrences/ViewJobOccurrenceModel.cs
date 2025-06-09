@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Media;
-using Microsoft.Maui.Storage;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Dtos;
@@ -18,7 +11,7 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
 {
     private readonly IJobOccurrenceRepository _repo;
     private readonly INavigationRepository _navigationRepository;
-    private readonly IJobPhotoRepository _photoRepository;
+    private readonly IJobCompletedPhotoRepository _completedPhotoRepository;
 
     [ObservableProperty] private string _jobTitle;
     [ObservableProperty] private string _jobDescription;
@@ -28,11 +21,14 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
     [ObservableProperty] private bool _markedAsComplete;
     [ObservableProperty] private ICollection<JobReminderDto> _jobReminderDtos;
 
-    public ViewJobOccurrenceModel(IJobOccurrenceRepository repo, INavigationRepository navigationRepository, IJobPhotoRepository photoRepository)
+
+    [ObservableProperty] private ObservableCollection<PhotoDisplayItemDto> _photoPaths = new();
+
+    public ViewJobOccurrenceModel(IJobOccurrenceRepository repo, INavigationRepository navigationRepository, IJobCompletedPhotoRepository completedPhotoRepository)
     {
         _repo = repo;
         _navigationRepository = navigationRepository;
-        _photoRepository = photoRepository;
+        _completedPhotoRepository = completedPhotoRepository;
     }
 
     private CustomerJobAndOccurrenceIds? CustomerJobAndOccurrenceIds { get; set; }
@@ -111,7 +107,7 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
         if (CustomerJobAndOccurrenceIds is null)
             return;
 
-        string action = await Application.Current.MainPage.DisplayActionSheet(
+        var action = await Application.Current.MainPage.DisplayActionSheet(
             "Upload Photo",
             "Cancel",
             null,
@@ -168,16 +164,46 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
 
         await RunWithSpinner(async () =>
         {
-            var success = await _photoRepository.UploadPhotoAsync(
+            var itemDto = await _completedPhotoRepository.UploadPhotoAsync(
                 localFilePath,
                 CustomerJobAndOccurrenceIds.CustomerId,
                 CustomerJobAndOccurrenceIds.ScheduledJobDefinitionId,
                 CustomerJobAndOccurrenceIds.JobOccurrenceId);
 
-            if (success)
+            if (itemDto.IsSuccess)
+            {
                 await _navigationRepository.ShowAlertAsync("Photo Uploaded", "The photo has been successfully uploaded.");
+                PhotoPaths.Add(itemDto.Value.CompletedPhotoUploadDto);
+            }
             else
+            {
                 await _navigationRepository.ShowAlertAsync("Upload Failed", "Something went wrong uploading the photo.");
+            }
+        });
+    }
+
+    [RelayCommand]
+    private async Task RemovePhotoAsync(PhotoDisplayItemDto photo)
+    {
+        if (CustomerJobAndOccurrenceIds is null)
+            return;
+
+        await RunWithSpinner(async () =>
+        {
+            var photoId = photo.Id!.Value;
+            var response = await _completedPhotoRepository.DeletePhotoAsync(
+                CustomerJobAndOccurrenceIds.CustomerId,
+                CustomerJobAndOccurrenceIds.ScheduledJobDefinitionId,
+                CustomerJobAndOccurrenceIds.JobOccurrenceId,
+                photoId);
+
+            if (!response.IsSuccess)
+            {
+                await _navigationRepository.ShowAlertAsync("Warning", "Failed to delete photo from server.");
+                return;
+            }
+
+            PhotoPaths.Remove(photo);
         });
     }
 }

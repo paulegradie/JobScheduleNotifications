@@ -27,13 +27,13 @@ internal class ServerClient : IServerClient
         JobOccurrences = new JobOccurrencesEndpoint(client);
         JobReminders = new JobRemindersEndpoint(client);
         Invoices = new InvoiceEndpoint(client);
-        JobPhotos = new JobPhotosEndpoint(client);
+        JobCompletedPhotos = new JobCompletedPhotosEndpoint(client);
         DashboardEndpoint = new DashboardEndpoint(client);
     }
 
     public IJobOccurrencesEndpoint JobOccurrences { get; init; }
     public IJobRemindersEndpoint JobReminders { get; init; }
-    public IJobPhotosEndpoint JobPhotos { get; init; }
+    public IJobCompletedPhotosEndpoint JobCompletedPhotos { get; init; }
     public HttpClient Http { get; set; }
 
     public IDashboardEndpoint DashboardEndpoint { get; init; }

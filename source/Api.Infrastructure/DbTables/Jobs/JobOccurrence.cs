@@ -9,11 +9,12 @@ public class JobOccurrence
     public JobOccurrenceId JobOccurrenceId { get; set; }
     public DateTime OccurrenceDate { get; set; }
     public DateTime? CompletedDate { get; set; }
+    public DateTime? InvoicePaidDate { get; set; }
 
     [NotMapped] public bool MarkedAsCompleted => CompletedDate.HasValue;
+    [NotMapped] public bool InvoiceWasPaid => InvoicePaidDate.HasValue;
 
-    // relationships
-
+    
     //UP
     public CustomerId CustomerId { get; set; }
     public virtual Customer Customer { get; set; } = null!;
@@ -22,12 +23,21 @@ public class JobOccurrence
 
     // DOWN
     public JobOccurrenceStatus JobOccurrenceStatus { get; set; }
+    public JobOccurenceInvoiceStatus JobOccurenceInvoiceStatus { get; set; }
+    public virtual ICollection<JobCompletedPhoto> JobCompletedPhotos { get; set; }
+
 }
 
 public enum JobOccurrenceStatus
 {
-    NotStarted,
-    InProgress,
-    Completed,
-    Canceled
+    Canceled = 0,
+    NotStarted = 1,
+    InProgress = 2,
+    Completed = 3,
+}
+
+public enum JobOccurenceInvoiceStatus
+{
+    Issued,
+    Paid
 }

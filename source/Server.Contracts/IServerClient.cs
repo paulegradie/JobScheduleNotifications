@@ -18,7 +18,7 @@ public interface IServerClient
     public IJobOccurrencesEndpoint JobOccurrences { get; init; }
     public IJobRemindersEndpoint JobReminders { get; init; }
     public IInvoiceEndpoint Invoices { get; init; }
-    public IJobPhotosEndpoint JobPhotos { get; init; }
+    public IJobCompletedPhotosEndpoint JobCompletedPhotos { get; init; }
     public IDashboardEndpoint DashboardEndpoint { get; init; }
 
 

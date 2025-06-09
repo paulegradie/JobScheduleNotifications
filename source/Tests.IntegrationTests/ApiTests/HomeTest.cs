@@ -2,7 +2,7 @@
 using Server.Contracts.Endpoints.Home.Contracts;
 using Shouldly;
 
-namespace IntegrationTests.BasicTests;
+namespace IntegrationTests.ApiTests;
 
 public class HomeTest : IntegrationTest
 {

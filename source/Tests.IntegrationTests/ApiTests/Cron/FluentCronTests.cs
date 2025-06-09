@@ -1,6 +1,6 @@
 ﻿using Server.Contracts.Cron;
 
-namespace IntegrationTests.BasicTests.Cron;
+namespace IntegrationTests.ApiTests.Cron;
 
 public class FluentCronTests
 {

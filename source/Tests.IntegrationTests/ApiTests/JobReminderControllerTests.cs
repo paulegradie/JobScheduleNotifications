@@ -6,7 +6,7 @@ using Server.Contracts.Endpoints.Reminders.Contracts;
 using Server.Contracts.Endpoints.ScheduledJobs.Contracts;
 using Shouldly;
 
-namespace IntegrationTests.BasicTests;
+namespace IntegrationTests.ApiTests;
 
 public class JobReminderControllerTests : AuthenticatedIntegrationTest
 {

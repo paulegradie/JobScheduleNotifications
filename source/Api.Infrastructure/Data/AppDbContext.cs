@@ -17,6 +17,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
 
 
     // Domain Tables
+    public DbSet<JobCompletedPhoto> JobCompletedPhotos { get; set; }
     public DbSet<Customer> Customers { get; set; }
     public DbSet<ScheduledJobDefinition> ScheduledJobDefinitions { get; set; }
     public DbSet<JobOccurrence> JobOccurrences { get; set; }
@@ -158,6 +159,26 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
                 oc.Property(o => o.OccurrenceDate).IsRequired();
                 oc.Property(o => o.ScheduledJobDefinitionId).HasConversion<ScheduledJobDefinitionIdConverter>();
                 oc.Property(o => o.CustomerId).HasConversion<CustomerIdConverter>();
+
+                oc.HasMany(o => o.JobCompletedPhotos)
+                    .WithOne(p => p.JobOccurrence)
+                    .HasForeignKey(p => p.JobOccurrenceId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+        modelBuilder
+            .Entity<JobCompletedPhoto>(photo =>
+            {
+                photo.HasKey(p => p.JobCompletedPhotoId);
+
+                photo.Property(p => p.JobCompletedPhotoId)
+                    .HasConversion<JobCompletedPhotoIdConverter>()
+                    .HasValueGenerator<JobCompletedPhotoIdValueGenerator>()
+                    .ValueGeneratedOnAdd();
+
+                photo.Property(p => p.CustomerId).HasConversion<CustomerIdConverter>();
+                photo.Property(p => p.JobOccurrenceId).HasConversion<JobOccurrenceIdConverter>();
+                photo.Property(p => p.FilePath).IsRequired();
             });
 
         modelBuilder.Entity<JobReminder>(entity =>

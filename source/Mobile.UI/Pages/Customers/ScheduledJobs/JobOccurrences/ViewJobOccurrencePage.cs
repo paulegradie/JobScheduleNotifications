@@ -1,8 +1,7 @@
-﻿using System;
-using Api.ValueTypes;
+﻿using Api.ValueTypes;
 using CommunityToolkit.Maui.Markup;
-using Microsoft.Maui.Controls;
 using Mobile.UI.Pages.Base;
+using Server.Contracts.Dtos;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
 
@@ -41,7 +40,7 @@ public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
                     // Completed date (prints “null” if not set)
                     new Label()
                         .Bind(Label.TextProperty, nameof(ViewModel.CompletedDate),
-                            stringFormat: "Completed: {0:MMM d, yyyy h:mm tt} -- selected",
+                            stringFormat: "Completed: {0:MMM d, yyyy h:mm tt}",
                             fallbackValue: "Completed: null")
                         .FontSize(16)
                         .Bind(IsVisibleProperty, nameof(vm.MarkedAsComplete)),
@@ -65,8 +64,29 @@ public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
                     new Button()
                         .Text("Go Back")
                         .IsEnabled(true)
-                        .Bind(Button.CommandProperty, nameof(ViewModel.GoBackCommand))
+                        .Bind(Button.CommandProperty, nameof(ViewModel.GoBackCommand)),
 
+                    new CollectionView
+                        {
+                            ItemTemplate = new DataTemplate(() =>
+                            {
+                                var image = new Image()
+                                    .Height(150)
+                                    .Aspect(Aspect.AspectFill);
+                                image.Bind(Image.SourceProperty, nameof(PhotoDisplayItemDto.Path));
+
+                                var removeButton = new Button()
+                                    .Text("Remove")
+                                    .Bind(Button.CommandParameterProperty, ".")
+                                    .Bind(Button.CommandProperty, nameof(ViewModel.RemovePhotoCommand));
+
+                                return new VerticalStackLayout
+                                {
+                                    Children = { image, removeButton }
+                                };
+                            })
+                        }
+                        .Bind(ItemsView.ItemsSourceProperty, nameof(ViewModel.PhotoPaths))
                 }
             }
         };

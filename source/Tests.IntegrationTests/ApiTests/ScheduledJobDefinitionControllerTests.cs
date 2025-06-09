@@ -5,7 +5,7 @@ using Server.Contracts.Cron;
 using Server.Contracts.Endpoints.ScheduledJobs.Contracts;
 using Shouldly;
 
-namespace IntegrationTests.BasicTests;
+namespace IntegrationTests.ApiTests;
 
 public class ScheduledJobDefinitionControllerTests : AuthenticatedIntegrationTest
 {

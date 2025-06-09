@@ -19,11 +19,13 @@ public partial class DashboardViewModel : BaseViewModel
 
     [ObservableProperty] private int _totalCustomers;
 
+
     [ObservableProperty] private int _totalJobs;
-
     [ObservableProperty] private int _pendingJobs;
-
+    [ObservableProperty] private int _inProgressJobs;
+    [ObservableProperty] private int _unInvoicedJobs;
     [ObservableProperty] private int _completedJobs;
+
 
     [ObservableProperty] private string _businessName = string.Empty;
 
@@ -42,7 +44,7 @@ public partial class DashboardViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task LoadDashboardData()
+    private async Task LoadDashboardData() // TODO: we can provide org ID from the header here if the user ever has multi-org, then switching to that org sets the route segment param
     {
         await RunWithSpinner(async () =>
         {
@@ -59,6 +61,8 @@ public partial class DashboardViewModel : BaseViewModel
                 BusinessName = content.BusinessName;
                 WelcomeMessage = $"Welcome {content.CurrentUser}";
                 CompletedJobs = content.TotalCompletedJobs;
+                InProgressJobs = content.NumJobsInProgress;
+                UnInvoicedJobs = content.UnInvoicedJobs;
                 return;
             }
 
@@ -73,29 +77,16 @@ public partial class DashboardViewModel : BaseViewModel
         await _navigationUtility.GoToAsync(nameof(CustomerListPage));
     }
 
-
     [RelayCommand]
     private async Task Logout()
     {
-        if (IsBusy) return;
-
-        try
+        await RunWithSpinner(async () =>
         {
-            IsBusy = true;
             var token = await _tokenRepository.RetrieveTokenMeta();
             if (token == null) throw new Exception("No token found");
             await _serverClient.Auth.LogoutAsync(new SignOutRequest(token.Email), CancellationToken.None);
 
             await _navigationUtility.GoToAsync(nameof(LoginPage));
-        }
-        catch (Exception ex)
-        {
-            await _navigationUtility.ShowAlertAsync("Error", "Failed to logout");
-            System.Diagnostics.Debug.WriteLine($"Logout Error: {ex.Message}");
-        }
-        finally
-        {
-            IsBusy = false;
-        }
+        });
     }
 }

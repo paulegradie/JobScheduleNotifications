@@ -2,7 +2,7 @@
 using Server.Contracts.Endpoints.Auth.Contracts;
 using Shouldly;
 
-namespace IntegrationTests.BasicTests;
+namespace IntegrationTests.ApiTests;
 
 public class AuthenticationTests : IntegrationTest
 {
