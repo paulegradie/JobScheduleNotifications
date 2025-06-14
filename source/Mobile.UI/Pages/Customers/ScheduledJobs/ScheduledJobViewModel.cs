@@ -99,7 +99,7 @@ public partial class ScheduledJobViewModel : BaseViewModel
                 .ToList();
             JobOccurrences.Clear();
             _occurrenceCursor = 0;
-            HasMoreOccurrences = true;
+            HasMoreOccurrences = _allOccurrences.Count > occurrencePageSize;
             LoadMoreOccurrences();
 
             // load reminders
@@ -123,6 +123,10 @@ public partial class ScheduledJobViewModel : BaseViewModel
         _occurrenceCursor += nextBatch.Count;
         HasMoreOccurrences = _occurrenceCursor < _allOccurrences.Count;
         LoadMoreOccurrencesCommand.NotifyCanExecuteChanged();
+
+        // Ensure UI updates
+        OnPropertyChanged(nameof(JobOccurrences));
+        OnPropertyChanged(nameof(HasMoreOccurrences));
     }
 
     private bool CanLoadMoreOccurrences() => HasMoreOccurrences;
@@ -144,9 +148,12 @@ public partial class ScheduledJobViewModel : BaseViewModel
             _allOccurrences.Insert(0, results.Value.Occurrence);
             JobOccurrences.Clear();
             _occurrenceCursor = 0;
-            HasMoreOccurrences = true;
+            HasMoreOccurrences = _allOccurrences.Count > occurrencePageSize;
             LoadMoreOccurrences();
-            
+
+            // Explicitly notify that properties have changed
+            OnPropertyChanged(nameof(JobOccurrences));
+            OnPropertyChanged(nameof(HasMoreOccurrences));
         });
     }
 

@@ -27,6 +27,26 @@ public class JobOccurrenceDomainModel : DomainModelBase<JobOccurrenceDto>
     /// </summary>
     public string JobTitle { get; set; } = string.Empty;
 
+    public static JobOccurrenceDomainModel Initialize(
+        CustomerId customerId,
+        ScheduledJobDefinitionId scheduledJobDefinitionId,
+        DateTime occurrenceDate,
+        string jobTitle,
+        string jobDescription)
+    {
+        return new JobOccurrenceDomainModel
+        {
+            CustomerId = customerId,
+            ScheduledJobDefinitionId = scheduledJobDefinitionId,
+            OccurrenceDate = occurrenceDate,
+            JobTitle = jobTitle,
+            JobDescription = jobDescription,
+            MarkedAsComplete = false,
+            JobOccurrenceDomainStatus = JobOccurrenceDomainStatus.NotStarted,
+            JobCompletedPhotoDomainModel = []
+        };
+    }
+
     public override JobOccurrenceDto ToDto()
     {
         var photosDto = JobCompletedPhotoDomainModel.Select(x =>

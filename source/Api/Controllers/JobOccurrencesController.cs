@@ -4,6 +4,7 @@ using Api.Business.Repositories;
 using Api.Business.Entities;
 using Api.Infrastructure.Data;
 using Api.ValueTypes;
+using Server.Contracts.Dtos;
 using Server.Contracts.Endpoints.JobOccurence.Contracts;
 
 namespace Api.Controllers
@@ -68,16 +69,12 @@ namespace Api.Controllers
             if (def == null || def.CustomerId != req.CustomerId)
                 return NotFound();
 
-            var domain = new JobOccurrenceDomainModel
-            {
-                CustomerId = customerId,
-                ScheduledJobDefinitionId = req.JobDefinitionId,
-                OccurrenceDate = req.OccurrenceDate,
-                CompletedDate = null,
-                JobTitle = def.Title,
-                MarkedAsComplete = false,
-                JobDescription = def.Description
-            };
+            var domain = JobOccurrenceDomainModel.Initialize(
+                customerId,
+                req.JobDefinitionId,
+                req.OccurrenceDate,
+                def.Title,
+                def.Description);
 
             await _occRepo.AddAsync(domain);
 
@@ -86,7 +83,6 @@ namespace Api.Controllers
             return Ok(new CreateJobOccurrenceResponse(domain.ToDto()));
         }
 
-        // PUT: …/occurrences/{occurrenceId}
         [HttpPut(UpdateJobOccurrenceRequest.Route)]
         public async Task<ActionResult<UpdateJobOccurrenceResponse>> Update(
             [FromBody] UpdateJobOccurrenceRequest req, string customerId, string jobDefinitionId, string jobOccurenceId)

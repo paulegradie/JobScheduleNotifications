@@ -3,6 +3,7 @@ using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using Mobile.UI.Pages.Base;
+using Mobile.UI.Styles;
 using Server.Contracts.Dtos;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
@@ -29,7 +30,8 @@ public sealed class CustomerListPage : BasePage<CustomerListModel>
 
         Content = new Grid
         {
-            Padding = 20,
+            Padding = new Thickness(16),
+            BackgroundColor = CardStyles.Colors.Background,
             RowDefinitions = Rows.Define((Row.Header, Auto), (Row.Body, Star)),
             Children =
             {
@@ -70,9 +72,12 @@ public sealed class CustomerListPage : BasePage<CustomerListModel>
                 Content = new CollectionView
                     {
                         SelectionMode = SelectionMode.None,
-                        EmptyView = "No customers found",
-                        Margin = new Thickness(0, 10, 0, 10),
-                        ItemTemplate = new DataTemplate(() => BuildCustomerTemplate(vm))
+                        EmptyView = CreateEmptyView(),
+                        ItemsLayout = new LinearItemsLayout(ItemsLayoutOrientation.Vertical)
+                        {
+                            ItemSpacing = 12
+                        },
+                        ItemTemplate = CreateCustomerCardTemplate(vm)
                     }
                     .Bind(CollectionView.ItemsSourceProperty, nameof(vm.Customers))
             }
@@ -85,61 +90,125 @@ public sealed class CustomerListPage : BasePage<CustomerListModel>
             .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsLoading))
             .Bind(IsVisibleProperty, nameof(vm.IsLoading));
 
-    private static Frame BuildCustomerTemplate(CustomerListModel vm)
-    {
-        // Card-like container
-        return new Frame
-        {
-            Padding = 40,
-            Margin = 40,
-            Content = new VerticalStackLayout
+    private static DataTemplate CreateCustomerCardTemplate(CustomerListModel vm) =>
+        new DataTemplate(() => CreateCustomerCard(vm));
+
+    private static Frame CreateCustomerCard(CustomerListModel viewModel) =>
+        CardStyles.CreateCard(
+            new Grid
             {
-                Spacing = 8,
-                Margin = new Thickness(0, 10, 0, 10),
+                ColumnDefinitions = Columns.Define(
+                    (Column.Content, Star),
+                    (Column.Actions, Auto)
+                ),
                 Children =
                 {
-                    new HorizontalStackLayout()
+                    // Left side: Customer info
+                    new VerticalStackLayout
                     {
-                        Spacing = 5,
+                        Spacing = CardStyles.Spacing.ItemSpacing,
+                        VerticalOptions = LayoutOptions.Center,
                         Children =
                         {
-                            new Label().Font(size: 16, bold: true)
-                                .Bind(Label.TextProperty, nameof(CustomerDto.FirstName)),
-                            new Label().Font(size: 16, bold: true)
-                                .Bind(Label.TextProperty, nameof(CustomerDto.LastName)),
-                        }
-                    },
-                    new Label().FontSize(14)
-                        .TextColor((Color)Application.Current.Resources["TextSecondary"])
-                        .Bind(Label.TextProperty, nameof(CustomerDto.Email)),
-                    new Label().FontSize(14)
-                        .TextColor((Color)Application.Current.Resources["TextSecondary"])
-                        .Bind(Label.TextProperty, nameof(CustomerDto.PhoneNumber)),
+                            // Customer name
+                            new HorizontalStackLayout
+                            {
+                                Spacing = 5,
+                                Children =
+                                {
+                                    CardStyles.CreateTitleLabel()
+                                        .Bind(Label.TextProperty, nameof(CustomerDto.FirstName)),
+                                    CardStyles.CreateTitleLabel()
+                                        .Bind(Label.TextProperty, nameof(CustomerDto.LastName))
+                                }
+                            },
 
-                    // Buttons row
-                    new HorizontalStackLayout
-                    {
-                        Spacing = 10,
-                        Children =
-                        {
-                            new Button { Text = "Edit" }
-                                .Bind(Button.CommandProperty, nameof(vm.EditCustomerCommand), source: vm)
-                                .Bind(Button.CommandParameterProperty, "."),
-                            new Button { Text = "Delete" }
-                                .Bind(Button.CommandProperty, nameof(vm.DeleteCustomerCommand), source: vm)
-                                .Bind(Button.CommandParameterProperty, "."),
-                            new Button { Text = "New Job" }
-                                .Bind(Button.CommandProperty, nameof(vm.CreateJobCommand), source: vm)
-                                .Bind(Button.CommandParameterProperty, "."),
-                            new Button { Text = "View Jobs" }
-                                .Bind(Button.CommandProperty, nameof(vm.ViewJobsCommand), source: vm)
-                                .Bind(Button.CommandParameterProperty, ".")
+                            // Email with icon
+                            CardStyles.CreateIconTextStack("📧",
+                                CardStyles.CreateSubtitleLabel()
+                                    .Bind(Label.TextProperty, nameof(CustomerDto.Email))),
+
+                            // Phone with icon
+                            CardStyles.CreateIconTextStack("📱",
+                                CardStyles.CreateSubtitleLabel()
+                                    .Bind(Label.TextProperty, nameof(CustomerDto.PhoneNumber)))
                         }
                     }
+                    .Column(Column.Content),
+
+                    // Right side: Action buttons
+                    new VerticalStackLayout
+                    {
+                        Spacing = 6,
+                        VerticalOptions = LayoutOptions.Center,
+                        HorizontalOptions = LayoutOptions.End,
+                        Children =
+                        {
+                            // Primary action: View Jobs
+                            CardStyles.CreatePrimaryButton("View Jobs")
+                                .Bind(Button.CommandProperty, nameof(viewModel.ViewJobsCommand), source: viewModel)
+                                .Bind(Button.CommandParameterProperty, "."),
+
+                            // Secondary actions in a row
+                            new HorizontalStackLayout
+                            {
+                                Spacing = 6,
+                                Children =
+                                {
+                                    CardStyles.CreateSecondaryButton("Edit")
+                                        .Bind(Button.CommandProperty, nameof(viewModel.EditCustomerCommand), source: viewModel)
+                                        .Bind(Button.CommandParameterProperty, "."),
+
+                                    CardStyles.CreateSecondaryButton("New Job", CardStyles.Colors.Success)
+                                        .Bind(Button.CommandProperty, nameof(viewModel.CreateJobCommand), source: viewModel)
+                                        .Bind(Button.CommandParameterProperty, "."),
+
+                                    CardStyles.CreateSecondaryButton("Delete", CardStyles.Colors.Error)
+                                        .Bind(Button.CommandProperty, nameof(viewModel.DeleteCustomerCommand), source: viewModel)
+                                        .Bind(Button.CommandParameterProperty, ".")
+                                }
+                            }
+                        }
+                    }
+                    .Column(Column.Actions)
+                }
+            },
+            CardStyles.Colors.Primary // Blue accent bar
+        );
+
+    private static VerticalStackLayout CreateEmptyView() =>
+        new VerticalStackLayout
+        {
+            Spacing = 16,
+            VerticalOptions = LayoutOptions.Center,
+            HorizontalOptions = LayoutOptions.Center,
+            Padding = new Thickness(40),
+            Children =
+            {
+                new Label
+                {
+                    Text = "👥",
+                    FontSize = 48,
+                    HorizontalOptions = LayoutOptions.Center
+                },
+                new Label
+                {
+                    Text = "No Customers",
+                    FontSize = 20,
+                    FontAttributes = FontAttributes.Bold,
+                    TextColor = CardStyles.Colors.TextPrimary,
+                    HorizontalOptions = LayoutOptions.Center
+                },
+                new Label
+                {
+                    Text = "Add your first customer to get started.",
+                    FontSize = 16,
+                    TextColor = CardStyles.Colors.TextSecondary,
+                    HorizontalOptions = LayoutOptions.Center,
+                    HorizontalTextAlignment = TextAlignment.Center
                 }
             }
         };
-    }
 
     private enum Row
     {
@@ -151,5 +220,11 @@ public sealed class CustomerListPage : BasePage<CustomerListModel>
     {
         Search,
         Add
+    }
+
+    private enum Column
+    {
+        Content,
+        Actions
     }
 }

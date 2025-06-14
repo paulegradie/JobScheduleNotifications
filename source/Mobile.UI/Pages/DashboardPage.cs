@@ -1,5 +1,6 @@
-﻿using CommunityToolkit.Maui.Markup;
+﻿﻿﻿﻿﻿﻿﻿﻿using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
+using Mobile.UI.Styles;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace Mobile.UI.Pages;
@@ -13,19 +14,13 @@ public sealed class DashboardPage : BasePage<DashboardViewModel>
         _vm = vm;
         Title = vm.Title;
 
-        /* Direct colour constants (no resource lookup) */
-        var blue = Colors.Blue; // primary action
-        var green = Colors.Green; // success
-        var red = Colors.Red; // danger
-        var grayText = Colors.Gray;
-
-        BackgroundColor = Colors.White;
+        BackgroundColor = CardStyles.Colors.Background;
 
         Content = new ScrollView
         {
             Content = new Grid
             {
-                Padding = 20,
+                Padding = new Thickness(16),
                 RowDefinitions = Rows.Define(
                     (Row.Header, Auto),
                     (Row.Stats, Auto),
@@ -33,10 +28,10 @@ public sealed class DashboardPage : BasePage<DashboardViewModel>
                     (Row.Loader, Auto)),
                 Children =
                 {
-                    BuildHeader(vm, grayText).Row(Row.Header),
+                    BuildHeader(vm).Row(Row.Header),
                     BuildStatsGrid(vm).Row(Row.Stats),
-                    BuildActionButtons(blue, green, red).Row(Row.Actions),
-                    BuildBusyOverlay(vm, blue).Row(Row.Loader)
+                    BuildActionButtons().Row(Row.Actions),
+                    BuildBusyOverlay(vm).Row(Row.Loader)
                 }
             }
         };
@@ -51,115 +46,124 @@ public sealed class DashboardPage : BasePage<DashboardViewModel>
 
 
     /* ---------- header block ---------- */
-    static VerticalStackLayout BuildHeader(DashboardViewModel vm, Color grayText) =>
+    static VerticalStackLayout BuildHeader(DashboardViewModel vm) =>
         new()
         {
-            Spacing = 10,
-            Margin = new Thickness(0, 0, 0, 20),
+            Spacing = 12,
+            Margin = new Thickness(0, 0, 0, 24),
             Children =
             {
                 new Label()
                     .Bind(Label.TextProperty, nameof(vm.BusinessName))
-                    .Font(size: 24, bold: true)
-                    .TextColor(grayText),
+                    .Font(size: 28, bold: true)
+                    .TextColor(CardStyles.Colors.TextPrimary),
                 new Label()
                     .Bind(Label.TextProperty, nameof(vm.WelcomeMessage))
-                    .Font(size: 24, bold: true)
-                    .TextColor(grayText),
-
-
+                    .Font(size: 20, bold: true)
+                    .TextColor(CardStyles.Colors.Primary),
                 new Label()
                     .Text("Here's an overview of your business")
                     .FontSize(16)
-                    .TextColor(grayText)
+                    .TextColor(CardStyles.Colors.TextSecondary)
             }
         };
 
-    /* ---------- 2×2 stats grid ---------- */
-    [Obsolete("Obsolete")]
+    /* ---------- beautiful stats grid ---------- */
     static Grid BuildStatsGrid(DashboardViewModel vm)
     {
-        /* local palette */
-        var custText = Color.FromArgb("#1976D2");
-        var custBg = Color.FromArgb("#E3F2FD");
-        var jobsText = Color.FromArgb("#388E3C");
-        var jobsBg = Color.FromArgb("#E8F5E9");
-        var pendText = Color.FromArgb("#F57C00");
-        var pendBg = Color.FromArgb("#FFF3E0");
-        var compText = Color.FromArgb("#7B1FA2");
-        var compBg = Color.FromArgb("#F3E5F5");
-
         return new Grid
         {
             ColumnDefinitions = Columns.Define((Col.Left, Star), (Col.Right, Star)),
-            RowDefinitions = Rows.Define((StatRow.Top, Auto), (StatRow.Middle, Auto), (StatRow.Bottom, Auto)),
-            ColumnSpacing = 10,
-            RowSpacing = 10,
-            Margin = new Thickness(0, 20, 0, 20),
+            RowDefinitions = Rows.Define((StatRow.Top, Auto), (StatRow.Bottom, Auto)),
+            ColumnSpacing = 12,
+            RowSpacing = 12,
+            Margin = new Thickness(0, 0, 0, 24),
 
             Children =
             {
-                StatFrame("Total Customers", nameof(vm.TotalCustomers), custText, custBg)
+                CreateStatCard("👥", "Total Customers", nameof(vm.TotalCustomers), CardStyles.Colors.Primary)
                     .Column(Col.Left).Row(StatRow.Top),
-                StatFrame("Total Jobs", nameof(vm.TotalJobs), jobsText, jobsBg)
+                CreateStatCard("📋", "Total Jobs", nameof(vm.TotalJobs), CardStyles.Colors.Success)
                     .Column(Col.Right).Row(StatRow.Top),
-                StatFrame("In Progress Jobs", nameof(vm.InProgressJobs), jobsText, jobsBg)
-                    .Column(Col.Right).Row(StatRow.Middle),
-                StatFrame("UnInvoiced Jobs", nameof(vm.UnInvoicedJobs), pendText, pendBg)
-                    .Column(Col.Left).Row(StatRow.Middle),
-                StatFrame("Total Jobs", nameof(vm.TotalJobs), jobsText, jobsBg)
-                    .Column(Col.Right).Row(StatRow.Bottom),
-                StatFrame("Completed Jobs", nameof(vm.CompletedJobs), compText, compBg)
+                CreateStatCard("⏳", "In Progress", nameof(vm.InProgressJobs), CardStyles.Colors.Warning)
+                    .Column(Col.Left).Row(StatRow.Bottom),
+                CreateStatCard("✅", "Completed", nameof(vm.CompletedJobs), CardStyles.Colors.Success)
                     .Column(Col.Right).Row(StatRow.Bottom)
             }
         };
-
-        static Frame StatFrame(string label, string vmProp, Color text, Color bg) =>
-            new Frame
-            {
-                CornerRadius = 10,
-                Padding = 15,
-                BackgroundColor = bg,
-                HasShadow = false,
-                Content = new VerticalStackLayout
-                {
-                    Children =
-                    {
-                        new Label().Text(label).FontSize(14).TextColor(text),
-                        new Label().Bind(Label.TextProperty, vmProp)
-                            .Font(size: 24, bold: true).TextColor(text)
-                    }
-                }
-            };
     }
 
-    /* ---------- action buttons ---------- */
-    VerticalStackLayout BuildActionButtons(Color blue, Color green, Color red) =>
-        new VerticalStackLayout
+    static Frame CreateStatCard(string icon, string label, string vmProperty, Color accentColor)
+    {
+        var content = new VerticalStackLayout
         {
-            Spacing = 10,
+            Spacing = 8,
             Children =
             {
-                SolidButton("Manage Customers", nameof(_vm.NavigateToCustomersCommand), blue),
-                SolidButton("Logout", nameof(_vm.LogoutCommand), red)
+                // Icon and label row
+                new HorizontalStackLayout
+                {
+                    Spacing = 8,
+                    VerticalOptions = LayoutOptions.Center,
+                    Children =
+                    {
+                        new Label
+                        {
+                            Text = icon,
+                            FontSize = 20
+                        },
+                        CardStyles.CreateSubtitleLabel()
+                            .Text(label)
+                    }
+                },
+
+                // Large number
+                new Label()
+                    .Bind(Label.TextProperty, vmProperty)
+                    .Font(size: 32, bold: true)
+                    .TextColor(CardStyles.Colors.TextPrimary)
             }
         };
 
-    static Button SolidButton(string text, string commandName, Color bg) =>
-        new Button()
-            .Text(text)
-            .BindCommand(commandName)
-            .BackgroundColor(bg)
-            .TextColor(Colors.White)
-            .FontSize(16)
-            .Height(50);
+        return CardStyles.CreateCard(content, accentColor);
+    }
+
+    /* ---------- action buttons ---------- */
+    VerticalStackLayout BuildActionButtons() =>
+        new VerticalStackLayout
+        {
+            Spacing = 12,
+            Children =
+            {
+                CreateActionButton("👥 Manage Customers", nameof(_vm.NavigateToCustomersCommand), CardStyles.Colors.Primary),
+                CreateActionButton("🚪 Logout", nameof(_vm.LogoutCommand), CardStyles.Colors.Error)
+            }
+        };
+
+    Button CreateActionButton(string text, string commandName, Color backgroundColor) =>
+        new Button
+        {
+            Text = text,
+            BackgroundColor = backgroundColor,
+            TextColor = Colors.White,
+            FontSize = 16,
+            FontAttributes = FontAttributes.Bold,
+            CornerRadius = 12,
+            Padding = new Thickness(20, 16),
+            HorizontalOptions = LayoutOptions.FillAndExpand
+        }
+        .BindCommand(commandName);
 
     /* ---------- busy overlay ---------- */
-    static ActivityIndicator BuildBusyOverlay(DashboardViewModel vm, Color accent) =>
-        new ActivityIndicator()
-            .Center()
-            .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
-            .Bind(ActivityIndicator.IsVisibleProperty, nameof(vm.IsBusy));
+    static ActivityIndicator BuildBusyOverlay(DashboardViewModel vm) =>
+        new ActivityIndicator
+        {
+            Color = CardStyles.Colors.Primary,
+            HorizontalOptions = LayoutOptions.Center,
+            VerticalOptions = LayoutOptions.Center
+        }
+        .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
+        .Bind(ActivityIndicator.IsVisibleProperty, nameof(vm.IsBusy));
 
     /* enum helpers */
     enum Row
@@ -179,7 +183,6 @@ public sealed class DashboardPage : BasePage<DashboardViewModel>
     enum StatRow
     {
         Top,
-        Middle,
         Bottom
     }
 }

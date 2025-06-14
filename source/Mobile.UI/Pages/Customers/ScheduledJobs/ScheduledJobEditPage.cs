@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿﻿﻿using System;
 using Api.ValueTypes;
 using Api.ValueTypes.Enums;
 using CommunityToolkit.Maui.Markup;
@@ -7,6 +7,7 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Layouts;
 using Mobile.UI.Pages.Base;
+using Mobile.UI.Styles;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
@@ -21,64 +22,25 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
 
     public ScheduledJobEditPage(ScheduledJobEditModel vm) : base(vm)
     {
-        Title = "Edit a Scheduled Job";
+        Title = "Edit Scheduled Job";
+        BackgroundColor = CardStyles.Colors.Background;
+
         Content = new ScrollView
         {
             Content = new VerticalStackLayout
             {
-                Padding = 20,
-                Spacing = 15,
+                Padding = new Thickness(16),
+                Spacing = 16,
                 Children =
                 {
-                    Section("Title",
-                        new Entry()
-                            .Placeholder("Job Title")
-                            .Bind(Entry.TextProperty, nameof(vm.Title))
-                    ),
+                    // Basic Information Card
+                    CreateBasicInfoCard(vm),
 
-                    Section("Description",
-                        new Editor { HeightRequest = 100 }
-                            .Bind(Editor.TextProperty, nameof(vm.Description))
-                    ),
+                    // Schedule Configuration Card
+                    CreateScheduleCard(vm),
 
-                    Section("Start Date",
-                        new DatePicker()
-                            .Bind(DatePicker.DateProperty, nameof(vm.AnchorDate))
-                    ),
-                    new Label().Text("Frequency").Font(size: 14, bold: true),
-                    new FlexLayout
-                    {
-                        JustifyContent = FlexJustify.SpaceBetween,
-                        Children =
-                        {
-                            CreateChip(Frequency.Daily),
-                            CreateChip(Frequency.Weekly),
-                            CreateChip(Frequency.Monthly),
-                        }
-                    },
-
-                    new Label().Bind(Label.TextProperty, nameof(vm.IntervalDisplay)).Font(size: 18),
-                    new Slider(1, 52, 1)
-                        .Bind(Slider.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay),
-                    new Stepper(1, 100, 1, 1)
-                        .Bind(Stepper.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay),
-
-                    Section("Cron Preview",
-                        new Label { FontSize = 14, TextColor = Colors.Gray }
-                            .Bind(Label.TextProperty, nameof(vm.CronPreview))
-                    ),
-
-                    new Label { TextColor = Colors.Red }
-                        .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
-                        .Bind(IsVisibleProperty, nameof(vm.HasError)),
-
-                    new Button { Text = "Save Job", CornerRadius = 8 }
-                        .BindCommand(nameof(vm.SaveCommand))
-                        .Bind(IsEnabledProperty, nameof(vm.CanSave)),
-
-                    new ActivityIndicator()
-                        .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
-                        .Bind(IsVisibleProperty, nameof(vm.IsBusy))
+                    // Actions Card
+                    CreateActionsCard(vm)
                 }
             }
         };
@@ -94,12 +56,164 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
         );
     }
 
-    private Button CreateChip(Frequency freq) =>
+    private Frame CreateBasicInfoCard(ScheduledJobEditModel vm)
+    {
+        var content = new VerticalStackLayout
+        {
+            Spacing = CardStyles.Spacing.ItemSpacing,
+            Children =
+            {
+                // Section title
+                CardStyles.CreateTitleLabel()
+                    .Text("📋 Job Information"),
+
+                // Title entry
+                Section("Job Title",
+                    new Entry
+                    {
+                        Placeholder = "Enter job title...",
+                        BackgroundColor = Colors.White,
+                        TextColor = CardStyles.Colors.TextPrimary
+                    }
+                    .Bind(Entry.TextProperty, nameof(vm.Title))
+                ),
+
+                // Description editor
+                Section("Description",
+                    new Editor
+                    {
+                        HeightRequest = 100,
+                        Placeholder = "Enter job description...",
+                        BackgroundColor = Colors.White,
+                        TextColor = CardStyles.Colors.TextPrimary
+                    }
+                    .Bind(Editor.TextProperty, nameof(vm.Description))
+                )
+            }
+        };
+
+        return CardStyles.CreateCard(content, CardStyles.Colors.Primary);
+    }
+
+    private Frame CreateScheduleCard(ScheduledJobEditModel vm)
+    {
+        var content = new VerticalStackLayout
+        {
+            Spacing = CardStyles.Spacing.ItemSpacing,
+            Children =
+            {
+                // Section title
+                CardStyles.CreateTitleLabel()
+                    .Text("⏰ Schedule Configuration"),
+
+                // Start date
+                Section("Start Date",
+                    new DatePicker
+                    {
+                        BackgroundColor = Colors.White,
+                        TextColor = CardStyles.Colors.TextPrimary
+                    }
+                    .Bind(DatePicker.DateProperty, nameof(vm.AnchorDate))
+                ),
+
+                // Frequency chips
+                Section("Frequency",
+                    new FlexLayout
+                    {
+                        JustifyContent = FlexJustify.SpaceBetween,
+                        Children =
+                        {
+                            CreateFrequencyChip(Frequency.Daily),
+                            CreateFrequencyChip(Frequency.Weekly),
+                            CreateFrequencyChip(Frequency.Monthly),
+                        }
+                    }
+                ),
+
+                // Interval display
+                CardStyles.CreateSubtitleLabel()
+                    .Bind(Label.TextProperty, nameof(vm.IntervalDisplay)),
+
+                // Interval controls
+                Section("Interval",
+                    new VerticalStackLayout
+                    {
+                        Spacing = 8,
+                        Children =
+                        {
+                            new Slider(1, 52, 1)
+                            {
+                                ThumbColor = CardStyles.Colors.Primary,
+                                MinimumTrackColor = CardStyles.Colors.Primary
+                            }
+                            .Bind(Slider.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay),
+
+                            new Stepper(1, 100, 1, 1)
+                            {
+                                BackgroundColor = Colors.White
+                            }
+                            .Bind(Stepper.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay)
+                        }
+                    }
+                ),
+
+                // Cron preview
+                Section("Cron Preview",
+                    new Label
+                    {
+                        FontSize = CardStyles.Typography.CaptionSize,
+                        TextColor = CardStyles.Colors.TextSecondary,
+                        FontFamily = "Courier"
+                    }
+                    .Bind(Label.TextProperty, nameof(vm.CronPreview))
+                )
+            }
+        };
+
+        return CardStyles.CreateCard(content, CardStyles.Colors.Warning);
+    }
+
+    private Frame CreateActionsCard(ScheduledJobEditModel vm)
+    {
+        var content = new VerticalStackLayout
+        {
+            Spacing = CardStyles.Spacing.ItemSpacing,
+            Children =
+            {
+                // Error message
+                new Label
+                {
+                    TextColor = CardStyles.Colors.Error,
+                    FontSize = CardStyles.Typography.SubtitleSize
+                }
+                .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
+                .Bind(IsVisibleProperty, nameof(vm.HasError)),
+
+                // Save button
+                CardStyles.CreatePrimaryButton("💾 Update Job")
+                    .BindCommand(nameof(vm.SaveCommand))
+                    .Bind(IsEnabledProperty, nameof(vm.CanSave)),
+
+                // Loading indicator
+                new ActivityIndicator
+                {
+                    Color = CardStyles.Colors.Primary
+                }
+                .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
+                .Bind(IsVisibleProperty, nameof(vm.IsBusy))
+            }
+        };
+
+        return CardStyles.CreateCard(content, CardStyles.Colors.Success);
+    }
+
+    private Button CreateFrequencyChip(Frequency freq) =>
         new Button
             {
                 Text = freq.ToString(),
                 CornerRadius = 20,
-                Padding = new Thickness(16, 8)
+                Padding = new Thickness(16, 8),
+                FontSize = CardStyles.Typography.CaptionSize
             }
             .BindCommand(
                 nameof(ScheduledJobCreateModel.SelectFrequencyCommand),
