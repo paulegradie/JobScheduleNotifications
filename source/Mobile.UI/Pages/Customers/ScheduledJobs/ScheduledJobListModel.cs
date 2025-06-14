@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿﻿﻿﻿﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Api.ValueTypes;
@@ -22,12 +22,15 @@ public partial class ScheduledJobListModel : BaseViewModel
         _jobRepository = jobRepository;
     }
 
-    [ObservableProperty] private ObservableCollection<ScheduledJobDefinitionDto> _scheduledJobs = [];
+    [ObservableProperty] private ObservableCollection<ScheduledJobDefinitionDto> _scheduledJobs = new();
     public CustomerId CustomerId { get; set; }
+    private string? _currentCustomerIdString;
 
     [RelayCommand]
     private async Task LoadForCustomerAsync(string customerIdString)
     {
+        _currentCustomerIdString = customerIdString;
+
         var guid = await RunWithSpinner(async () =>
         {
             if (!Guid.TryParse(customerIdString, out var guid))
@@ -55,6 +58,8 @@ public partial class ScheduledJobListModel : BaseViewModel
         }, "Failed to load scheduled jobs.");
         OnPropertyChanged(nameof(ScheduledJobs));
     }
+
+
 
     [RelayCommand]
     private async Task NavigateToEditAsync(ScheduledJobDefinitionDto? dto)

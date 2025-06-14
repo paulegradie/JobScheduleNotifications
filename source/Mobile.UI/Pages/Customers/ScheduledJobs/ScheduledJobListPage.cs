@@ -1,7 +1,4 @@
-﻿using CommunityToolkit.Maui.Markup;
-using Microsoft.Maui;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
+﻿﻿﻿﻿using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
 using Server.Contracts.Dtos;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
@@ -15,66 +12,111 @@ public sealed class ScheduledJobListPage : BasePage<ScheduledJobListModel>
 
     public ScheduledJobListPage(ScheduledJobListModel vm) : base(vm)
     {
-        Title = "List All Scheduled Jobs for this Customer:";
-        Content = new RefreshView()
-            {
-                Content = new CollectionView()
-                    {
-                        SelectionMode = SelectionMode.None,
-                        EmptyView = "No scheduled jobs found",
-                        ItemTemplate = new DataTemplate(() => new Frame
-                        {
-                            Padding = 10,
-                            CornerRadius = 10,
-                            Content = BuildGrid(ViewModel),
-                            BackgroundColor = Colors.LightGray,
-                            HasShadow = true,
-                            Margin = new Thickness(10, 10, 10, 10),
-                            HeightRequest = 200,
-                            VerticalOptions = LayoutOptions.Center,
-                            HorizontalOptions = LayoutOptions.FillAndExpand,
-                        })
-                    }
-                    .Bind(ItemsView.ItemsSourceProperty, nameof(ViewModel.ScheduledJobs))
-            }
-            .Bind(RefreshView.IsRefreshingProperty, nameof(vm.IsBusy));
-    }
+        Title = "Scheduled Jobs";
 
-    private static Grid BuildGrid(ScheduledJobListModel model) =>
-        new Grid
+        Content = new Grid
         {
-            Margin = new Thickness(2, 10, 2, 0),
-            RowDefinitions = Rows.Define((Row.Title, Auto), (Row.CustomerId, Auto), (Row.AnchorDate, Auto), (Row.EditButton, Auto)),
+            Padding = new Thickness(16),
+            BackgroundColor = Color.FromArgb("#F8F9FA"), // Light background
+            RowDefinitions = Rows.Define((Row.MainContent, Star)),
             Children =
             {
-                new Label()
-                    .Font(size: 16, bold: true)
-                    .Bind(Label.TextProperty, nameof(ScheduledJobDefinitionDto.Title))
-                    .Row(Row.Title).Column(0),
+                new RefreshView
+                    {
+                        Content = new CollectionView
+                            {
+                                SelectionMode = SelectionMode.None,
+                                EmptyView = CreateEmptyView(),
+                                ItemsLayout = new LinearItemsLayout(ItemsLayoutOrientation.Vertical)
+                                {
+                                    ItemSpacing = 12
+                                },
+                                ItemTemplate = CreateJobCardTemplate()
+                            }
+                            .Bind(ItemsView.ItemsSourceProperty, nameof(ViewModel.ScheduledJobs))
+                    }
+                    .Bind(RefreshView.IsRefreshingProperty, nameof(ViewModel.IsBusy))
+                    .Row(Row.MainContent)
+            }
+        };
+    }
 
-                new Label()
-                    .Font(size: 12)
-                    .Bind(Label.TextProperty, nameof(ScheduledJobDefinitionDto.CustomerId))
-                    .Row(Row.CustomerId).Column(0),
+    private DataTemplate CreateJobCardTemplate() =>
+        new DataTemplate(() => CreateJobCard());
 
-                new Label()
-                    .Font(size: 12)
-                    .Bind(Label.TextProperty, nameof(ScheduledJobDefinitionDto.AnchorDate), stringFormat: "{0:yyyy-MM-dd}")
-                    .Row(Row.AnchorDate).Column(0),
+    private Frame CreateJobCard() =>
+        new Frame
+        {
+            BackgroundColor = Colors.White,
+            BorderColor = Colors.LightGray,
+            CornerRadius = 8,
+            HasShadow = false,
+            Padding = 16,
+            Margin = new Thickness(0, 4),
+            Content = new VerticalStackLayout
+            {
+                Spacing = 8,
+                Children =
+                {
+                    // Job title
+                    new Label()
+                        .Font(size: 18, bold: true)
+                        .TextColor(Colors.Black)
+                        .Bind(Label.TextProperty, nameof(ScheduledJobDefinitionDto.Title)),
 
-                new Button()
-                    .Text("View")
-                    .Bind(Button.CommandProperty, nameof(model.NavigateToViewCommand), source: model)
+                    // Job date
+                    new Label()
+                        .Font(size: 14)
+                        .TextColor(Colors.Gray)
+                        .Bind(Label.TextProperty, nameof(ScheduledJobDefinitionDto.AnchorDate),
+                            stringFormat: "Date: {0:MMM d, yyyy}"),
+
+                    // Simple button
+                    new Button
+                    {
+                        Text = "View",
+                        BackgroundColor = Colors.Blue,
+                        TextColor = Colors.White,
+                        CornerRadius = 4,
+                        FontSize = 14
+                    }
+                    .Bind(Button.CommandProperty, nameof(ScheduledJobListModel.NavigateToViewCommand), source: ViewModel)
                     .Bind(Button.CommandParameterProperty, nameof(ScheduledJobDefinitionDto.ScheduledJobDefinitionId))
-                    .Row(Row.ViewButton)
-                    .RowSpan(1).Column(0),
+                }
+            }
+        };
 
-                // new Button()
-                //     .Text("Edit")
-                //     .Bind(Button.CommandProperty, nameof(model.NavigateToEditCommand), source: model)
-                //     .Bind(Button.CommandParameterProperty, ".")
-                //     .Row(Row.EditButton)
-                //     .RowSpan(1).Column(0)
+    private static VerticalStackLayout CreateEmptyView() =>
+        new VerticalStackLayout
+        {
+            Spacing = 16,
+            VerticalOptions = LayoutOptions.Center,
+            HorizontalOptions = LayoutOptions.Center,
+            Padding = new Thickness(40),
+            Children =
+            {
+                new Label
+                {
+                    Text = "📋",
+                    FontSize = 48,
+                    HorizontalOptions = LayoutOptions.Center
+                },
+                new Label
+                {
+                    Text = "No Scheduled Jobs",
+                    FontSize = 20,
+                    FontAttributes = FontAttributes.Bold,
+                    TextColor = Color.FromArgb("#212121"), // TextPrimary
+                    HorizontalOptions = LayoutOptions.Center
+                },
+                new Label
+                {
+                    Text = "There are no scheduled jobs for this customer yet.",
+                    FontSize = 16,
+                    TextColor = Color.FromArgb("#757575"), // TextSecondary
+                    HorizontalOptions = LayoutOptions.Center,
+                    HorizontalTextAlignment = TextAlignment.Center
+                }
             }
         };
 
@@ -87,10 +129,14 @@ public sealed class ScheduledJobListPage : BasePage<ScheduledJobListModel>
 
     private enum Row
     {
-        Title,
-        CustomerId,
-        AnchorDate,
-        EditButton,
-        ViewButton,
+        MainContent,
+        CardTitle,
+        CardDetails
+    }
+
+    private enum Column
+    {
+        Content,
+        Action
     }
 }
