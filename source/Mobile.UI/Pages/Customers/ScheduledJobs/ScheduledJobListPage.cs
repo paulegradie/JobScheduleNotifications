@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using CommunityToolkit.Maui.Markup;
+﻿﻿using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
 using Server.Contracts.Dtos;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
@@ -48,40 +48,85 @@ public sealed class ScheduledJobListPage : BasePage<ScheduledJobListModel>
         new Frame
         {
             BackgroundColor = Colors.White,
-            BorderColor = Colors.LightGray,
-            CornerRadius = 8,
+            BorderColor = Color.FromArgb("#E1E5E9"),
+            CornerRadius = 12,
             HasShadow = false,
-            Padding = 16,
-            Margin = new Thickness(0, 4),
+            Padding = 0,
+            Margin = new Thickness(0, 6),
             Content = new VerticalStackLayout
             {
-                Spacing = 8,
+                Spacing = 0,
                 Children =
                 {
-                    // Job title
-                    new Label()
-                        .Font(size: 18, bold: true)
-                        .TextColor(Colors.Black)
-                        .Bind(Label.TextProperty, nameof(ScheduledJobDefinitionDto.Title)),
-
-                    // Job date
-                    new Label()
-                        .Font(size: 14)
-                        .TextColor(Colors.Gray)
-                        .Bind(Label.TextProperty, nameof(ScheduledJobDefinitionDto.AnchorDate),
-                            stringFormat: "Date: {0:MMM d, yyyy}"),
-
-                    // Simple button
-                    new Button
+                    // Blue accent bar at top
+                    new BoxView
                     {
-                        Text = "View",
-                        BackgroundColor = Colors.Blue,
-                        TextColor = Colors.White,
-                        CornerRadius = 4,
-                        FontSize = 14
+                        BackgroundColor = Color.FromArgb("#2196F3"), // Primary500
+                        HeightRequest = 4
+                    },
+
+                    // Main content with padding
+                    new VerticalStackLayout
+                    {
+                        Padding = new Thickness(20, 16),
+                        Spacing = 12,
+                        Children =
+                        {
+                            // Job title
+                            new Label()
+                                .Font(size: 18, bold: true)
+                                .TextColor(Color.FromArgb("#212121")) // TextPrimary
+                                .Bind(Label.TextProperty, nameof(ScheduledJobDefinitionDto.Title)),
+
+                            // Date with icon
+                            new HorizontalStackLayout
+                            {
+                                Spacing = 8,
+                                Children =
+                                {
+                                    new Label()
+                                        .Text("📅")
+                                        .FontSize(16),
+                                    new Label()
+                                        .Font(size: 14)
+                                        .TextColor(Color.FromArgb("#757575")) // TextSecondary
+                                        .Bind(Label.TextProperty, nameof(ScheduledJobDefinitionDto.AnchorDate),
+                                            stringFormat: "{0:MMM d, yyyy}")
+                                }
+                            },
+
+                            // Customer info with icon
+                            new HorizontalStackLayout
+                            {
+                                Spacing = 8,
+                                Children =
+                                {
+                                    new Label()
+                                        .Text("👤")
+                                        .FontSize(16),
+                                    new Label()
+                                        .Font(size: 14)
+                                        .TextColor(Color.FromArgb("#757575")) // TextSecondary
+                                        .Bind(Label.TextProperty, nameof(ScheduledJobDefinitionDto.CustomerId),
+                                            stringFormat: "Customer: {0}")
+                                }
+                            },
+
+                            // Beautiful button
+                            new Button
+                            {
+                                Text = "View Details",
+                                BackgroundColor = Color.FromArgb("#2196F3"), // Primary500
+                                TextColor = Colors.White,
+                                CornerRadius = 8,
+                                FontSize = 14,
+                                Padding = new Thickness(16, 12),
+                                Margin = new Thickness(0, 8, 0, 0)
+                            }
+                            .Bind(Button.CommandProperty, nameof(ScheduledJobListModel.NavigateToViewCommand), source: ViewModel)
+                            .Bind(Button.CommandParameterProperty, nameof(ScheduledJobDefinitionDto.ScheduledJobDefinitionId))
+                        }
                     }
-                    .Bind(Button.CommandProperty, nameof(ScheduledJobListModel.NavigateToViewCommand), source: ViewModel)
-                    .Bind(Button.CommandParameterProperty, nameof(ScheduledJobDefinitionDto.ScheduledJobDefinitionId))
                 }
             }
         };
