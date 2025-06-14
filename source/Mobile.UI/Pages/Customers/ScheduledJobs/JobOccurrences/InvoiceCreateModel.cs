@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -12,12 +9,13 @@ using QuestPDF.Infrastructure;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
 
-public record InvoiceItem(string Description, decimal Price);
+public record InvoiceItem(string ItemNumber, string Description, decimal Price);
 
 public partial class InvoiceCreateModel : BaseViewModel
 {
     private readonly INavigationRepository _navigationRepository;
     private readonly IInvoiceRepository _invoiceRepository;
+    private readonly IJobCompletedPhotoRepository _photoRepository;
     [ObservableProperty] private string _currentItemDescription = string.Empty;
     [ObservableProperty] private string _currentItemPrice = string.Empty;
     [ObservableProperty] private string _today = DateTime.Now.ToString("yyyy-MM-dd");
@@ -31,10 +29,11 @@ public partial class InvoiceCreateModel : BaseViewModel
 
     private CustomerJobAndOccurrenceIds CusterCustomerJobAndOccurrenceIds { get; set; }
 
-    public InvoiceCreateModel(INavigationRepository navigationRepository, IInvoiceRepository invoiceRepository)
+    public InvoiceCreateModel(INavigationRepository navigationRepository, IInvoiceRepository invoiceRepository, IJobCompletedPhotoRepository photoRepository)
     {
         _navigationRepository = navigationRepository;
         _invoiceRepository = invoiceRepository;
+        _photoRepository = photoRepository;
     }
 
     public void Initialize(string customerId, string scheduledJobDefinitionId, string jobOccurrenceId, string jobDescription)
@@ -54,7 +53,7 @@ public partial class InvoiceCreateModel : BaseViewModel
     {
         if (string.IsNullOrWhiteSpace(CurrentItemDescription) ||
             !int.TryParse(CurrentItemPrice, out var price)) return;
-        InvoiceItems.Add(new InvoiceItem(CurrentItemDescription, price));
+        InvoiceItems.Add(new InvoiceItem((InvoiceItems.Count + 1).ToString(), CurrentItemDescription, price));
         CurrentItemDescription = string.Empty;
         CurrentItemPrice = string.Empty;
         Total = InvoiceItems.Sum(x => x.Price).ToString("C");
@@ -75,23 +74,31 @@ public partial class InvoiceCreateModel : BaseViewModel
 
         QuestPDF.Settings.License = LicenseType.Community;
 
-        Document.Create(container =>
-        {
-            container.Page(page =>
-            {
-                page.Margin(50);
-                page.Header().Text("Invoice").FontSize(24).Bold();
+        var invoiceNumber = $"INV-20240614-{Guid.NewGuid().ToString("N").Split("-")[0]}"; // You can auto-generate
+        var customerName = "John Doe"; // Supply from your model
+        var invoiceDate = DateTime.Now;
 
-                page.Content().Column(col =>
-                {
-                    col.Item().Text($"Date: {DateTime.Now:yyyy-MM-dd}");
-                    col.Item().LineHorizontal(1);
-                    foreach (var item in InvoiceItems)
-                        col.Item().Text(item);
-                    col.Item().LineHorizontal(1);
-                });
-            });
-        }).GeneratePdf(outputPath);
+        var subtotal = InvoiceItems.Sum(item => item.Price);
+        var total = subtotal; // Add tax if needed
+
+        var photoPathsResult = await _photoRepository.ListPhotoAsync(
+            CusterCustomerJobAndOccurrenceIds.CustomerId,
+            CusterCustomerJobAndOccurrenceIds.ScheduledJobDefinitionId,
+            CusterCustomerJobAndOccurrenceIds.JobOccurrenceId
+        );
+
+        var photoUris = new List<string>();
+        if (photoPathsResult.IsSuccess)
+        {
+            photoUris.AddRange(photoPathsResult.Value.JobCompletedPhotoListDto.JobCompletedPhotos.Select(details => details.Uri));
+        }
+
+        var location = new InvoiceDocument.CustomerBusinessLocation("123 Main Street", "Melbourne", "Victoria", "Australia");
+        var businessDetails = new InvoiceDocument.CustomerBusinessDetails("Your Business Name", "1234567890", "info@yourbusiness.com", location, "1234567890");
+
+        var document = new InvoiceDocument(businessDetails, invoiceNumber, customerName, invoiceDate, InvoiceItems, "bank-details-123", photoUris);
+        document.GeneratePdf(outputPath);
+
         OnPropertyChanged(nameof(PreviewFilePath));
 
         await _invoiceRepository.SendInvoiceAsync(

@@ -107,11 +107,13 @@ internal static class JobDefinitionMappings
                     JobTitle = e.Title,
                     CompletedDate = o.CompletedDate,
                     MarkedAsComplete = o.MarkedAsCompleted,
-                    JobCompletedPhotoDomainModel = o.JobCompletedPhotos.Select(p => new JobCompletedPhotoDomainModel(
-                            p.JobOccurrenceId,
-                            p.CustomerId,
-                            p.FilePath))
-                        .ToList()
+                    JobCompletedPhotoDomainModel = o.JobCompletedPhotos.Select(p => new JobCompletedPhotoDomainModel
+                    {
+                        CustomerId = p.CustomerId,
+                        JobCompletedPhotoId = p.JobCompletedPhotoId,
+                        JobOccurrenceId = p.JobOccurrenceId,
+                        PhotoUri = p.FilePath
+                    }).ToList()
                 })
                 .ToList()
         };

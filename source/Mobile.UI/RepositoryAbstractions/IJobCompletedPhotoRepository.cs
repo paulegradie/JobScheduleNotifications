@@ -17,4 +17,9 @@ public interface IJobCompletedPhotoRepository
         ScheduledJobDefinitionId jobDefinitionId,
         JobOccurrenceId jobOccurrenceId,
         JobCompletedPhotoId jobCompletedPhotoId);
+
+    Task<OperationResult<JobCompletedPhotoListResponse>> ListPhotoAsync(
+        CustomerId customerId,
+        ScheduledJobDefinitionId jobDefinitionId,
+        JobOccurrenceId jobOccurrenceId);
 }

@@ -3,14 +3,13 @@ using Server.Contracts.Common.Request;
 
 namespace Server.Contracts.Endpoints.JobPhotos.Contracts;
 
-public sealed record DeleteJobCompletedPhotoRequest(
+public sealed record ListJobCompletedPhotosRequest(
     CustomerId CustomerId,
     ScheduledJobDefinitionId ScheduledJobDefinitionId,
-    JobOccurrenceId JobOccurrenceId,
-    JobCompletedPhotoId JobCompletedPhotoId
+    JobOccurrenceId JobOccurrenceId
 ) : RequestBase(Route)
 {
-    public const string Route = $"customers/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/occurrences/{JobOccurenceIdSegmentParam}/jobCompletedPhotos/{PhotoIdSegmentParam}";
+    public const string Route = $"customers/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/occurrences/{JobOccurenceIdSegmentParam}/jobCompletedPhotos";
 
     protected override ApiRoute GetApiRoute()
     {
@@ -18,7 +17,6 @@ public sealed record DeleteJobCompletedPhotoRequest(
         route.AddRouteParam(CustomerIdSegmentParam, CustomerId.ToString());
         route.AddRouteParam(JobDefinitionIdSegmentParam, ScheduledJobDefinitionId.ToString());
         route.AddRouteParam(JobOccurenceIdSegmentParam, JobOccurrenceId.ToString());
-        route.AddRouteParam(PhotoIdSegmentParam, JobCompletedPhotoId.ToString());
         return route;
     }
-}
+};

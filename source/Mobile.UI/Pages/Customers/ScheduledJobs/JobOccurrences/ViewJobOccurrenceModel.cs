@@ -75,7 +75,6 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
             CompletedDate = DateTime.Now;
             CanMarkComplete = false;
 
-            // await LoadAsync(ids);
             OnPropertyChanged(nameof(CompletedDate));
             OnPropertyChanged(nameof(CanMarkComplete));
             OnPropertyChanged(nameof(MarkedAsComplete));

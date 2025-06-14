@@ -39,4 +39,10 @@ public class JobCompletedPhotoRepository : IJobCompletedPhotoRepository
         var response = await _serverClient.JobCompletedPhotos.Delete(request, CancellationToken.None);
         return response;
     }
+
+    public Task<OperationResult<JobCompletedPhotoListResponse>> ListPhotoAsync(CustomerId customerId, ScheduledJobDefinitionId jobDefinitionId, JobOccurrenceId jobOccurrenceId)
+    {
+        var request = new ListJobCompletedPhotosRequest(customerId, jobDefinitionId, jobOccurrenceId);
+        return _serverClient.JobCompletedPhotos.List(request, CancellationToken.None);
+    }
 }

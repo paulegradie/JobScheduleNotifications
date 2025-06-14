@@ -3,6 +3,7 @@ using Api.Infrastructure.DbTables.Jobs;
 using Api.ValueTypes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Server.Contracts.Endpoints.JobPhotos.Contracts;
 
 namespace Api.Controllers;
@@ -53,9 +54,9 @@ public class JobCompletedPhotosController : ControllerBase
     }
 
     [HttpDelete(DeleteJobCompletedPhotoRequest.Route)]
-    public async Task<IActionResult> DeletePhoto(string customerId, string jobDefinitionId, string jobOccurrenceId, string photoId)
+    public async Task<IActionResult> DeletePhoto(string customerId, string jobDefinitionId, string jobOccurenceId, string jobCompletedPhotoId)
     {
-        var id = new JobCompletedPhotoId(Guid.Parse(photoId));
+        var id = new JobCompletedPhotoId(Guid.Parse(jobCompletedPhotoId));
         var photo = await _dbContext.JobCompletedPhotos.FindAsync(id);
 
         if (photo == null) return NotFound();
@@ -68,5 +69,21 @@ public class JobCompletedPhotosController : ControllerBase
         await _dbContext.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    [HttpGet(ListJobCompletedPhotosRequest.Route)]
+    public async Task<IActionResult> GetList(
+        [FromRoute] string customerId,
+        [FromRoute] string jobDefinitionId,
+        [FromRoute] string jobOccurenceId)
+    {
+        var photosRecords = await _dbContext.JobCompletedPhotos.ToListAsync();
+        var photos = photosRecords
+            .Where(p => p.JobOccurrenceId.ToString() == jobOccurenceId)
+            .Select(p => new JobCompletedPhotoDetails(p.FilePath))
+            .ToList();
+
+        var response = new JobCompletedPhotoListResponse(new JobCompletedPhotoListDto(photos));
+        return Ok(response);
     }
 }

@@ -76,7 +76,7 @@ public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
                                     .Bind(Image.SourceProperty, nameof(PhotoDisplayItem.Path)));
                                 layout.Children.Add(new Button()
                                     .Text("Remove")
-                                    .Bind(Button.CommandParameterProperty)
+                                    .Bind(Button.CommandParameterProperty, ".")
                                     .Bind(Button.CommandProperty, nameof(ViewModel.RemovePhotoCommand)));
                                 return layout;
                             })
