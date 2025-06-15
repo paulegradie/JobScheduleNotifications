@@ -66,25 +66,12 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
 
                 // Title entry
                 Section("Job Title",
-                    new Entry
-                        {
-                            Placeholder = "Enter job title...",
-                            BackgroundColor = Colors.White,
-                            TextColor = CardStyles.Colors.TextPrimary
-                        }
-                        .Bind(Entry.TextProperty, nameof(vm.Title))
+                    CardStyles.CreateStyledEntry("Enter job title...", nameof(vm.Title))
                 ),
 
                 // Description editor
                 Section("Description",
-                    new Editor
-                        {
-                            HeightRequest = 100,
-                            Placeholder = "Enter job description...",
-                            BackgroundColor = Colors.White,
-                            TextColor = CardStyles.Colors.TextPrimary
-                        }
-                        .Bind(Editor.TextProperty, nameof(vm.Description))
+                    CardStyles.CreateStyledEditor("Enter job description...", nameof(vm.Description), 100)
                 )
             }
         };
@@ -105,12 +92,7 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
 
                 // Start date
                 Section("Start Date",
-                    new DatePicker
-                        {
-                            BackgroundColor = Colors.White,
-                            TextColor = CardStyles.Colors.TextPrimary
-                        }
-                        .Bind(DatePicker.DateProperty, nameof(vm.AnchorDate))
+                    CardStyles.CreateStyledDatePicker(nameof(vm.AnchorDate))
                 ),
 
                 // Frequency chips
@@ -186,10 +168,22 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                     .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
                     .Bind(IsVisibleProperty, nameof(vm.HasError)),
 
-                // Save button
-                CardStyles.CreatePrimaryButton("💾 Update Job")
-                    .BindCommand(nameof(vm.SaveCommand))
-                    .Bind(IsEnabledProperty, nameof(vm.CanSave)),
+                // Button container
+                new HorizontalStackLayout
+                {
+                    Spacing = 12,
+                    HorizontalOptions = LayoutOptions.FillAndExpand,
+                    Children =
+                    {
+                        // Save button
+                        CardStyles.CreatePrimaryButton("💾 Update Job")
+                            .BindCommand(nameof(vm.SaveCommand)),
+                        // .Bind(IsEnabledProperty, nameof(vm.CanSave)),
+                        // Cancel button
+                        CardStyles.CreateSecondaryButton("❌ Cancel", CardStyles.Colors.TextSecondary)
+                            .BindCommand(nameof(vm.GoBackCommand))
+                    }
+                },
 
                 // Loading indicator
                 new ActivityIndicator

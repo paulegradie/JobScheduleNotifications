@@ -13,9 +13,12 @@ internal sealed class InvoiceEndpoint : EndpointBase, IInvoiceEndpoint
     {
     }
 
-    public async Task<OperationResult<InvoiceSentResponse>> SendInvoice(
-        SendInvoiceRequest request,
-        CancellationToken ct)
+    public async Task<OperationResult<InvoiceSentResponse>> SendInvoice(SendInvoiceRequest request, CancellationToken cancellationToken)
+    {
+        return await PostAsync<SendInvoiceRequest, InvoiceSentResponse>(request, cancellationToken);
+    }
+
+    public async Task<OperationResult<InvoiceSavedResponse>> SaveInvoice(SaveInvoiceRequest request, CancellationToken ct)
     {
         using var form = new MultipartFormDataContent();
         using var fileContent = new StreamContent(request.PdfStream);
@@ -35,7 +38,7 @@ internal sealed class InvoiceEndpoint : EndpointBase, IInvoiceEndpoint
         }
         catch (Exception ex)
         {
-            return OperationResult<InvoiceSentResponse>.Failure(
+            return OperationResult<InvoiceSavedResponse>.Failure(
                 ex.Message,
                 System.Net.HttpStatusCode.InternalServerError
             );
@@ -56,13 +59,13 @@ internal sealed class InvoiceEndpoint : EndpointBase, IInvoiceEndpoint
             {
             }
 
-            return OperationResult<InvoiceSentResponse>.Failure(errorMsg, response.StatusCode);
+            return OperationResult<InvoiceSavedResponse>.Failure(errorMsg, response.StatusCode);
         }
 
-        InvoiceSentResponse? value = null;
+        InvoiceSavedResponse? value = null;
         try
         {
-            value = JsonSerializer.Deserialize<InvoiceSentResponse>(raw, new JsonSerializerOptions
+            value = JsonSerializer.Deserialize<InvoiceSavedResponse>(raw, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
@@ -75,6 +78,6 @@ internal sealed class InvoiceEndpoint : EndpointBase, IInvoiceEndpoint
             );
         }
 
-        return OperationResult<InvoiceSentResponse>.Success(value!, response.StatusCode);
+        return OperationResult<InvoiceSavedResponse>.Success(value!, response.StatusCode);
     }
 }

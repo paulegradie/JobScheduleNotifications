@@ -1,4 +1,4 @@
-﻿namespace Mobile.UI.Styles;
+﻿﻿namespace Mobile.UI.Styles;
 
 /// <summary>
 /// Shared styling system for consistent card designs across the application
@@ -9,8 +9,8 @@ public static class CardStyles
     public static class Colors
     {
         public static readonly Color Primary = Color.FromArgb("#2196F3");
-        public static readonly Color TextPrimary = Color.FromArgb("#212121");
-        public static readonly Color TextSecondary = Color.FromArgb("#757575");
+        public static readonly Color TextPrimary = Color.FromArgb("#000000");
+        public static readonly Color TextSecondary = Color.FromArgb("#000000");
         public static readonly Color CardBorder = Color.FromArgb("#E1E5E9");
         public static readonly Color Background = Color.FromArgb("#F8F9FA");
         public static readonly Color Success = Color.FromArgb("#4CAF50");
@@ -177,6 +177,93 @@ public static class CardStyles
                 CreateIconLabel(icon),
                 textLabel
             }
+        };
+    }
+
+    /// <summary>
+    /// Creates a styled Entry with consistent border and visual feedback
+    /// </summary>
+    public static Frame CreateStyledEntry(string placeholder = "", string bindingPath = "")
+    {
+        var entry = new Entry
+        {
+            Placeholder = placeholder,
+            BackgroundColor = Microsoft.Maui.Graphics.Colors.White,
+            TextColor = Colors.TextPrimary,
+            FontSize = Typography.SubtitleSize
+        };
+
+        if (!string.IsNullOrEmpty(bindingPath))
+        {
+            entry.SetBinding(Entry.TextProperty, bindingPath);
+        }
+
+        return new Frame
+        {
+            BackgroundColor = Microsoft.Maui.Graphics.Colors.White,
+            BorderColor = Colors.CardBorder,
+            CornerRadius = 8,
+            HasShadow = false,
+            Padding = new Thickness(12, 8),
+            Content = entry
+        };
+    }
+
+    /// <summary>
+    /// Creates a styled Editor with consistent border and visual feedback
+    /// </summary>
+    public static Frame CreateStyledEditor(string placeholder = "", string bindingPath = "", double heightRequest = 100)
+    {
+        var editor = new Editor
+        {
+            Placeholder = placeholder,
+            BackgroundColor = Microsoft.Maui.Graphics.Colors.White,
+            TextColor = Colors.TextPrimary,
+            FontSize = Typography.SubtitleSize,
+            HeightRequest = heightRequest
+        };
+
+        if (!string.IsNullOrEmpty(bindingPath))
+        {
+            editor.SetBinding(Editor.TextProperty, bindingPath);
+        }
+
+        return new Frame
+        {
+            BackgroundColor = Microsoft.Maui.Graphics.Colors.White,
+            BorderColor = Colors.CardBorder,
+            CornerRadius = 8,
+            HasShadow = false,
+            Padding = new Thickness(12, 8),
+            Content = editor
+        };
+    }
+
+    /// <summary>
+    /// Creates a styled DatePicker with consistent border and visual feedback
+    /// </summary>
+    public static Frame CreateStyledDatePicker(string bindingPath = "")
+    {
+        var datePicker = new DatePicker
+        {
+            BackgroundColor = Microsoft.Maui.Graphics.Colors.White,
+            TextColor = Colors.TextPrimary,
+            FontSize = Typography.SubtitleSize
+        };
+
+        if (!string.IsNullOrEmpty(bindingPath))
+        {
+            datePicker.SetBinding(DatePicker.DateProperty, bindingPath);
+        }
+
+        return new Frame
+        {
+            BackgroundColor = Microsoft.Maui.Graphics.Colors.White,
+            BorderColor = Colors.CardBorder,
+            CornerRadius = 8,
+            HasShadow = false,
+            Padding = new Thickness(12, 8),
+            Content = datePicker
         };
     }
 }

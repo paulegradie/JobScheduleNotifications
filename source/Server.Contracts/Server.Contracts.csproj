@@ -15,4 +15,10 @@
         <ProjectReference Include="..\Api.ValueTypes\Api.ValueTypes.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Endpoints\Invoices\Contracts\InvoiceSentResponse.cs">
+        <DependentUpon>SendInvoiceRequest.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

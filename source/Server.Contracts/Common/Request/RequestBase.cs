@@ -16,6 +16,7 @@ public abstract record RequestBase(string RouteInternal)
     protected const string JobOccurenceIdSegmentParam = "{jobOccurenceId}";
     protected const string JobReminderIdSegmentParam = "{jobReminderId}";
     protected const string PhotoIdSegmentParam = "{jobCompletedPhotoId}";
+    protected const string InvoiceIdSegmentParam = "{invoiceId}";
     
     // JobOccurrence
     protected const string JobOccurrenceIsSentQueryParam = "isSent";

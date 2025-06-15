@@ -2,4 +2,4 @@
 
 namespace Server.Contracts.Endpoints.Invoices.Contracts;
 
-public sealed record InvoiceSentResponse(InvoiceDto InvoiceDto);
+public sealed record InvoiceSavedResponse(InvoiceDto InvoiceDto);

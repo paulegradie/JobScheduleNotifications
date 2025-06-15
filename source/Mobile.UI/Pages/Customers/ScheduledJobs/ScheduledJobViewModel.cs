@@ -28,7 +28,6 @@ public partial class ScheduledJobViewModel : BaseViewModel
 {
     private readonly IJobRepository _jobRepository;
     private readonly ICustomerRepository _customerRepository;
-    private readonly INavigationRepository _navigation;
     private readonly IJobOccurrenceRepository _jobOccurrenceRepository;
 
     private const int occurrencePageSize = 3;
@@ -61,12 +60,10 @@ public partial class ScheduledJobViewModel : BaseViewModel
     public ScheduledJobViewModel(
         IJobRepository jobRepository,
         ICustomerRepository customerRepository,
-        INavigationRepository navigation,
         IJobOccurrenceRepository jobOccurrenceRepository)
     {
         _jobRepository = jobRepository;
         _customerRepository = customerRepository;
-        _navigation = navigation;
         _jobOccurrenceRepository = jobOccurrenceRepository;
         _anchorDate = DateTime.Now;
     }
@@ -106,7 +103,7 @@ public partial class ScheduledJobViewModel : BaseViewModel
             // load reminders
             JobReminders.Clear();
             foreach (var reminder in scheduledJob.JobReminders)
-                JobReminders.Add(reminder);
+            {JobReminders.Add(reminder);}
         });
     }
 

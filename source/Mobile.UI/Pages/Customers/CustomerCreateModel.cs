@@ -9,7 +9,6 @@ namespace Mobile.UI.Pages.Customers;
 public partial class CustomerCreateModel : BaseViewModel
 {
     private readonly ICustomerRepository _repository;
-    private readonly INavigationRepository _navigation;
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanSave))]
     private string _firstName = string.Empty;
@@ -27,15 +26,9 @@ public partial class CustomerCreateModel : BaseViewModel
     private string _notes = string.Empty;
 
 
-    [ObservableProperty] private bool _isBusy;
-    [ObservableProperty] private string _errorMessage = string.Empty;
-
-    public CustomerCreateModel(
-        ICustomerRepository repository,
-        INavigationRepository navigation)
+    public CustomerCreateModel(ICustomerRepository repository)
     {
         _repository = repository;
-        _navigation = navigation;
     }
 
     public bool CanSave
@@ -48,10 +41,7 @@ public partial class CustomerCreateModel : BaseViewModel
     [RelayCommand(CanExecute = nameof(CanSave))]
     private async Task Save()
     {
-        IsBusy = true;
-        ErrorMessage = string.Empty;
-
-        try
+        await RunWithSpinner(async () =>
         {
             var request = new CreateCustomerRequest(
                 firstName: FirstName,
@@ -61,22 +51,13 @@ public partial class CustomerCreateModel : BaseViewModel
                 notes: Notes);
 
             var result = await _repository.CreateCustomerAsync(request);
-            if (!result.IsSuccess)
+            if (result.IsSuccess)
             {
-                ErrorMessage = "Unable to create customer.";
-                return;
+                await ShowSuccessAsync("Customer Created", "Returning to customer list");
             }
+        }, "Unable to create customer.");
 
-            await _navigation.GoToAsync(nameof(CustomerListPage));
-        }
-        catch
-        {
-            ErrorMessage = "Error saving customer.";
-        }
-        finally
-        {
-            IsBusy = false;
-        }
+        await Navigation.NavigateToCustomerListAsync();
     }
 
     [RelayCommand]

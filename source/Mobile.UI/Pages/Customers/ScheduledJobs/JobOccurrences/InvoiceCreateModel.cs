@@ -7,10 +7,9 @@ using Mobile.UI.RepositoryAbstractions;
 using Mobile.UI.Services;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
+using Server.Contracts.Endpoints.Invoices.Contracts;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
-
-public record InvoiceItem(string ItemNumber, string Description, decimal Price);
 
 public partial class InvoiceCreateModel : BaseViewModel
 {
@@ -37,7 +36,7 @@ public partial class InvoiceCreateModel : BaseViewModel
         _photoRepository = photoRepository;
     }
 
-    public void Initialize(string customerId, string scheduledJobDefinitionId, string jobOccurrenceId)
+    public async Task Initialize(string customerId, string scheduledJobDefinitionId, string jobOccurrenceId)
     {
         _jobDescription = string.Empty;
         Total = InvoiceItems.Sum(x => x.Price).ToString("C");
@@ -68,10 +67,10 @@ public partial class InvoiceCreateModel : BaseViewModel
     [RelayCommand]
     private async Task GeneratePdfAsync()
     {
-        var outputPath = Path.Combine(
+        var localOutputPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
             $"Invoice_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
-        PreviewFilePath = outputPath;
+        PreviewFilePath = localOutputPath;
 
         QuestPDF.Settings.License = LicenseType.Community;
 
@@ -98,16 +97,58 @@ public partial class InvoiceCreateModel : BaseViewModel
         var businessDetails = new InvoiceDocument.CustomerBusinessDetails("Your Business Name", "1234567890", "info@yourbusiness.com", location, "1234567890");
 
         var document = new InvoiceDocument(businessDetails, invoiceNumber, customerName, invoiceDate, InvoiceItems, "bank-details-123", photoUris);
-        document.GeneratePdf(outputPath);
 
-        OnPropertyChanged(nameof(PreviewFilePath));
+        try
+        {
+            document.GeneratePdf(localOutputPath);
 
-        await _invoiceRepository.SendInvoiceAsync(
-            outputPath,
-            CusterCustomerJobAndOccurrenceIds.CustomerId,
-            CusterCustomerJobAndOccurrenceIds.ScheduledJobDefinitionId,
-            CusterCustomerJobAndOccurrenceIds.JobOccurrenceId);
-        
-        await ShowSuccessAsync($"Invoice saved to:\n{outputPath}");
+            OnPropertyChanged(nameof(PreviewFilePath));
+
+            var result = await _invoiceRepository.SaveInvoiceAsync(
+                localOutputPath,
+                InvoiceItems,
+                CusterCustomerJobAndOccurrenceIds.CustomerId,
+                CusterCustomerJobAndOccurrenceIds.ScheduledJobDefinitionId,
+                CusterCustomerJobAndOccurrenceIds.JobOccurrenceId
+            );
+
+            if (result.IsSuccess)
+            {
+                await ShowSuccessAsync($"Invoice saved to:\n{localOutputPath}");
+            }
+            else
+            {
+                await ShowErrorAsync("Failed to save invoice.", result.ErrorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            await ShowErrorAsync("Failed", ex.Message);
+        }
+    }
+
+    [RelayCommand]
+    private async Task SendInvoice()
+    {
+        await RunWithSpinner(async () =>
+        {
+            if (PreviewFilePath == null) return;
+
+            var result = await _invoiceRepository.SendInvoiceAsync(
+                PreviewFilePath,
+                CusterCustomerJobAndOccurrenceIds.CustomerId,
+                CusterCustomerJobAndOccurrenceIds.ScheduledJobDefinitionId,
+                CusterCustomerJobAndOccurrenceIds.JobOccurrenceId
+            );
+
+            if (result)
+            {
+                await ShowSuccessAsync("Invoice sent!");
+            }
+            else
+            {
+                await ShowErrorAsync("Failed to send invoice.");
+            }
+        });
     }
 }

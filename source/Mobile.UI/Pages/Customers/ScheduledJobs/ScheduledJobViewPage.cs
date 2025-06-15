@@ -42,10 +42,10 @@ public sealed class ScheduledJobViewPage : BasePage<ScheduledJobViewModel>
         };
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        ViewModel.LoadScheduledJobCommand.Execute(
+        await ViewModel.LoadScheduledJobCommand.ExecuteAsync(
             new LoadParametersCustomerIdAndScheduleJobDefId(
                 new CustomerId(Guid.Parse(CustomerId)),
                 new ScheduledJobDefinitionId(Guid.Parse(ScheduledJobDefinitionId))

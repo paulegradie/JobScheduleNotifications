@@ -153,7 +153,7 @@ public sealed class CustomerCreatePage : BasePage<CustomerCreateModel>
                         // Save button
                         CardStyles.CreatePrimaryButton("💾 Save Customer")
                             .BindCommand(nameof(vm.SaveCommand))
-                            .Bind(IsEnabledProperty, nameof(vm.CanSave))
+                            // .Bind(IsEnabledProperty, nameof(vm.CanSave))
                             .Column(Column.Save),
 
                         // Cancel button

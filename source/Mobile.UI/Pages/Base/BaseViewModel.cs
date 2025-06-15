@@ -53,7 +53,12 @@ public abstract partial class BaseViewModel : ObservableObject
     /// </summary>
     protected async Task ShowErrorAsync(string message)
     {
-        await AlertRepository.ShowAlertAsync("Error", message);
+        await ShowErrorAsync("Error", message);
+    }
+
+    protected async Task ShowErrorAsync(string title, string message)
+    {
+        await AlertRepository.ShowAlertAsync(title, message);
     }
 
     /// <summary>
@@ -86,8 +91,8 @@ public abstract partial class BaseViewModel : ObservableObject
 
     // common “busy”/“error” lifecycle state
     [ObservableProperty] private bool _isBusy;
-
     [ObservableProperty] private string _errorMessage = string.Empty;
+    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
     protected async Task RunWithSpinner(Func<Task> operation, string? errorMessage = null, Action<Exception>? errorCallback = null, bool showErrorAlert = false)
     {

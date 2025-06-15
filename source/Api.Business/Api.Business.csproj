@@ -11,8 +11,4 @@
     <ProjectReference Include="..\Server.Contracts\Server.Contracts.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\ScheduledJobs\" />
-  </ItemGroup>
-
 </Project>

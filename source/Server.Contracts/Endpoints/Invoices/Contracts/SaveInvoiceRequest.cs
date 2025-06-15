@@ -3,14 +3,16 @@ using Server.Contracts.Common.Request;
 
 namespace Server.Contracts.Endpoints.Invoices.Contracts;
 
-public record SendInvoiceRequest(
+public record SaveInvoiceRequest(
     CustomerId CustomerId,
     ScheduledJobDefinitionId ScheduledJobDefinitionId,
     JobOccurrenceId JobOccurrenceId,
-    InvoiceId InvoiceId
+    InvoiceItem[] InvoiceItems,
+    Stream InvoiceStream,
+    string FileName
 ) : RequestBase(Route)
 {
-    public const string Route = $"api/invoices/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/occurences/{JobOccurenceIdSegmentParam}/send/{InvoiceIdSegmentParam}";
+    public const string Route = $"api/invoices/{CustomerIdSegmentParam}/jobs/{JobDefinitionIdSegmentParam}/occurences/{JobOccurenceIdSegmentParam}/save";
 
     protected override ApiRoute GetApiRoute()
     {
@@ -18,7 +20,8 @@ public record SendInvoiceRequest(
         route.AddRouteParam(CustomerIdSegmentParam, CustomerId.ToString());
         route.AddRouteParam(JobDefinitionIdSegmentParam, ScheduledJobDefinitionId.ToString());
         route.AddRouteParam(JobOccurenceIdSegmentParam, JobOccurrenceId.ToString());
-        route.AddRouteParam(InvoiceIdSegmentParam, InvoiceId.ToString());
         return route;
     }
 }
+
+public record InvoiceItem(string ItemNumber, string Description, decimal Price);

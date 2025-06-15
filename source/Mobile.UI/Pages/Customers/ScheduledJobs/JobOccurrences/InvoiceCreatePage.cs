@@ -6,7 +6,6 @@ using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
 
-
 [CustomerIdQueryParam]
 [JobOccurrenceIdQueryParam]
 [ScheduledJobDefinitionIdQueryParam]
@@ -15,7 +14,6 @@ public sealed class InvoiceCreatePage : BasePage<InvoiceCreateModel>
     public string CustomerId { get; set; }
     public string ScheduledJobDefinitionId { get; set; }
     public string JobOccurrenceId { get; set; }
-    public string JobDescription { get; set; }
 
     public InvoiceCreatePage(InvoiceCreateModel vm) : base(vm)
     {
@@ -49,10 +47,10 @@ public sealed class InvoiceCreatePage : BasePage<InvoiceCreateModel>
         };
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        ViewModel.Initialize(CustomerId, ScheduledJobDefinitionId, JobOccurrenceId);//, JobDescription);
+        await ViewModel.Initialize(CustomerId, ScheduledJobDefinitionId, JobOccurrenceId); //, JobDescription);
     }
 
     private Frame CreateInvoiceHeaderCard()
@@ -113,12 +111,12 @@ public sealed class InvoiceCreatePage : BasePage<InvoiceCreateModel>
                             TextColor = CardStyles.Colors.TextSecondary
                         },
                         new Entry
-                        {
-                            Placeholder = "Enter item description...",
-                            BackgroundColor = Colors.White,
-                            TextColor = CardStyles.Colors.TextPrimary
-                        }
-                        .Bind(Entry.TextProperty, nameof(ViewModel.CurrentItemDescription))
+                            {
+                                Placeholder = "Enter item description...",
+                                BackgroundColor = Colors.White,
+                                TextColor = CardStyles.Colors.TextPrimary
+                            }
+                            .Bind(Entry.TextProperty, nameof(ViewModel.CurrentItemDescription))
                     }
                 },
 
@@ -135,13 +133,13 @@ public sealed class InvoiceCreatePage : BasePage<InvoiceCreateModel>
                             TextColor = CardStyles.Colors.TextSecondary
                         },
                         new Entry
-                        {
-                            Placeholder = "0.00",
-                            Keyboard = Keyboard.Numeric,
-                            BackgroundColor = Colors.White,
-                            TextColor = CardStyles.Colors.TextPrimary
-                        }
-                        .Bind(Entry.TextProperty, nameof(ViewModel.CurrentItemPrice))
+                            {
+                                Placeholder = "0.00",
+                                Keyboard = Keyboard.Numeric,
+                                BackgroundColor = Colors.White,
+                                TextColor = CardStyles.Colors.TextPrimary
+                            }
+                            .Bind(Entry.TextProperty, nameof(ViewModel.CurrentItemPrice))
                     }
                 },
 
@@ -167,16 +165,16 @@ public sealed class InvoiceCreatePage : BasePage<InvoiceCreateModel>
 
                 // Items collection
                 new CollectionView
-                {
-                    ItemsLayout = new LinearItemsLayout(ItemsLayoutOrientation.Vertical)
                     {
-                        ItemSpacing = 8
-                    },
-                    SelectionMode = SelectionMode.None,
-                    EmptyView = CreateEmptyItemsView(),
-                    ItemTemplate = new DataTemplate(CreateInvoiceItemCard)
-                }
-                .Bind(ItemsView.ItemsSourceProperty, nameof(ViewModel.InvoiceItems))
+                        ItemsLayout = new LinearItemsLayout(ItemsLayoutOrientation.Vertical)
+                        {
+                            ItemSpacing = 8
+                        },
+                        SelectionMode = SelectionMode.None,
+                        EmptyView = CreateEmptyItemsView(),
+                        ItemTemplate = new DataTemplate(CreateInvoiceItemCard)
+                    }
+                    .Bind(ItemsView.ItemsSourceProperty, nameof(ViewModel.InvoiceItems))
             }
         };
 
@@ -200,14 +198,14 @@ public sealed class InvoiceCreatePage : BasePage<InvoiceCreateModel>
 
                 // Item price
                 new Label
-                {
-                    FontSize = CardStyles.Typography.SubtitleSize,
-                    FontAttributes = FontAttributes.Bold,
-                    TextColor = CardStyles.Colors.Success,
-                    HorizontalOptions = LayoutOptions.End
-                }
-                .Bind(Label.TextProperty, "Price", stringFormat: "${0:F2}")
-                .Column(Column.Price)
+                    {
+                        FontSize = CardStyles.Typography.SubtitleSize,
+                        FontAttributes = FontAttributes.Bold,
+                        TextColor = CardStyles.Colors.Success,
+                        HorizontalOptions = LayoutOptions.End
+                    }
+                    .Bind(Label.TextProperty, "Price", stringFormat: "${0:F2}")
+                    .Column(Column.Price)
             }
         };
 
@@ -237,12 +235,12 @@ public sealed class InvoiceCreatePage : BasePage<InvoiceCreateModel>
                 // Total amount
                 CardStyles.CreateIconTextStack("💵",
                     new Label
-                    {
-                        FontSize = 20,
-                        FontAttributes = FontAttributes.Bold,
-                        TextColor = CardStyles.Colors.Success
-                    }
-                    .Bind(Label.TextProperty, nameof(ViewModel.Total), stringFormat: "Total: {0:F2}")),
+                        {
+                            FontSize = 20,
+                            FontAttributes = FontAttributes.Bold,
+                            TextColor = CardStyles.Colors.Success
+                        }
+                        .Bind(Label.TextProperty, nameof(ViewModel.Total), stringFormat: "Total: {0:F2}")),
 
                 // Generate PDF button
                 CardStyles.CreatePrimaryButton("📄 Generate PDF")
@@ -272,58 +270,58 @@ public sealed class InvoiceCreatePage : BasePage<InvoiceCreateModel>
                     {
                         // No preview message
                         new VerticalStackLayout
-                        {
-                            Spacing = 16,
-                            VerticalOptions = LayoutOptions.Center,
-                            HorizontalOptions = LayoutOptions.Center,
-                            Children =
                             {
-                                new Label
+                                Spacing = 16,
+                                VerticalOptions = LayoutOptions.Center,
+                                HorizontalOptions = LayoutOptions.Center,
+                                Children =
                                 {
-                                    Text = "📄",
-                                    FontSize = 48,
-                                    HorizontalOptions = LayoutOptions.Center
-                                },
-                                new Label
-                                {
-                                    Text = "No Preview Yet",
-                                    FontSize = 18,
-                                    FontAttributes = FontAttributes.Bold,
-                                    TextColor = CardStyles.Colors.TextPrimary,
-                                    HorizontalOptions = LayoutOptions.Center
-                                },
-                                new Label
-                                {
-                                    Text = "Generate a PDF to see the preview here.",
-                                    FontSize = 14,
-                                    TextColor = CardStyles.Colors.TextSecondary,
-                                    HorizontalOptions = LayoutOptions.Center,
-                                    HorizontalTextAlignment = TextAlignment.Center
+                                    new Label
+                                    {
+                                        Text = "📄",
+                                        FontSize = 48,
+                                        HorizontalOptions = LayoutOptions.Center
+                                    },
+                                    new Label
+                                    {
+                                        Text = "No Preview Yet",
+                                        FontSize = 18,
+                                        FontAttributes = FontAttributes.Bold,
+                                        TextColor = CardStyles.Colors.TextPrimary,
+                                        HorizontalOptions = LayoutOptions.Center
+                                    },
+                                    new Label
+                                    {
+                                        Text = "Generate a PDF to see the preview here.",
+                                        FontSize = 14,
+                                        TextColor = CardStyles.Colors.TextSecondary,
+                                        HorizontalOptions = LayoutOptions.Center,
+                                        HorizontalTextAlignment = TextAlignment.Center
+                                    }
                                 }
                             }
-                        }
-                        .Bind(IsVisibleProperty, nameof(ViewModel.PreviewFilePath),
-                            convert: (string? path) => string.IsNullOrWhiteSpace(path)),
+                            .Bind(IsVisibleProperty, nameof(ViewModel.PreviewFilePath),
+                                convert: (string? path) => string.IsNullOrWhiteSpace(path)),
 
                         // PDF WebView
                         new WebView
-                        {
-                            BackgroundColor = Colors.White
-                        }
-                        .Bind(IsVisibleProperty, nameof(ViewModel.PreviewFilePath),
-                            convert: (string? path) => !string.IsNullOrWhiteSpace(path))
-                        .Bind(WebView.SourceProperty, nameof(ViewModel.PreviewFilePath), convert: (string? path) =>
-                        {
+                            {
+                                BackgroundColor = Colors.White
+                            }
+                            .Bind(IsVisibleProperty, nameof(ViewModel.PreviewFilePath),
+                                convert: (string? path) => !string.IsNullOrWhiteSpace(path))
+                            .Bind(WebView.SourceProperty, nameof(ViewModel.PreviewFilePath), convert: (string? path) =>
+                            {
 #if ANDROID
                             return $"file://{path}";
 #elif WINDOWS
                             return path;
 #elif IOS
-                            return new Foundation.NSUrl(path, false).AbsoluteString;
+                                return new Foundation.NSUrl(path, false).AbsoluteString;
 #else
                             return path;
 #endif
-                        })
+                            })
                     }
                 }
             }

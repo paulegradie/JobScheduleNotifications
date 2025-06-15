@@ -36,7 +36,6 @@ public partial class ScheduledJobEditModel : BaseViewModel
     private CustomerId CustomerId { get; set; }
     private ScheduledJobDefinitionId ScheduledJobDefinitionId { get; set; }
 
-    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
     public string IntervalDisplay => FormatIntervalDisplay();
 
@@ -90,7 +89,6 @@ public partial class ScheduledJobEditModel : BaseViewModel
             }
         });
     }
-
 
     [RelayCommand]
     private void SelectFrequency(Frequency freq)

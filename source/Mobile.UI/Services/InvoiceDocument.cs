@@ -1,6 +1,7 @@
 ﻿using Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
+using Server.Contracts.Endpoints.Invoices.Contracts;
 using IContainer = QuestPDF.Infrastructure.IContainer;
 
 namespace Mobile.UI.Services;
