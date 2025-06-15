@@ -9,7 +9,8 @@ public class JobCompletedPhoto
     public CustomerId CustomerId { get; set; }
     public JobOccurrenceId JobOccurrenceId { get; set; }
 
-    public string FilePath { get; set; } = null!;
+    public string LocalFilePath { get; set; } = string.Empty;
+    public string CloudFilePath { get; set; } = string.Empty;
 
     public virtual Customer Customer { get; set; } = null!;
     public virtual JobOccurrence JobOccurrence { get; set; } = null!;

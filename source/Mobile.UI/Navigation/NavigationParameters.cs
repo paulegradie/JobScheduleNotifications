@@ -62,7 +62,7 @@ public record ScheduledJobListParameters(CustomerId CustomerId) : INavigationPar
 }
 
 /// <summary>
-/// Navigation parameters for ScheduledJobViewPage and ScheduledJobEditPage
+/// Navigation parameters for ScheduledJobViewPage and ScheduledJobEditPage and ScheduleJobCreatePage
 /// </summary>
 public record ScheduledJobParameters(
     CustomerId CustomerId, 

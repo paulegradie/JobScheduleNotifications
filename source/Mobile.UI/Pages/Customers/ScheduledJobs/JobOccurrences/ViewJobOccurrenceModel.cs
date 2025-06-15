@@ -5,7 +5,6 @@ using Mobile.UI.Navigation;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Dtos;
-using Type = Android.Renderscripts.Type;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
 

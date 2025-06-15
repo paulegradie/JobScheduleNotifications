@@ -105,7 +105,7 @@ public class JobOccurrenceRepository : IJobOccurrenceRepository
         {
             CustomerId = e.CustomerId,
             JobCompletedPhotoId = e.JobCompletedPhotoId,
-            PhotoUri = e.FilePath,
+            PhotoUri = e.LocalFilePath,
             JobOccurrenceId = e.JobOccurrenceId
         };
     }
@@ -127,7 +127,7 @@ internal static class JobOccurrenceMappings
             JobOccurrenceStatus = MapJobOccurrenceDomainStatus(d.JobOccurrenceDomainStatus),
             JobCompletedPhotos = d.JobCompletedPhotoDomainModel.Select(x => new JobCompletedPhoto
             {
-                FilePath = x.PhotoUri,
+                LocalFilePath = x.PhotoUri,
                 CustomerId = x.CustomerId,
                 JobOccurrenceId = x.JobOccurrenceId,
                 JobCompletedPhotoId = x.JobCompletedPhotoId

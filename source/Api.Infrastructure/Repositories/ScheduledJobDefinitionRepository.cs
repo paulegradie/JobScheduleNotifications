@@ -112,7 +112,7 @@ internal static class JobDefinitionMappings
                         CustomerId = p.CustomerId,
                         JobCompletedPhotoId = p.JobCompletedPhotoId,
                         JobOccurrenceId = p.JobOccurrenceId,
-                        PhotoUri = p.FilePath
+                        PhotoUri = p.LocalFilePath
                     }).ToList()
                 })
                 .ToList()

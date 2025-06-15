@@ -1,11 +1,13 @@
-﻿﻿﻿using CommunityToolkit.Maui.Markup;
+﻿using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
+using Mobile.UI.Pages.Base.QueryParamAttributes;
+using Mobile.UI.Styles;
 using Server.Contracts.Dtos;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
-[QueryProperty(nameof(CustomerId), "CustomerId")]
+[CustomerIdQueryParam]
 public sealed class ScheduledJobListPage : BasePage<ScheduledJobListModel>
 {
     public string CustomerId { get; set; }
@@ -18,9 +20,17 @@ public sealed class ScheduledJobListPage : BasePage<ScheduledJobListModel>
         {
             Padding = new Thickness(16),
             BackgroundColor = Color.FromArgb("#F8F9FA"), // Light background
-            RowDefinitions = Rows.Define((Row.MainContent, Star)),
+            RowDefinitions = Rows.Define(
+                (Row.ButtonRow, Auto),
+                (Row.MainContent, Star)
+            ),
+            RowSpacing = 16,
             Children =
             {
+                CardStyles.CreatePrimaryButton("New Job")
+                    .Bind(Button.CommandProperty, nameof(ViewModel.CreateJobCommand), source: ViewModel)
+                    .Bind(Button.CommandParameterProperty, ".")
+                    .Row(Row.ButtonRow),
                 new RefreshView
                     {
                         Content = new CollectionView
@@ -42,7 +52,7 @@ public sealed class ScheduledJobListPage : BasePage<ScheduledJobListModel>
     }
 
     private DataTemplate CreateJobCardTemplate() =>
-        new DataTemplate(() => CreateJobCard());
+        new DataTemplate(CreateJobCard);
 
     private Frame CreateJobCard() =>
         new Frame
@@ -189,6 +199,7 @@ public sealed class ScheduledJobListPage : BasePage<ScheduledJobListModel>
 
     private enum Row
     {
+        ButtonRow,
         MainContent,
         CardTitle,
         CardDetails

@@ -82,7 +82,7 @@ public partial class CustomerCreateModel : BaseViewModel
     [RelayCommand]
     private async Task Cancel()
     {
-        await ShowConfirmationAsync("You Cancelled", "Returning to previous page");
+        await ShowSuccessAsync("You Cancelled", "Returning to previous page");
         await GoBackAsync();
     }
 }

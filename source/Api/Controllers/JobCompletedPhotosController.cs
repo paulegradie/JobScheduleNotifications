@@ -43,7 +43,7 @@ public class JobCompletedPhotosController : ControllerBase
             JobCompletedPhotoId = new JobCompletedPhotoId(Guid.NewGuid()),
             CustomerId = new CustomerId(Guid.Parse(customerId)),
             JobOccurrenceId = new JobOccurrenceId(Guid.Parse(jobOccurenceId)),
-            FilePath = filePath
+            LocalFilePath = filePath
         };
 
         // Save to DB
@@ -80,7 +80,7 @@ public class JobCompletedPhotosController : ControllerBase
         var photosRecords = await _dbContext.JobCompletedPhotos.ToListAsync();
         var photos = photosRecords
             .Where(p => p.JobOccurrenceId.ToString() == jobOccurenceId)
-            .Select(p => new JobCompletedPhotoDetails(p.FilePath))
+            .Select(p => new JobCompletedPhotoDetails(p.LocalFilePath))
             .ToList();
 
         var response = new JobCompletedPhotoListResponse(new JobCompletedPhotoListDto(photos));

@@ -2,6 +2,7 @@
 using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Mobile.UI.Navigation;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Dtos;
@@ -22,13 +23,11 @@ public partial class ScheduledJobListModel : BaseViewModel
 
     [ObservableProperty] private ObservableCollection<ScheduledJobDefinitionDto> _scheduledJobs = new();
     public CustomerId CustomerId { get; set; }
-    private string? _currentCustomerIdString;
 
     [RelayCommand]
     private async Task LoadForCustomerAsync(string customerIdString)
     {
-        _currentCustomerIdString = customerIdString;
-
+        CustomerId = CustomerId.Parse(customerIdString);
         var guid = await RunWithSpinner(async () =>
         {
             if (!Guid.TryParse(customerIdString, out var guid))
@@ -58,25 +57,25 @@ public partial class ScheduledJobListModel : BaseViewModel
     }
 
 
-
     [RelayCommand]
     private async Task NavigateToEditAsync(ScheduledJobDefinitionDto? dto)
     {
         if (dto == null) return;
-        await _navigation.GoToAsync(nameof(ScheduledJobEditPage), new Dictionary<string, object>
-        {
-            ["ScheduledJobDefinitionId"] = dto.ScheduledJobDefinitionId.Value.ToString(),
-            ["CustomerId"] = dto.CustomerId.Value.ToString()
-        });
+        await Navigation.NavigateToScheduledJobEditAsync(new ScheduledJobParameters(dto.CustomerId, dto.ScheduledJobDefinitionId));
     }
 
     [RelayCommand]
     private async Task NavigateToViewAsync(ScheduledJobDefinitionId scheduledJobDefinitionId)
     {
-        await _navigation.GoToAsync(nameof(ScheduledJobViewPage), new Dictionary<string, object>
-        {
-            ["ScheduledJobDefinitionId"] = scheduledJobDefinitionId.Value.ToString(),
-            ["CustomerId"] = CustomerId.Value.ToString()
-        });
+        if (CustomerId == null) return;
+        await Navigation.NavigateToScheduledJobViewAsync(new ScheduledJobParameters(CustomerId, scheduledJobDefinitionId));
+    }
+
+
+    [RelayCommand]
+    private async Task CreateJobAsync()
+    {
+        if (CustomerId == null) return;
+        await Navigation.NavigateToScheduledJobCreateAsync(new CustomerParameters(CustomerId));
     }
 }

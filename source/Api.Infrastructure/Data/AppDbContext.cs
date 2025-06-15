@@ -178,7 +178,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
 
                 photo.Property(p => p.CustomerId).HasConversion<CustomerIdConverter>();
                 photo.Property(p => p.JobOccurrenceId).HasConversion<JobOccurrenceIdConverter>();
-                photo.Property(p => p.FilePath).IsRequired();
+                photo.Property(p => p.LocalFilePath).IsRequired();
             });
 
         modelBuilder.Entity<JobReminder>(entity =>

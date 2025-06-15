@@ -174,7 +174,7 @@ public sealed class InvoiceCreatePage : BasePage<InvoiceCreateModel>
                     },
                     SelectionMode = SelectionMode.None,
                     EmptyView = CreateEmptyItemsView(),
-                    ItemTemplate = new DataTemplate(() => CreateInvoiceItemCard())
+                    ItemTemplate = new DataTemplate(CreateInvoiceItemCard)
                 }
                 .Bind(ItemsView.ItemsSourceProperty, nameof(ViewModel.InvoiceItems))
             }
@@ -242,7 +242,7 @@ public sealed class InvoiceCreatePage : BasePage<InvoiceCreateModel>
                         FontAttributes = FontAttributes.Bold,
                         TextColor = CardStyles.Colors.Success
                     }
-                    .Bind(Label.TextProperty, nameof(ViewModel.Total), stringFormat: "Total: ${0:F2}")),
+                    .Bind(Label.TextProperty, nameof(ViewModel.Total), stringFormat: "Total: {0:F2}")),
 
                 // Generate PDF button
                 CardStyles.CreatePrimaryButton("📄 Generate PDF")

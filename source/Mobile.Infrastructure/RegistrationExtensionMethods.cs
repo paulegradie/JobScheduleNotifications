@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using Mobile.Infrastructure.Repositories;
+﻿using Mobile.Infrastructure.Repositories;
 using Mobile.UI.RepositoryAbstractions;
 using Mobile.UI.Navigation;
 

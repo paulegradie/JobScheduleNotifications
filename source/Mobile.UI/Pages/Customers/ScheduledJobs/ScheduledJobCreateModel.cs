@@ -11,9 +11,8 @@ namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
 public partial class ScheduledJobCreateModel : BaseViewModel
 {
-    private readonly IJobRepository _jobService;
+    private readonly IJobRepository _jobRepository;
     private readonly ICustomerRepository _customerRepository;
-    private readonly INavigationRepository _navigation;
 
     [ObservableProperty] private ObservableCollection<CustomerDto> _customers = new();
     [ObservableProperty] private CustomerDto _selectedCustomer;
@@ -38,7 +37,7 @@ public partial class ScheduledJobCreateModel : BaseViewModel
     {
         var freqString = Frequency switch
         {
-            Frequency.Daily => "dail",
+            Frequency.Daily => "day",
             Frequency.Weekly => "week",
             Frequency.Monthly => "month",
             _ => ""
@@ -57,13 +56,11 @@ public partial class ScheduledJobCreateModel : BaseViewModel
         !string.IsNullOrWhiteSpace(CronPreview);
 
     public ScheduledJobCreateModel(
-        IJobRepository jobService,
-        ICustomerRepository customerRepository,
-        INavigationRepository navigation)
+        IJobRepository jobRepository,
+        ICustomerRepository customerRepository)
     {
-        _jobService = jobService;
+        _jobRepository = jobRepository;
         _customerRepository = customerRepository;
-        _navigation = navigation;
         UpdateCronPreview();
     }
 
@@ -154,13 +151,12 @@ public partial class ScheduledJobCreateModel : BaseViewModel
                 CronExpression = CronPreview
             };
 
-            await _jobService.CreateJobAsync(dto);
+            await _jobRepository.CreateJobAsync(dto);
 
             await ShowSuccessAsync("Job scheduled!");
 
             await Navigation.NavigateToCustomerListAsync();
 
-            await _navigation.GoToAsync(nameof(CustomerListPage));
         });
     }
 

@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using Mobile.UI.Pages;
+﻿using Mobile.UI.Pages;
 using Mobile.UI.Pages.Customers;
 using Mobile.UI.Pages.Customers.ScheduledJobs;
 using Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
@@ -13,7 +13,7 @@ namespace Mobile.UI.Navigation;
 public class TypeSafeNavigationRepository : ITypeSafeNavigationRepository
 {
     private readonly INavigationRepository _navigationRepository;
-    
+
     // Page name mappings - centralized to avoid magic strings
     private static readonly Dictionary<Type, string> PageNames = new()
     {
@@ -23,12 +23,12 @@ public class TypeSafeNavigationRepository : ITypeSafeNavigationRepository
         { typeof(CustomerEditPage), nameof(CustomerEditPage) },
         { typeof(CustomerCreatePage), nameof(CustomerCreatePage) },
         { typeof(ScheduledJobListPage), nameof(ScheduledJobListPage) },
+        { typeof(ScheduledJobCreatePage), nameof(ScheduledJobCreatePage) },
         { typeof(ScheduledJobViewPage), nameof(ScheduledJobViewPage) },
         { typeof(ScheduledJobEditPage), nameof(ScheduledJobEditPage) },
         { typeof(ViewJobOccurrencePage), nameof(ViewJobOccurrencePage) },
         { typeof(JobReminderPage), nameof(JobReminderPage) },
         { typeof(InvoiceCreatePage), nameof(InvoiceCreatePage) },
-        
     };
 
     public TypeSafeNavigationRepository(INavigationRepository navigationRepository)
@@ -38,19 +38,19 @@ public class TypeSafeNavigationRepository : ITypeSafeNavigationRepository
 
     public Task GoBackAsync() => _navigationRepository.GoBackAsync();
 
-    public async Task NavigateToAsync<TPage, TParameters>(TParameters parameters) 
-        where TPage : class 
+    public async Task NavigateToAsync<TPage, TParameters>(TParameters parameters)
+        where TPage : class
         where TParameters : INavigationParameters
     {
         // Validate parameters before navigation
         parameters.Validate();
-        
+
         // Get page name from type
         if (!PageNames.TryGetValue(typeof(TPage), out var pageName))
         {
             throw new InvalidOperationException($"Page type {typeof(TPage).Name} is not registered for navigation");
         }
-        
+
         // Navigate using the underlying repository
         await _navigationRepository.GoToAsync(pageName, parameters.ToDictionary());
     }
@@ -62,28 +62,31 @@ public class TypeSafeNavigationRepository : ITypeSafeNavigationRepository
     public Task NavigateToLandingPageAsync() =>
         NavigateToAsync<LandingPage, CustomerListParameters>(new CustomerListParameters());
 
-    public Task NavigateToCustomerListAsync() => 
+    public Task NavigateToCustomerListAsync() =>
         NavigateToAsync<CustomerListPage, CustomerListParameters>(new CustomerListParameters());
 
-    public Task NavigateToCustomerViewAsync(CustomerParameters parameters) => 
+    public Task NavigateToCustomerViewAsync(CustomerParameters parameters) =>
         NavigateToAsync<CustomerViewPage, CustomerParameters>(parameters);
 
-    public Task NavigateToCustomerEditAsync(CustomerParameters parameters) => 
+    public Task NavigateToCustomerEditAsync(CustomerParameters parameters) =>
         NavigateToAsync<CustomerEditPage, CustomerParameters>(parameters);
 
-    public Task NavigateToScheduledJobListAsync(ScheduledJobListParameters parameters) => 
+    public Task NavigateToScheduledJobListAsync(ScheduledJobListParameters parameters) =>
         NavigateToAsync<ScheduledJobListPage, ScheduledJobListParameters>(parameters);
 
-    public Task NavigateToScheduledJobViewAsync(ScheduledJobParameters parameters) => 
+    public Task NavigateToScheduledJobCreateAsync(CustomerParameters parameters) =>
+        NavigateToAsync<ScheduledJobCreatePage, CustomerParameters>(parameters);
+
+    public Task NavigateToScheduledJobViewAsync(ScheduledJobParameters parameters) =>
         NavigateToAsync<ScheduledJobViewPage, ScheduledJobParameters>(parameters);
 
-    public Task NavigateToScheduledJobEditAsync(ScheduledJobParameters parameters) => 
+    public Task NavigateToScheduledJobEditAsync(ScheduledJobParameters parameters) =>
         NavigateToAsync<ScheduledJobEditPage, ScheduledJobParameters>(parameters);
 
-    public Task NavigateToJobOccurrenceAsync(JobOccurrenceParameters parameters) => 
+    public Task NavigateToJobOccurrenceAsync(JobOccurrenceParameters parameters) =>
         NavigateToAsync<ViewJobOccurrencePage, JobOccurrenceParameters>(parameters);
 
-    public Task NavigateToJobReminderAsync(JobReminderParameters parameters) => 
+    public Task NavigateToJobReminderAsync(JobReminderParameters parameters) =>
         NavigateToAsync<JobReminderPage, JobReminderParameters>(parameters);
 
     public Task NavigateToInvoiceCreateAsync(InvoiceCreateParameters parameters) =>

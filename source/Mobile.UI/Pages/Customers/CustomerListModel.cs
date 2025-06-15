@@ -1,8 +1,6 @@
 using System.Collections.ObjectModel;
-using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mobile.UI.Pages.Customers.ScheduledJobs;
 using Mobile.UI.RepositoryAbstractions;
 using Mobile.UI.Navigation;
 using Mobile.UI.Pages.Base;
@@ -55,8 +53,7 @@ public partial class CustomerListModel : BaseViewModel
         if (customer == null) return;
         var confirm = await ShowConfirmationAsync(
             "Delete Customer",
-            $"Delete {customer.FirstName} {customer.LastName}?"
-        );
+            $"Delete {customer.FirstName} {customer.LastName}?");
         if (!confirm) return;
 
         IsLoading = true;
@@ -66,43 +63,21 @@ public partial class CustomerListModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task CreateJobAsync(CustomerDto? customer)
-    {
-        if (customer == null) return;
-        await NavigateToAsync(
-            nameof(ScheduledJobCreatePage),
-            new Dictionary<string, object> { { nameof(CustomerId), customer.Id.ToString() } });
-    }
-
-    [RelayCommand]
     private async Task ViewJobsAsync(CustomerDto? customer)
-    {
-        if (customer == null) return;
-        await Navigation.NavigateToCustomerJobsAsync(customer.Id);
-    }
-
-    /// <summary>
-    /// Demonstration of type-safe navigation with validation
-    /// </summary>
-    [RelayCommand]
-    private async Task ViewJobsTypeSafeAsync(CustomerDto? customer)
     {
         if (customer == null) return;
 
         try
         {
-            // This method ensures all required parameters are provided at compile time
-            // and validates them at runtime before navigation
             await Navigation.NavigateToScheduledJobListAsync(
                 new ScheduledJobListParameters(customer.Id));
         }
         catch (ArgumentException ex)
         {
-            // Handle validation errors gracefully
             await ShowErrorAsync(ex.Message);
         }
     }
- 
+
     [RelayCommand]
     private async Task NavigateHomeAsync()
         => await Navigation.NavigateToLandingPageAsync();

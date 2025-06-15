@@ -38,7 +38,6 @@ public sealed class CustomerListPage : BasePage<CustomerListModel>
             }
         };
 
-        /* first load */
         Loaded += async (_, _) => await ViewModel.LoadCustomersCommand.ExecuteAsync(null);
     }
 
@@ -102,72 +101,72 @@ public sealed class CustomerListPage : BasePage<CustomerListModel>
                 {
                     // Left side: Customer info
                     new VerticalStackLayout
-                    {
-                        Spacing = CardStyles.Spacing.ItemSpacing,
-                        VerticalOptions = LayoutOptions.Center,
-                        Children =
                         {
-                            // Customer name
-                            new HorizontalStackLayout
+                            Spacing = CardStyles.Spacing.ItemSpacing,
+                            VerticalOptions = LayoutOptions.Center,
+                            Children =
                             {
-                                Spacing = 5,
-                                Children =
+                                // Customer name
+                                new HorizontalStackLayout
                                 {
-                                    CardStyles.CreateTitleLabel()
-                                        .Bind(Label.TextProperty, nameof(CustomerDto.FirstName)),
-                                    CardStyles.CreateTitleLabel()
-                                        .Bind(Label.TextProperty, nameof(CustomerDto.LastName))
-                                }
-                            },
+                                    Spacing = 5,
+                                    Children =
+                                    {
+                                        CardStyles.CreateTitleLabel()
+                                            .Bind(Label.TextProperty, nameof(CustomerDto.FirstName)),
+                                        CardStyles.CreateTitleLabel()
+                                            .Bind(Label.TextProperty, nameof(CustomerDto.LastName))
+                                    }
+                                },
 
-                            // Email with icon
-                            CardStyles.CreateIconTextStack("📧",
-                                CardStyles.CreateSubtitleLabel()
-                                    .Bind(Label.TextProperty, nameof(CustomerDto.Email))),
+                                // Email with icon
+                                CardStyles.CreateIconTextStack("📧",
+                                    CardStyles.CreateSubtitleLabel()
+                                        .Bind(Label.TextProperty, nameof(CustomerDto.Email))),
 
-                            // Phone with icon
-                            CardStyles.CreateIconTextStack("📱",
-                                CardStyles.CreateSubtitleLabel()
-                                    .Bind(Label.TextProperty, nameof(CustomerDto.PhoneNumber)))
+                                // Phone with icon
+                                CardStyles.CreateIconTextStack("📱",
+                                    CardStyles.CreateSubtitleLabel()
+                                        .Bind(Label.TextProperty, nameof(CustomerDto.PhoneNumber)))
+                            }
                         }
-                    }
-                    .Column(Column.Content),
+                        .Column(Column.Content),
 
                     // Right side: Action buttons
                     new VerticalStackLayout
-                    {
-                        Spacing = 6,
-                        VerticalOptions = LayoutOptions.Center,
-                        HorizontalOptions = LayoutOptions.End,
-                        Children =
                         {
-                            // Primary action: View Jobs
-                            CardStyles.CreatePrimaryButton("View")
-                                .Bind(Button.CommandProperty, nameof(viewModel.ViewJobsCommand), source: viewModel)
-                                .Bind(Button.CommandParameterProperty, "."),
-
-                            // Secondary actions in a row
-                            new HorizontalStackLayout
+                            Spacing = 6,
+                            VerticalOptions = LayoutOptions.Center,
+                            HorizontalOptions = LayoutOptions.End,
+                            Children =
                             {
-                                Spacing = 6,
-                                Children =
+                                // Primary action: View Jobs
+                                CardStyles.CreatePrimaryButton("View Jobs")
+                                    .Bind(Button.CommandProperty, nameof(viewModel.ViewJobsCommand), source: viewModel)
+                                    .Bind(Button.CommandParameterProperty, "."),
+
+                                // Secondary actions in a row
+                                new HorizontalStackLayout
                                 {
-                                    CardStyles.CreateSecondaryButton("Edit")
-                                        .Bind(Button.CommandProperty, nameof(viewModel.EditCustomerCommand), source: viewModel)
-                                        .Bind(Button.CommandParameterProperty, "."),
+                                    Spacing = 6,
+                                    Children =
+                                    {
+                                        CardStyles.CreateSecondaryButton("Edit")
+                                            .Bind(Button.CommandProperty, nameof(viewModel.EditCustomerCommand), source: viewModel)
+                                            .Bind(Button.CommandParameterProperty, "."),
 
-                                    CardStyles.CreateSecondaryButton("New Job", CardStyles.Colors.Success)
-                                        .Bind(Button.CommandProperty, nameof(viewModel.CreateJobCommand), source: viewModel)
-                                        .Bind(Button.CommandParameterProperty, "."),
+                                        // CardStyles.CreateSecondaryButton("New Job", CardStyles.Colors.Success)
+                                        //     .Bind(Button.CommandProperty, nameof(viewModel.CreateJobCommand), source: viewModel)
+                                        //     .Bind(Button.CommandParameterProperty, "."),
 
-                                    CardStyles.CreateSecondaryButton("Delete", CardStyles.Colors.Error)
-                                        .Bind(Button.CommandProperty, nameof(viewModel.DeleteCustomerCommand), source: viewModel)
-                                        .Bind(Button.CommandParameterProperty, ".")
+                                        CardStyles.CreateSecondaryButton("Delete", CardStyles.Colors.Error)
+                                            .Bind(Button.CommandProperty, nameof(viewModel.DeleteCustomerCommand), source: viewModel)
+                                            .Bind(Button.CommandParameterProperty, ".")
+                                    }
                                 }
                             }
                         }
-                    }
-                    .Column(Column.Actions)
+                        .Column(Column.Actions)
                 }
             },
             CardStyles.Colors.Primary // Blue accent bar

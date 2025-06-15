@@ -1,18 +1,20 @@
-﻿using CommunityToolkit.Maui.Markup;
+﻿using Api.ValueTypes;
+using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
+using Mobile.UI.Pages.Base.QueryParamAttributes;
+using Mobile.UI.Styles;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace Mobile.UI.Pages.Customers;
 
-public sealed class CustomerViewPage : BasePage<CustomerViewModel>, IQueryAttributable
+[CustomerIdQueryParam]
+public sealed class CustomerViewPage : BasePage<CustomerViewModel>
 {
-    private readonly CustomerViewModel _vm;
+    public string CustomerId { get; set; }
 
     public CustomerViewPage(CustomerViewModel vm) : base(vm)
     {
-        _vm = vm;
-        Title = vm.Title;
-
+        Title = ViewModel.Title;
         Content = new Grid
         {
             RowDefinitions = Rows.Define(
@@ -47,24 +49,25 @@ public sealed class CustomerViewPage : BasePage<CustomerViewModel>, IQueryAttrib
                     }
                 }.Row(Row.Details),
 
-                // Edit button
                 new Button { Text = "Edit" }
                     .BindCommand(nameof(vm.EditCustomerCommand))
-                    .Row(Row.Buttons)
+                    .Row(Row.Buttons),
+                CardStyles.CreateSecondaryButton("New Job", CardStyles.Colors.Success)
+                    .Bind(Button.CommandProperty, nameof(ViewModel.CreateJobCommand), source: ViewModel)
+                    .Bind(Button.CommandParameterProperty, "."),
             }
         };
     }
 
-    // Receive customerId via Shell query
-    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    protected override void OnAppearing()
     {
-        if (query.TryGetValue("CustomerId", out var raw)
-            && raw is string sid
-            && Guid.TryParse(sid, out var id))
+        base.OnAppearing();
+        if (Guid.TryParse(CustomerId, out var id))
         {
-            _vm.LoadCustomerCommand.Execute(id);
+            ViewModel.LoadCustomerCommand.Execute(new CustomerId(id));
         }
     }
+
 
     private enum Row
     {

@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿using CommunityToolkit.Maui.Markup;
+﻿using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Styles;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
@@ -7,12 +7,9 @@ namespace Mobile.UI.Pages;
 
 public sealed class DashboardPage : BasePage<DashboardViewModel>
 {
-    private readonly DashboardViewModel _vm;
-
     public DashboardPage(DashboardViewModel vm) : base(vm)
     {
-        _vm = vm;
-        Title = vm.Title;
+        Title = ViewModel.Title;
 
         BackgroundColor = CardStyles.Colors.Background;
 
@@ -28,10 +25,10 @@ public sealed class DashboardPage : BasePage<DashboardViewModel>
                     (Row.Loader, Auto)),
                 Children =
                 {
-                    BuildHeader(vm).Row(Row.Header),
-                    BuildStatsGrid(vm).Row(Row.Stats),
+                    BuildHeader(ViewModel).Row(Row.Header),
+                    BuildStatsGrid(ViewModel).Row(Row.Stats),
                     BuildActionButtons().Row(Row.Actions),
-                    BuildBusyOverlay(vm).Row(Row.Loader)
+                    BuildBusyOverlay(ViewModel).Row(Row.Loader)
                 }
             }
         };
@@ -135,35 +132,35 @@ public sealed class DashboardPage : BasePage<DashboardViewModel>
             Spacing = 12,
             Children =
             {
-                CreateActionButton("👥 Manage Customers", nameof(_vm.NavigateToCustomersCommand), CardStyles.Colors.Primary),
-                CreateActionButton("🚪 Logout", nameof(_vm.LogoutCommand), CardStyles.Colors.Error)
+                CreateActionButton("👥 Manage Customers", nameof(ViewModel.NavigateToCustomersCommand), CardStyles.Colors.Primary),
+                CreateActionButton("🚪 Logout", nameof(ViewModel.LogoutCommand), CardStyles.Colors.Error)
             }
         };
 
     Button CreateActionButton(string text, string commandName, Color backgroundColor) =>
         new Button
-        {
-            Text = text,
-            BackgroundColor = backgroundColor,
-            TextColor = Colors.White,
-            FontSize = 16,
-            FontAttributes = FontAttributes.Bold,
-            CornerRadius = 12,
-            Padding = new Thickness(20, 16),
-            HorizontalOptions = LayoutOptions.FillAndExpand
-        }
-        .BindCommand(commandName);
+            {
+                Text = text,
+                BackgroundColor = backgroundColor,
+                TextColor = Colors.White,
+                FontSize = 14,
+                FontAttributes = FontAttributes.Bold,
+                CornerRadius = 12,
+                Padding = new Thickness(20, 2),
+                HorizontalOptions = LayoutOptions.FillAndExpand
+            }
+            .BindCommand(commandName);
 
     /* ---------- busy overlay ---------- */
     static ActivityIndicator BuildBusyOverlay(DashboardViewModel vm) =>
         new ActivityIndicator
-        {
-            Color = CardStyles.Colors.Primary,
-            HorizontalOptions = LayoutOptions.Center,
-            VerticalOptions = LayoutOptions.Center
-        }
-        .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
-        .Bind(ActivityIndicator.IsVisibleProperty, nameof(vm.IsBusy));
+            {
+                Color = CardStyles.Colors.Primary,
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center
+            }
+            .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
+            .Bind(ActivityIndicator.IsVisibleProperty, nameof(vm.IsBusy));
 
     /* enum helpers */
     enum Row

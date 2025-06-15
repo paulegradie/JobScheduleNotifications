@@ -116,7 +116,7 @@ public partial class ScheduledJobEditModel : BaseViewModel
             );
 
             await _jobRepository.UpdateJobAsync(CustomerId, ScheduledJobDefinitionId, updatedDto, CancellationToken.None);
-            await ShowConfirmationAsync("Job Updated!");
+            await ShowSuccessAsync("Job Updated!");
             await GoBackAsync();
         });
     }

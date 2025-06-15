@@ -1,4 +1,4 @@
-﻿﻿﻿using CommunityToolkit.Maui;
+﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Markup;
 using Mobile.Resources.Fonts;
 using Microsoft.Extensions.Logging;

@@ -213,7 +213,7 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                 FontSize = CardStyles.Typography.CaptionSize
             }
             .BindCommand(
-                nameof(ScheduledJobCreateModel.SelectFrequencyCommand),
+                nameof(ScheduledJobEditModel.SelectFrequencyCommand),
                 parameterSource: freq
             )
             .Bind(Button.StyleProperty, nameof(ViewModel.ChipStyle), converterParameter: freq);

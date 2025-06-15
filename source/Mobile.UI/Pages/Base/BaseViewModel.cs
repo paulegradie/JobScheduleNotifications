@@ -26,13 +26,6 @@ public abstract partial class BaseViewModel : ObservableObject
         ?? throw new InvalidOperationException("Service provider not set. Call BaseViewModel.SetServiceProvider() during app startup.");
 
     /// <summary>
-    /// Gets the NavigationRepository instance from the DI container
-    /// </summary>
-    protected INavigationRepository NavigationOld =>
-        _serviceProvider?.GetRequiredService<INavigationRepository>()
-        ?? throw new InvalidOperationException("Service provider not set. Call BaseViewModel.SetServiceProvider() during app startup.");
-
-    /// <summary>
     /// Gets the TypeSafeNavigationRepository instance from the DI container for type-safe navigation
     /// </summary>
     protected ITypeSafeNavigationRepository Navigation =>

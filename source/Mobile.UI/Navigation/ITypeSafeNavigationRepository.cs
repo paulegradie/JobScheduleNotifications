@@ -1,4 +1,4 @@
-﻿﻿﻿using Api.ValueTypes;
+﻿using Api.ValueTypes;
 
 namespace Mobile.UI.Navigation;
 
@@ -20,6 +20,7 @@ public interface ITypeSafeNavigationRepository
     Task NavigateToCustomerViewAsync(CustomerParameters parameters);
     Task NavigateToCustomerEditAsync(CustomerParameters parameters);
     Task NavigateToScheduledJobListAsync(ScheduledJobListParameters parameters);
+    Task NavigateToScheduledJobCreateAsync(CustomerParameters parameters);
     Task NavigateToScheduledJobViewAsync(ScheduledJobParameters parameters);
     Task NavigateToScheduledJobEditAsync(ScheduledJobParameters parameters);
     Task NavigateToJobOccurrenceAsync(JobOccurrenceParameters parameters);

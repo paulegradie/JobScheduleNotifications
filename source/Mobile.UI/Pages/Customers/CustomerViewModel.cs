@@ -1,13 +1,14 @@
-// CustomerViewModel.cs
-
 using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Mobile.UI.Navigation;
+using Mobile.UI.Pages.Base;
 using Mobile.UI.RepositoryAbstractions;
+using Server.Contracts.Dtos;
 
 namespace Mobile.UI.Pages.Customers;
 
-public partial class CustomerViewModel : ObservableObject
+public partial class CustomerViewModel : BaseViewModel
 {
     private readonly ICustomerRepository _repository;
     private readonly INavigationRepository _navigation;
@@ -39,13 +40,11 @@ public partial class CustomerViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task LoadCustomerAsync(Guid id)
+    private async Task LoadCustomerAsync(CustomerId customerId)
     {
-        if (IsBusy) return;
-        IsBusy = true;
-        try
+        await RunWithSpinner(async () =>
         {
-            var result = await _repository.GetCustomerByIdAsync(id);
+            var result = await _repository.GetCustomerByIdAsync(customerId);
             if (result is { IsSuccess: true, Value: not null })
             {
                 CustomerId = result.Value.Id;
@@ -55,30 +54,21 @@ public partial class CustomerViewModel : ObservableObject
                 PhoneNumber = result.Value.PhoneNumber;
                 Notes = result.Value.Notes;
             }
-            else
-            {
-                ErrorMessage = "Failed to load customer.";
-            }
-        }
-        catch
-        {
-            ErrorMessage = "Error loading customer.";
-        }
-        finally
-        {
-            IsBusy = false;
-        }
+        }, "Failed to load customer");
+        OnPropertyChanged(nameof(CustomerId));
     }
 
     [RelayCommand]
     private async Task EditCustomerAsync()
     {
         if (CustomerId.Value == Guid.Empty) return;
-        await _navigation.GoToAsync(
-            nameof(CustomerEditPage),
-            new Dictionary<string, object>
-            {
-                { "CustomerId", CustomerId.Value.ToString() }
-            });
+        await Navigation.NavigateToCustomerEditAsync(new CustomerParameters(CustomerId));
+    }
+
+    [RelayCommand]
+    private async Task CreateJobAsync(CustomerDto? customer)
+    {
+        if (customer == null) return;
+        await Navigation.NavigateToScheduledJobCreateAsync(new CustomerParameters(customer.Id));
     }
 }
