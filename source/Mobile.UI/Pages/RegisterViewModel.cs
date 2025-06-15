@@ -66,6 +66,31 @@ public partial class RegisterViewModel : ObservableValidator
     private string _businessAddress = string.Empty;
 
     [ObservableProperty]
+    [Required(ErrorMessage = "City is required")]
+    [MaxLength(100, ErrorMessage = "City cannot exceed 100 characters")]
+    private string _businessCity = string.Empty;
+
+    [ObservableProperty]
+    [Required(ErrorMessage = "State/Province is required")]
+    [MaxLength(100, ErrorMessage = "State/Province cannot exceed 100 characters")]
+    private string _businessState = string.Empty;
+
+    [ObservableProperty]
+    [Required(ErrorMessage = "Country is required")]
+    [MaxLength(100, ErrorMessage = "Country cannot exceed 100 characters")]
+    private string _businessCountry = "Australia";
+
+    [ObservableProperty]
+    [MaxLength(50, ErrorMessage = "Business ID cannot exceed 50 characters")]
+    private string _businessId = string.Empty;
+
+    [ObservableProperty]
+    [Required(ErrorMessage = "Bank details are required for customer payments")]
+    [MinLength(10, ErrorMessage = "Bank details must be at least 10 characters long")]
+    [MaxLength(500, ErrorMessage = "Bank details cannot exceed 500 characters")]
+    private string _bankDetails = string.Empty;
+
+    [ObservableProperty]
     [MaxLength(500, ErrorMessage = "Business description cannot exceed 500 characters")]
     private string _businessDescription = string.Empty;
 
@@ -101,10 +126,12 @@ public partial class RegisterViewModel : ObservableValidator
             ErrorMessage = string.Empty;
 
             // Validate required fields
-            if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password) || 
+            if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password) ||
                 string.IsNullOrWhiteSpace(ConfirmPassword) || string.IsNullOrWhiteSpace(BusinessName) ||
                 string.IsNullOrWhiteSpace(FirstName) || string.IsNullOrWhiteSpace(LastName) ||
-                string.IsNullOrWhiteSpace(PhoneNumber) || string.IsNullOrWhiteSpace(BusinessAddress))
+                string.IsNullOrWhiteSpace(PhoneNumber) || string.IsNullOrWhiteSpace(BusinessAddress) ||
+                string.IsNullOrWhiteSpace(BusinessCity) || string.IsNullOrWhiteSpace(BusinessState) ||
+                string.IsNullOrWhiteSpace(BusinessCountry) || string.IsNullOrWhiteSpace(BankDetails))
             {
                 ErrorMessage = "Please fill in all required fields";
                 return;

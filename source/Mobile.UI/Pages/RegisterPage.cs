@@ -1,7 +1,8 @@
-﻿using System.Globalization;
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using System.Globalization;
 using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
+using Mobile.UI.Styles;
 
 namespace Mobile.UI.Pages;
 
@@ -10,8 +11,7 @@ public sealed class RegisterPage : BasePage<RegisterViewModel>
     public RegisterPage(RegisterViewModel vm) : base(vm)
     {
         Shell.SetNavBarIsVisible(this, false);
-
-        Title = "Create Account";
+        Title = "Create Account - ServicePro";
 
         Content = new ScrollView
         {
@@ -22,158 +22,255 @@ public sealed class RegisterPage : BasePage<RegisterViewModel>
                     (Row.Form, GridRowsColumns.Star),
                     (Row.Footer, GridRowsColumns.Auto)
                 ),
-                Padding = 20,
-                BackgroundColor = Colors.CadetBlue,
+                Padding = new Thickness(20),
+                BackgroundColor = CardStyles.Colors.Background,
                 Children =
                 {
-                    // Header
-                    new VerticalStackLayout
-                        {
-                            Spacing = 10,
-                            Children =
-                            {
-                                new Label()
-                                    .Text("Create Account")
-                                    .Font(size: 32, bold: true)
-                                    .TextColor(Colors.CadetBlue)
-                                    .CenterHorizontal(),
-
-                                new Label()
-                                    .Text("Sign up to get started")
-                                    .FontSize(16)
-                                    .TextColor(Colors.CadetBlue)
-                                    .CenterHorizontal()
-                            }
-                        }
-                        .Margin(new Thickness(0, 40, 0, 20))
-                        .Row(Row.Header),
+                    // Header with Branding
+                    BuildHeader().Row(Row.Header),
 
                     // Form
-                    new VerticalStackLayout
-                        {
-                            Spacing = 15,
-
-                            Children =
-                            {
-                                InputFrame(() => new Entry()
-                                    .Placeholder("Email")
-                                    .Bind(Entry.TextProperty, nameof(vm.Email))),
-                                InputFrame(() => new Grid
-                                {
-                                    ColumnDefinitions = GridRowsColumns.Columns.Define((Column.First, GridRowsColumns.Star),
-                                        (Column.Second, GridRowsColumns.Auto)),
-
-                                    Children =
-                                    {
-                                        new Entry()
-                                            .Placeholder("Password")
-                                            .Bind(Entry.TextProperty, nameof(vm.Password))
-                                            .Bind(Entry.IsPasswordProperty, nameof(vm.IsPasswordVisible),
-                                                converter: new InvertedBoolConverter()),
-
-                                        new Button()
-                                            .Bind(Button.TextProperty, nameof(vm.IsPasswordVisible),
-                                                converter: new BoolToObjectConverter())
-                                            .BindCommand(nameof(vm.TogglePasswordVisibilityCommand))
-                                            .BackgroundColor(Colors.Transparent)
-                                            .TextColor(Colors.Red)
-                                            .FontSize(16)
-                                            .Padding(10, 0)
-                                            .Column(1)
-                                    }
-                                }),
-                                InputFrame(() => new Grid
-                                {
-                                    ColumnDefinitions = GridRowsColumns.Columns.Define(
-                                        (Column.First, GridRowsColumns.Star),
-                                        (Column.Second, GridRowsColumns.Auto)),
-                                    Children =
-                                    {
-                                        new Entry()
-                                            .Placeholder("Confirm Password")
-                                            .Bind(Entry.TextProperty, nameof(vm.ConfirmPassword))
-                                            .Bind(Entry.IsPasswordProperty, nameof(vm.IsConfirmPasswordVisible),
-                                                converter: new InvertedBoolConverter()),
-                                        new Button()
-                                            .Bind(Button.TextProperty, nameof(vm.IsConfirmPasswordVisible),
-                                                converter: new BoolToObjectConverter())
-                                            .BindCommand(nameof(vm.ToggleConfirmPasswordVisibilityCommand))
-                                            .BackgroundColor(Colors.Transparent)
-                                            .TextColor(Colors.Black)
-                                            .FontSize(16)
-                                            .Padding(10, 0)
-                                            .Column(1)
-                                    }
-                                }),
-                                InputFrame(() =>
-                                    new Entry().Placeholder("Business Name")
-                                        .Bind(Entry.TextProperty, nameof(vm.BusinessName))),
-                                InputFrame(() =>
-                                    new Entry().Placeholder("First Name")
-                                        .Bind(Entry.TextProperty, nameof(vm.FirstName))),
-                                InputFrame(() =>
-                                    new Entry().Placeholder("Last Name")
-                                        .Bind(Entry.TextProperty, nameof(vm.LastName))),
-                                InputFrame(() =>
-                                    new Entry().Placeholder("Phone Number")
-                                        .Bind(Entry.TextProperty, nameof(vm.PhoneNumber))),
-                                InputFrame(() =>
-                                    new Entry().Placeholder("Business Address").Bind(Entry.TextProperty,
-                                        nameof(vm.BusinessAddress))),
-                                new Label()
-                                    .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
-                                    .TextColor(Colors.Red)
-                                    .Bind(Label.IsVisibleProperty, nameof(vm.ErrorMessage),
-                                        converter: new StringToBoolConverter())
-                                    .CenterHorizontal(),
-                                new Button()
-                                    .Text("Create Account")
-                                    .BindCommand(nameof(vm.RegisterCommand))
-                                    .Bind(Button.IsEnabledProperty, nameof(vm.IsBusy))
-                                    .BackgroundColor(Colors.CadetBlue)
-                                    .TextColor(Colors.White)
-                                    .FontSize(16)
-                                    .Height(50),
-                                new ActivityIndicator()
-                                    .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
-                                    .Bind(ActivityIndicator.IsVisibleProperty, nameof(vm.IsBusy))
-                            }
-                        }
-                        .Row(Row.Form),
+                    BuildRegistrationForm(vm).Row(Row.Form),
 
                     // Footer
-                    new HorizontalStackLayout
-                        {
-                            Spacing = 5,
-                            HorizontalOptions = LayoutOptions.Center,
-
-                            Children =
-                            {
-                                new Label()
-                                    .Text("Already have an account?")
-                                    .TextColor(Colors.Red),
-
-                                new Label()
-                                    .Text("Sign In")
-                                    .TextColor(Colors.White)
-                            }
-                        }
-                        .Margin(new Thickness(0, 0, 0, 20))
-                        .Row(Row.Footer)
+                    BuildFooter(vm).Row(Row.Footer)
                 }
             }
         };
     }
 
-    private static Frame InputFrame(Func<View> inputFactory) =>
+    private VerticalStackLayout BuildHeader() =>
+        new VerticalStackLayout
+        {
+            Spacing = 16,
+            Margin = new Thickness(0, 20, 0, 24),
+            Children =
+            {
+                // Brand logo
+                new Frame
+                {
+                    BackgroundColor = CardStyles.Colors.Success,
+                    CornerRadius = 25,
+                    HasShadow = false,
+                    Padding = new Thickness(16),
+                    HorizontalOptions = LayoutOptions.Center,
+                    Content = new Label
+                    {
+                        Text = "🔧",
+                        FontSize = 32,
+                        HorizontalOptions = LayoutOptions.Center
+                    }
+                },
+
+                new Label()
+                    .Text("ServicePro")
+                    .Font(size: 28, bold: true)
+                    .TextColor(CardStyles.Colors.Primary)
+                    .CenterHorizontal(),
+
+                new Label()
+                    .Text("Create Your Account")
+                    .Font(size: 24, bold: true)
+                    .TextColor(CardStyles.Colors.TextPrimary)
+                    .CenterHorizontal(),
+
+                new Label()
+                    .Text("Join thousands of service professionals")
+                    .FontSize(16)
+                    .TextColor(CardStyles.Colors.TextSecondary)
+                    .CenterHorizontal()
+            }
+        };
+
+    private VerticalStackLayout BuildRegistrationForm(RegisterViewModel vm) =>
+        new VerticalStackLayout
+        {
+            Spacing = 16,
+            Children =
+            {
+                // Business Information Section
+                CreateSectionHeader("🏢 Business Information"),
+                CreateFieldDescription("This information will appear on your invoices and customer communications"),
+                CreateStyledEntryWithPlaceholder("Business Name", "e.g. Smith's Cleaning Services", nameof(vm.BusinessName)),
+
+                // Business Address Section
+                CreateSubSectionHeader("📍 Business Address"),
+                CreateStyledEntryWithPlaceholder("Street Address", "e.g. 123 Main Street, Unit 5", nameof(vm.BusinessAddress)),
+                CreateAddressRow(vm),
+                CreateStyledEntryWithPlaceholder("Country", "e.g. Australia", nameof(vm.BusinessCountry)),
+
+                // Business Identification
+                CreateSubSectionHeader("🆔 Business Identification"),
+                CreateStyledEntryWithPlaceholder("ABN / Business ID (Optional)", "e.g. 12 345 678 901", nameof(vm.BusinessId)),
+
+                // Bank Details Section
+                CreateSectionHeader("💳 Payment Information"),
+                CreateFieldDescription("Bank details for customer payments (will appear on invoices)"),
+                CreateStyledEntryWithPlaceholder("Bank Details", "e.g. BSB: 123-456, Account: 12345678, Commonwealth Bank", nameof(vm.BankDetails)),
+
+                // Personal Information Section
+                CreateSectionHeader("👤 Personal Information"),
+                CreateFieldDescription("Your contact information as the business owner/manager"),
+                CreateStyledEntryWithPlaceholder("First Name", "e.g. John", nameof(vm.FirstName)),
+                CreateStyledEntryWithPlaceholder("Last Name", "e.g. Smith", nameof(vm.LastName)),
+                CreateStyledEntryWithPlaceholder("Phone Number", "e.g. 0412 345 678", nameof(vm.PhoneNumber)),
+
+                // Account Information Section
+                CreateSectionHeader("🔐 Account Information"),
+                CreateStyledEntryWithPlaceholder("Email", "e.g. john@smithscleaning.com.au", nameof(vm.Email)),
+                CreatePasswordEntry(vm, "Password", nameof(vm.Password), nameof(vm.IsPasswordVisible), nameof(vm.TogglePasswordVisibilityCommand)),
+                CreatePasswordEntry(vm, "Confirm Password", nameof(vm.ConfirmPassword), nameof(vm.IsConfirmPasswordVisible), nameof(vm.ToggleConfirmPasswordVisibilityCommand)),
+
+                // Error message
+                new Label()
+                    .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
+                    .TextColor(CardStyles.Colors.Error)
+                    .Bind(Label.IsVisibleProperty, nameof(vm.ErrorMessage),
+                        converter: new StringToBoolConverter())
+                    .FontSize(14)
+                    .CenterHorizontal(),
+
+                // Create Account button
+                CardStyles.CreatePrimaryButton("🚀 Create Account")
+                    .BindCommand(nameof(vm.RegisterCommand)),
+
+                // Activity indicator
+                new ActivityIndicator
+                    {
+                        Color = CardStyles.Colors.Primary
+                    }
+                    .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
+                    .Bind(ActivityIndicator.IsVisibleProperty, nameof(vm.IsBusy))
+                    .CenterHorizontal()
+            }
+        };
+
+    private Label CreateSectionHeader(string text) =>
+        new Label()
+            .Text(text)
+            .Font(size: 18, bold: true)
+            .TextColor(CardStyles.Colors.TextPrimary)
+            .Margin(new Thickness(0, 16, 0, 8));
+
+    private Label CreateSubSectionHeader(string text) =>
+        new Label()
+            .Text(text)
+            .Font(size: 16, bold: true)
+            .TextColor(CardStyles.Colors.TextSecondary)
+            .Margin(new Thickness(0, 12, 0, 4));
+
+    private Label CreateFieldDescription(string text) =>
+        new Label()
+            .Text(text)
+            .FontSize(14)
+            .TextColor(CardStyles.Colors.TextSecondary)
+            .Margin(new Thickness(0, 0, 0, 8));
+
+    private Frame CreateStyledEntryWithPlaceholder(string label, string placeholder, string bindingPath) =>
         new Frame
         {
-            BorderColor = Colors.Black,
-            BackgroundColor = Colors.CadetBlue,
-            Padding = new Thickness(15, 0),
+            BackgroundColor = Colors.White,
+            BorderColor = CardStyles.Colors.CardBorder,
+            CornerRadius = 8,
             HasShadow = false,
-            CornerRadius = 10,
-            Content = inputFactory()
+            Padding = new Thickness(12, 8),
+            Content = new Entry()
+                .Placeholder(placeholder)
+                .Bind(Entry.TextProperty, bindingPath)
+                .BackgroundColor(Colors.Transparent)
+                .TextColor(CardStyles.Colors.TextPrimary)
+        };
+
+    private HorizontalStackLayout CreateAddressRow(RegisterViewModel vm) =>
+        new HorizontalStackLayout
+        {
+            Spacing = 8,
+            Children =
+            {
+                new Frame
+                {
+                    BackgroundColor = Colors.White,
+                    BorderColor = CardStyles.Colors.CardBorder,
+                    CornerRadius = 8,
+                    HasShadow = false,
+                    Padding = new Thickness(12, 8),
+                    HorizontalOptions = LayoutOptions.FillAndExpand,
+                    Content = new Entry()
+                        .Placeholder("e.g. Melbourne")
+                        .Bind(Entry.TextProperty, nameof(vm.BusinessCity))
+                        .BackgroundColor(Colors.Transparent)
+                },
+                new Frame
+                {
+                    BackgroundColor = Colors.White,
+                    BorderColor = CardStyles.Colors.CardBorder,
+                    CornerRadius = 8,
+                    HasShadow = false,
+                    Padding = new Thickness(12, 8),
+                    HorizontalOptions = LayoutOptions.FillAndExpand,
+                    Content = new Entry()
+                        .Placeholder("e.g. Victoria")
+                        .Bind(Entry.TextProperty, nameof(vm.BusinessState))
+                        .BackgroundColor(Colors.Transparent)
+                }
+            }
+        };
+
+    private Frame CreatePasswordEntry(RegisterViewModel vm, string placeholder, string textBinding, string visibilityBinding, string toggleCommand) =>
+        new Frame
+        {
+            BackgroundColor = Colors.White,
+            BorderColor = CardStyles.Colors.CardBorder,
+            CornerRadius = 8,
+            HasShadow = false,
+            Padding = new Thickness(12, 8),
+            Content = new Grid
+            {
+                ColumnDefinitions = GridRowsColumns.Columns.Define(
+                    (Column.First, GridRowsColumns.Star),
+                    (Column.Second, GridRowsColumns.Auto)),
+                Children =
+                {
+                    new Entry()
+                        .Placeholder(placeholder)
+                        .Bind(Entry.TextProperty, textBinding)
+                        .Bind(Entry.IsPasswordProperty, visibilityBinding,
+                            converter: new InvertedBoolConverter())
+                        .BackgroundColor(Colors.Transparent)
+                        .Column(0),
+                    new Button()
+                        .Text("👁")
+                        .BindCommand(toggleCommand)
+                        .BackgroundColor(Colors.Transparent)
+                        .TextColor(CardStyles.Colors.TextSecondary)
+                        .Padding(8, 0)
+                        .Column(1)
+                }
+            }
+        };
+
+    private HorizontalStackLayout BuildFooter(RegisterViewModel vm) =>
+        new HorizontalStackLayout
+        {
+            Spacing = 5,
+            HorizontalOptions = LayoutOptions.Center,
+            Margin = new Thickness(0, 16, 0, 20),
+            Children =
+            {
+                new Label()
+                    .Text("Already have an account?")
+                    .TextColor(CardStyles.Colors.TextSecondary)
+                    .FontSize(14),
+
+                new Label
+                {
+                    Text = "Sign In",
+                    TextColor = CardStyles.Colors.Primary,
+                    FontSize = 14,
+                    FontAttributes = FontAttributes.Bold,
+                    TextDecorations = TextDecorations.Underline
+                }
+            }
         };
 
     private enum Row
