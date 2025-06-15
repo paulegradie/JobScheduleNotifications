@@ -1,10 +1,11 @@
-﻿using Api.ValueTypes.Enums;
+﻿﻿﻿﻿﻿﻿using Api.ValueTypes.Enums;
 using CommunityToolkit.Maui.Markup;
 using Microsoft.Maui.Layouts;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Pages.Base.QueryParamAttributes;
 using Mobile.UI.Styles;
 using Server.Contracts.Dtos;
+using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
@@ -42,6 +43,9 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        // Clear all fields when the page appears to ensure fresh form
+        ViewModel.ClearFieldsCommand.Execute(null);
+        // Load customers and set selected customer
         await ViewModel.LoadCommand.ExecuteAsync(CustomerId);
     }
 
@@ -231,10 +235,28 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
                     .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
                     .Bind(IsVisibleProperty, nameof(vm.HasError)),
 
-                // Save button
-                CardStyles.CreatePrimaryButton("💾 Save Job")
-                    .BindCommand(nameof(vm.SaveCommand))
-                    .Bind(IsEnabledProperty, nameof(vm.CanSave)),
+                // Button container
+                new Grid
+                {
+                    ColumnDefinitions = Columns.Define(
+                        (Column.Save, Star),
+                        (Column.Cancel, Star)
+                    ),
+                    ColumnSpacing = 12,
+                    Children =
+                    {
+                        // Save button
+                        CardStyles.CreatePrimaryButton("💾 Save Job")
+                            .BindCommand(nameof(vm.SaveCommand), source: vm)
+                            .Bind(IsEnabledProperty, nameof(vm.CanSave), source: vm)
+                            .Column(Column.Save),
+
+                        // Cancel button
+                        CardStyles.CreateSecondaryButton("❌ Cancel")
+                            .BindCommand(nameof(vm.CancelCommand), source: vm)
+                            .Column(Column.Cancel)
+                    }
+                },
 
                 // Loading indicator
                 new ActivityIndicator
@@ -273,4 +295,10 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
                 control
             }
         };
+
+    private enum Column
+    {
+        Save,
+        Cancel
+    }
 }

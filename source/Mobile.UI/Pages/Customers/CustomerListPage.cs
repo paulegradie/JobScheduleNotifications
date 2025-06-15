@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Maui.Markup;
+﻿﻿using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Styles;
 using Server.Contracts.Dtos;
@@ -39,6 +39,13 @@ public sealed class CustomerListPage : BasePage<CustomerListModel>
         };
 
         Loaded += async (_, _) => await ViewModel.LoadCustomersCommand.ExecuteAsync(null);
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        // Refresh the customer list when returning to this page
+        ViewModel.LoadCustomersCommand.Execute(null);
     }
 
     private static Grid BuildHeader(CustomerListModel vm) =>

@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+﻿﻿﻿﻿using System.Collections.ObjectModel;
 using Api.ValueTypes;
 using Api.ValueTypes.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -52,11 +52,40 @@ public partial class ScheduledJobEditModel : BaseViewModel
         return $"Every {Interval} {freqString}{(Interval > 1 ? "s" : "")}";
     }
 
+    // Validation properties for individual fields
+    public bool IsTitleValid => !string.IsNullOrWhiteSpace(Title);
+    public bool IsDescriptionValid => !string.IsNullOrWhiteSpace(Description);
+    public bool IsCronExpressionValid => !string.IsNullOrWhiteSpace(CronExpression);
+
+    // Validation error messages
+    public string TitleError => IsTitleValid ? string.Empty : "Job title is required";
+    public string DescriptionError => IsDescriptionValid ? string.Empty : "Job description is required";
+    public string CronExpressionError => IsCronExpressionValid ? string.Empty : "Schedule configuration is invalid";
+
+    // Overall validation message
+    public string ValidationMessage
+    {
+        get
+        {
+            if (CanSave) return string.Empty;
+            if (IsBusy) return "Please wait...";
+
+            var missingFields = new List<string>();
+            if (!IsTitleValid) missingFields.Add("Title");
+            if (!IsDescriptionValid) missingFields.Add("Description");
+            if (!IsCronExpressionValid) missingFields.Add("Schedule");
+
+            return missingFields.Count > 0
+                ? $"Please fill in: {string.Join(", ", missingFields)}"
+                : string.Empty;
+        }
+    }
+
     public bool CanSave =>
         !IsBusy &&
-        !string.IsNullOrWhiteSpace(Title) &&
-        !string.IsNullOrWhiteSpace(Description) &&
-        !string.IsNullOrWhiteSpace(CronExpression);
+        IsTitleValid &&
+        IsDescriptionValid &&
+        IsCronExpressionValid;
 
     public ScheduledJobEditModel(
         IJobRepository jobRepository,
@@ -120,10 +149,20 @@ public partial class ScheduledJobEditModel : BaseViewModel
     }
 
     partial void OnTitleChanged(string oldValue, string newValue)
-        => SaveCommand.NotifyCanExecuteChanged();
+    {
+        SaveCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(IsTitleValid));
+        OnPropertyChanged(nameof(TitleError));
+        OnPropertyChanged(nameof(ValidationMessage));
+    }
 
     partial void OnDescriptionChanged(string oldValue, string newValue)
-        => SaveCommand.NotifyCanExecuteChanged();
+    {
+        SaveCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(IsDescriptionValid));
+        OnPropertyChanged(nameof(DescriptionError));
+        OnPropertyChanged(nameof(ValidationMessage));
+    }
 
     partial void OnIntervalChanged(int oldValue, int newValue)
     {
@@ -134,6 +173,9 @@ public partial class ScheduledJobEditModel : BaseViewModel
     partial void OnCronExpressionChanged(string oldValue, string newValue)
     {
         SaveCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(IsCronExpressionValid));
+        OnPropertyChanged(nameof(CronExpressionError));
+        OnPropertyChanged(nameof(ValidationMessage));
         UpdateCronPreview();
     }
 

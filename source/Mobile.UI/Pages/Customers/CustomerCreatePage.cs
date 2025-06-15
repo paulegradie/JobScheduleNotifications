@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Maui.Markup;
+﻿﻿using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Styles;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
@@ -34,6 +34,13 @@ public sealed class CustomerCreatePage : BasePage<CustomerCreateModel>
                 }
             }
         };
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        // Clear all fields when the page appears to ensure fresh form
+        ViewModel.ClearFieldsCommand.Execute(null);
     }
 
     private Frame CreatePersonalInfoCard(CustomerCreateModel vm)
@@ -114,7 +121,7 @@ public sealed class CustomerCreatePage : BasePage<CustomerCreateModel>
                                 BackgroundColor = Colors.White,
                                 TextColor = CardStyles.Colors.TextPrimary
                             }
-                            .Bind(Editor.TextProperty, nameof(vm.Notes))
+                            .Bind(Editor.TextProperty, nameof(vm.Notes), source: vm)
                     }
                 }
             }
@@ -137,8 +144,8 @@ public sealed class CustomerCreatePage : BasePage<CustomerCreateModel>
                         FontSize = CardStyles.Typography.SubtitleSize,
                         HorizontalTextAlignment = TextAlignment.Center
                     }
-                    .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
-                    .Bind(IsVisibleProperty, nameof(vm.ErrorMessage)),
+                    .Bind(Label.TextProperty, nameof(vm.ErrorMessage), source: vm)
+                    .Bind(IsVisibleProperty, nameof(vm.ErrorMessage), source: vm),
 
                 // Action buttons
                 new Grid
@@ -152,13 +159,12 @@ public sealed class CustomerCreatePage : BasePage<CustomerCreateModel>
                     {
                         // Save button
                         CardStyles.CreatePrimaryButton("💾 Save Customer")
-                            .BindCommand(nameof(vm.SaveCommand))
-                            // .Bind(IsEnabledProperty, nameof(vm.CanSave))
+                            .BindCommand(nameof(vm.SaveCommand), source: vm)
                             .Column(Column.Save),
 
                         // Cancel button
                         CardStyles.CreateSecondaryButton("❌ Cancel")
-                            .BindCommand(nameof(vm.CancelCommand))
+                            .BindCommand(nameof(vm.CancelCommand), source: vm)
                             .Column(Column.Cancel)
                     }
                 }
@@ -189,7 +195,7 @@ public sealed class CustomerCreatePage : BasePage<CustomerCreateModel>
                         TextColor = CardStyles.Colors.TextPrimary,
                         Keyboard = keyboard ?? Keyboard.Default
                     }
-                    .Bind(Entry.TextProperty, bindingPath)
+                    .Bind(Entry.TextProperty, bindingPath, source: vm)
             }
         };
     }

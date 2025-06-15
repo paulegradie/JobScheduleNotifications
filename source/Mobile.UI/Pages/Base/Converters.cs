@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+﻿﻿using System.Globalization;
 
 namespace Mobile.UI.Pages.Base;
 
@@ -33,6 +33,38 @@ public class NotNullToBoolConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         => value != null;
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
+/// <summary>
+/// Converts a boolean validation state to a background color (white for valid, light red for invalid).
+/// </summary>
+public class ValidationToColorConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is bool isValid)
+        {
+            return isValid ? Colors.White : Color.FromArgb("#FFEBEE"); // Light red for invalid
+        }
+        return Colors.White;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
+/// <summary>
+/// Converts a string to boolean (true if not null/empty, false otherwise).
+/// </summary>
+public class StringToBoolConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return !string.IsNullOrEmpty(value as string);
+    }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => throw new NotSupportedException();

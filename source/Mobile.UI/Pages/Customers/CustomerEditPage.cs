@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Maui.Markup;
+﻿﻿﻿﻿﻿﻿﻿﻿using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Pages.Base.QueryParamAttributes;
 using Mobile.UI.Styles;
@@ -55,27 +55,13 @@ public sealed class CustomerEditPage : BasePage<CustomerEditModel>
                 // Section title
                 CardStyles.CreateTitleLabel().Text("👤 Personal Information"),
 
-                // First Name entry
-                Section("First Name",
-                    new Entry
-                        {
-                            Placeholder = "Enter first name...",
-                            BackgroundColor = Colors.White,
-                            TextColor = CardStyles.Colors.TextPrimary
-                        }
-                        .Bind(Entry.TextProperty, nameof(vm.FirstName))
-                ),
+                // First Name entry with validation
+                CreateValidatedField("First Name", "Enter first name...",
+                    nameof(vm.FirstName), nameof(vm.IsFirstNameValid), nameof(vm.FirstNameError), vm),
 
-                // Last Name entry
-                Section("Last Name",
-                    new Entry
-                        {
-                            Placeholder = "Enter last name...",
-                            BackgroundColor = Colors.White,
-                            TextColor = CardStyles.Colors.TextPrimary
-                        }
-                        .Bind(Entry.TextProperty, nameof(vm.LastName))
-                )
+                // Last Name entry with validation
+                CreateValidatedField("Last Name", "Enter last name...",
+                    nameof(vm.LastName), nameof(vm.IsLastNameValid), nameof(vm.LastNameError), vm)
             }
         };
 
@@ -93,29 +79,13 @@ public sealed class CustomerEditPage : BasePage<CustomerEditModel>
                 CardStyles.CreateTitleLabel()
                     .Text("📞 Contact Information"),
 
-                // Email entry
-                Section("Email",
-                    new Entry
-                        {
-                            Placeholder = "Enter email address...",
-                            Keyboard = Keyboard.Email,
-                            BackgroundColor = Colors.White,
-                            TextColor = CardStyles.Colors.TextPrimary
-                        }
-                        .Bind(Entry.TextProperty, nameof(vm.Email))
-                ),
+                // Email entry with validation
+                CreateValidatedField("Email", "Enter email address...",
+                    nameof(vm.Email), nameof(vm.IsEmailValid), nameof(vm.EmailError), vm, Keyboard.Email),
 
-                // Phone entry
-                Section("Phone Number",
-                    new Entry
-                        {
-                            Placeholder = "Enter phone number...",
-                            Keyboard = Keyboard.Telephone,
-                            BackgroundColor = Colors.White,
-                            TextColor = CardStyles.Colors.TextPrimary
-                        }
-                        .Bind(Entry.TextProperty, nameof(vm.PhoneNumber))
-                )
+                // Phone entry with validation
+                CreateValidatedField("Phone Number", "Enter phone number...",
+                    nameof(vm.PhoneNumber), nameof(vm.IsPhoneNumberValid), nameof(vm.PhoneNumberError), vm, Keyboard.Telephone)
             }
         };
 
@@ -163,8 +133,19 @@ public sealed class CustomerEditPage : BasePage<CustomerEditModel>
                         TextColor = CardStyles.Colors.Error,
                         FontSize = CardStyles.Typography.SubtitleSize
                     }
-                    .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
-                    .Bind(IsVisibleProperty, nameof(vm.ErrorMessage)),
+                    .Bind(Label.TextProperty, nameof(vm.ErrorMessage), source: vm)
+                    .Bind(IsVisibleProperty, nameof(vm.HasError), source: vm),
+
+                // Validation message
+                new Label
+                    {
+                        TextColor = CardStyles.Colors.Warning,
+                        FontSize = CardStyles.Typography.CaptionSize,
+                        HorizontalTextAlignment = TextAlignment.Center
+                    }
+                    .Bind(Label.TextProperty, nameof(vm.ValidationMessage), source: vm)
+                    .Bind(IsVisibleProperty, nameof(vm.ValidationMessage), source: vm,
+                        converter: new StringToBoolConverter()),
 
                 // Button container
                 new HorizontalStackLayout
@@ -175,12 +156,12 @@ public sealed class CustomerEditPage : BasePage<CustomerEditModel>
                     {
                         // Save button
                         CardStyles.CreatePrimaryButton("💾 Save Customer")
-                            .BindCommand(nameof(vm.SaveCustomerCommand)),
-                            // .Bind(IsEnabledProperty, nameof(vm.CanSave)),
+                            .BindCommand(nameof(vm.SaveCustomerCommand), source: vm)
+                            .Bind(IsEnabledProperty, nameof(vm.CanSave), source: vm),
 
                         // Cancel button
                         CardStyles.CreateSecondaryButton("❌ Cancel", CardStyles.Colors.TextSecondary)
-                            .BindCommand(nameof(vm.CancelCommand))
+                            .BindCommand(nameof(vm.CancelCommand), source: vm)
                     }
                 },
 
@@ -189,12 +170,55 @@ public sealed class CustomerEditPage : BasePage<CustomerEditModel>
                     {
                         Color = CardStyles.Colors.Primary
                     }
-                    .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
-                    .Bind(IsVisibleProperty, nameof(vm.IsBusy))
+                    .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy), source: vm)
+                    .Bind(IsVisibleProperty, nameof(vm.IsBusy), source: vm)
             }
         };
 
         return CardStyles.CreateCard(content, CardStyles.Colors.Primary);
+    }
+
+    private VerticalStackLayout CreateValidatedField(string label, string placeholder,
+        string textBindingPath, string validationBindingPath, string errorBindingPath,
+        CustomerEditModel vm, Keyboard? keyboard = null)
+    {
+        var entry = new Entry
+        {
+            Placeholder = placeholder,
+            TextColor = CardStyles.Colors.TextPrimary,
+            Keyboard = keyboard ?? Keyboard.Default
+        }
+        .Bind(Entry.TextProperty, textBindingPath, source: vm);
+
+        // Bind background color based on validation state
+        entry.SetBinding(Entry.BackgroundColorProperty, new Binding(validationBindingPath,
+            source: vm,
+            converter: new ValidationToColorConverter()));
+
+        var errorLabel = new Label
+        {
+            FontSize = CardStyles.Typography.CaptionSize,
+            TextColor = CardStyles.Colors.Error
+        }
+        .Bind(Label.TextProperty, errorBindingPath, source: vm)
+        .Bind(IsVisibleProperty, errorBindingPath, source: vm,
+            converter: new StringToBoolConverter());
+
+        return new VerticalStackLayout
+        {
+            Spacing = 4,
+            Children =
+            {
+                new Label
+                {
+                    Text = $"{label}:",
+                    FontSize = CardStyles.Typography.CaptionSize,
+                    TextColor = CardStyles.Colors.TextSecondary
+                },
+                entry,
+                errorLabel
+            }
+        };
     }
 
     private static VerticalStackLayout Section(string label, View control) =>

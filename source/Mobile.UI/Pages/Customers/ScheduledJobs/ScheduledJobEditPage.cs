@@ -1,4 +1,4 @@
-﻿using Api.ValueTypes;
+﻿﻿﻿﻿﻿using Api.ValueTypes;
 using Api.ValueTypes.Enums;
 using CommunityToolkit.Maui.Markup;
 using Microsoft.Maui.Layouts;
@@ -64,15 +64,13 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                 CardStyles.CreateTitleLabel()
                     .Text("📋 Job Information"),
 
-                // Title entry
-                Section("Job Title",
-                    CardStyles.CreateStyledEntry("Enter job title...", nameof(vm.Title))
-                ),
+                // Title entry with validation
+                CreateValidatedField("Job Title", "Enter job title...",
+                    nameof(vm.Title), nameof(vm.IsTitleValid), nameof(vm.TitleError), vm),
 
-                // Description editor
-                Section("Description",
-                    CardStyles.CreateStyledEditor("Enter job description...", nameof(vm.Description), 100)
-                )
+                // Description entry with validation
+                CreateValidatedField("Description", "Enter job description...",
+                    nameof(vm.Description), nameof(vm.IsDescriptionValid), nameof(vm.DescriptionError), vm)
             }
         };
 
@@ -165,8 +163,19 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                         TextColor = CardStyles.Colors.Error,
                         FontSize = CardStyles.Typography.SubtitleSize
                     }
-                    .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
-                    .Bind(IsVisibleProperty, nameof(vm.HasError)),
+                    .Bind(Label.TextProperty, nameof(vm.ErrorMessage), source: vm)
+                    .Bind(IsVisibleProperty, nameof(vm.HasError), source: vm),
+
+                // Validation message
+                new Label
+                    {
+                        TextColor = CardStyles.Colors.Warning,
+                        FontSize = CardStyles.Typography.CaptionSize,
+                        HorizontalTextAlignment = TextAlignment.Center
+                    }
+                    .Bind(Label.TextProperty, nameof(vm.ValidationMessage), source: vm)
+                    .Bind(IsVisibleProperty, nameof(vm.ValidationMessage), source: vm,
+                        converter: new StringToBoolConverter()),
 
                 // Button container
                 new HorizontalStackLayout
@@ -177,8 +186,8 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                     {
                         // Save button
                         CardStyles.CreatePrimaryButton("💾 Update Job")
-                            .BindCommand(nameof(vm.SaveCommand)),
-                        // .Bind(IsEnabledProperty, nameof(vm.CanSave)),
+                            .BindCommand(nameof(vm.SaveCommand), source: vm)
+                            .Bind(IsEnabledProperty, nameof(vm.CanSave), source: vm),
                         // Cancel button
                         CardStyles.CreateSecondaryButton("❌ Cancel", CardStyles.Colors.TextSecondary)
                             .BindCommand(nameof(vm.GoBackCommand))
@@ -211,6 +220,49 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                 parameterSource: freq
             )
             .Bind(Button.StyleProperty, nameof(ViewModel.ChipStyle), converterParameter: freq);
+
+    private VerticalStackLayout CreateValidatedField(string label, string placeholder,
+        string textBindingPath, string validationBindingPath, string errorBindingPath,
+        ScheduledJobEditModel vm, Keyboard? keyboard = null)
+    {
+        var entry = new Entry
+        {
+            Placeholder = placeholder,
+            TextColor = CardStyles.Colors.TextPrimary,
+            Keyboard = keyboard ?? Keyboard.Default
+        }
+        .Bind(Entry.TextProperty, textBindingPath, source: vm);
+
+        // Bind background color based on validation state
+        entry.SetBinding(Entry.BackgroundColorProperty, new Binding(validationBindingPath,
+            source: vm,
+            converter: new ValidationToColorConverter()));
+
+        var errorLabel = new Label
+        {
+            FontSize = CardStyles.Typography.CaptionSize,
+            TextColor = CardStyles.Colors.Error
+        }
+        .Bind(Label.TextProperty, errorBindingPath, source: vm)
+        .Bind(IsVisibleProperty, errorBindingPath, source: vm,
+            converter: new StringToBoolConverter());
+
+        return new VerticalStackLayout
+        {
+            Spacing = 4,
+            Children =
+            {
+                new Label
+                {
+                    Text = $"{label}:",
+                    FontSize = CardStyles.Typography.CaptionSize,
+                    TextColor = CardStyles.Colors.TextSecondary
+                },
+                entry,
+                errorLabel
+            }
+        };
+    }
 
     private static VerticalStackLayout Section(string label, View control) =>
         new()

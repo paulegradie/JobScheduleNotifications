@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+﻿﻿﻿﻿﻿﻿﻿﻿using System.Collections.ObjectModel;
 using Api.ValueTypes.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -47,15 +47,46 @@ public partial class ScheduledJobCreateModel : BaseViewModel
     }
 
 
-    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+    public new bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+
+    // Validation properties for individual fields
+    public bool IsCustomerValid => SelectedCustomer != null;
+    public bool IsTitleValid => !string.IsNullOrWhiteSpace(Title);
+    public bool IsDescriptionValid => !string.IsNullOrWhiteSpace(Description);
+    public bool IsCronValid => !string.IsNullOrWhiteSpace(CronPreview) && CronPreview != "Invalid parameters";
+
+    // Validation error messages
+    public string CustomerError => IsCustomerValid ? string.Empty : "Please select a customer";
+    public string TitleError => IsTitleValid ? string.Empty : "Job title is required";
+    public string DescriptionError => IsDescriptionValid ? string.Empty : "Job description is required";
+    public string CronError => IsCronValid ? string.Empty : "Schedule configuration is invalid";
+
+    // Overall validation message
+    public string ValidationMessage
+    {
+        get
+        {
+            if (CanSave) return string.Empty;
+            if (IsBusy) return "Please wait...";
+
+            var missingFields = new List<string>();
+            if (!IsCustomerValid) missingFields.Add("Customer");
+            if (!IsTitleValid) missingFields.Add("Title");
+            if (!IsDescriptionValid) missingFields.Add("Description");
+            if (!IsCronValid) missingFields.Add("Schedule");
+
+            return missingFields.Count > 0
+                ? $"Please fill in: {string.Join(", ", missingFields)}"
+                : string.Empty;
+        }
+    }
 
     public bool CanSave =>
         !IsBusy &&
-        SelectedCustomer != null &&
-        !string.IsNullOrWhiteSpace(Title) &&
-        !string.IsNullOrWhiteSpace(Description) &&
-        !string.IsNullOrWhiteSpace(CronPreview) &&
-        CronPreview != "Invalid parameters";
+        IsCustomerValid &&
+        IsTitleValid &&
+        IsDescriptionValid &&
+        IsCronValid;
 
     public ScheduledJobCreateModel(
         IJobRepository jobRepository,
@@ -63,6 +94,25 @@ public partial class ScheduledJobCreateModel : BaseViewModel
     {
         _jobRepository = jobRepository;
         _customerRepository = customerRepository;
+        UpdateCronPreview();
+    }
+
+    /// <summary>
+    /// Clears all form fields to prepare for new job creation
+    /// </summary>
+    [RelayCommand]
+    public void ClearFields()
+    {
+        Title = string.Empty;
+        Description = string.Empty;
+        AnchorDate = DateTime.Now;
+        AnchorTime = TimeSpan.Zero;
+        Frequency = Frequency.Daily;
+        Interval = 1;
+        DayOfMonth = null;
+        ErrorMessage = string.Empty;
+
+        // Update cron preview after clearing fields
         UpdateCronPreview();
     }
 
@@ -137,40 +187,54 @@ public partial class ScheduledJobCreateModel : BaseViewModel
         OnPropertyChanged(nameof(CronPreview));
         OnPropertyChanged(nameof(CronExpression));
         OnPropertyChanged(nameof(IntervalDisplay));
+
+        // Notify that CanSave might have changed since it depends on CronPreview
+        SaveCommand.NotifyCanExecuteChanged();
     }
 
     [RelayCommand(CanExecute = nameof(CanSave))]
     private async Task SaveAsync()
     {
+        await RunWithSpinner(async () =>
+        {
+            var dto = new CreateScheduledJobDefinitionDto
+            {
+                CustomerId = SelectedCustomer!.Id,
+                Title = Title,
+                Description = Description,
+                AnchorDate = AnchorDateTime,
+                CronExpression = CronPreview
+            };
+
+            var result = await _jobRepository.CreateJobAsync(dto);
+
+            if (result.IsSuccess)
+            {
+                await ShowSuccessAsync("Job Created", "Job has been scheduled successfully!");
+                // Clear fields after successful creation
+                ClearFields();
+                // Navigate back to customer list
+                await Navigation.NavigateToCustomerListAsync();
+            }
+            else
+            {
+                await ShowErrorAsync($"Failed to create job: {result.ErrorMessage ?? "Unknown error"}");
+            }
+        }, "Unable to create scheduled job");
+    }
+
+    [RelayCommand]
+    private async Task Cancel()
+    {
         try
         {
-            await RunWithSpinner(async () =>
-            {
-                var dto = new CreateScheduledJobDefinitionDto
-                {
-                    CustomerId = SelectedCustomer!.Id,
-                    Title = Title,
-                    Description = Description,
-                    AnchorDate = AnchorDateTime,
-                    CronExpression = CronPreview
-                };
-
-                var result = await _jobRepository.CreateJobAsync(dto);
-
-                if (result.IsSuccess)
-                {
-                    await ShowSuccessAsync("Job scheduled!");
-                    await Navigation.NavigateToCustomerListAsync();
-                }
-                else
-                {
-                    ErrorMessage = result.ErrorMessage ?? "Failed to create job";
-                }
-            });
+            // Clear fields when cancelling
+            ClearFields();
+            await Navigation.NavigateToCustomerListAsync();
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Error saving job: {ex.Message}";
+            await ShowErrorAsync($"Navigation error: {ex.Message}");
         }
     }
 
@@ -187,6 +251,9 @@ public partial class ScheduledJobCreateModel : BaseViewModel
         => SaveCommand.NotifyCanExecuteChanged();
 
     partial void OnCronExpressionChanged(string oldValue, string newValue)
+        => SaveCommand.NotifyCanExecuteChanged();
+
+    partial void OnCronPreviewChanged(string oldValue, string newValue)
         => SaveCommand.NotifyCanExecuteChanged();
 
     partial void OnSelectedCustomerChanged(CustomerDto? oldValue, CustomerDto? newValue)

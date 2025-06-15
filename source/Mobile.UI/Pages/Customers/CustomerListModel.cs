@@ -56,10 +56,22 @@ public partial class CustomerListModel : BaseViewModel
             $"Delete {customer.FirstName} {customer.LastName}?");
         if (!confirm) return;
 
-        IsLoading = true;
-        await _customerRepository.DeleteCustomerAsync(customer.Id);
-        Customers.Remove(customer);
-        IsLoading = false;
+        await RunWithSpinner(async () =>
+        {
+            var result = await _customerRepository.DeleteCustomerAsync(customer.Id);
+            if (result.IsSuccess)
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    Customers.Remove(customer);
+                });
+                await ShowSuccessAsync("Customer Deleted", $"{customer.FirstName} {customer.LastName} has been deleted successfully.");
+            }
+            else
+            {
+                await ShowErrorAsync($"Failed to delete customer: {result.ErrorMessage ?? "Unknown error"}");
+            }
+        }, "Failed to delete customer");
     }
 
     [RelayCommand]
