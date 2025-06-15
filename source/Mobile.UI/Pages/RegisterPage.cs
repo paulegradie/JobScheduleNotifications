@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using System.Globalization;
+﻿using System.Globalization;
 using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
@@ -174,11 +174,14 @@ public sealed class RegisterPage : BasePage<RegisterViewModel>
             CornerRadius = 8,
             HasShadow = false,
             Padding = new Thickness(12, 8),
-            Content = new Entry()
-                .Placeholder(placeholder)
-                .Bind(Entry.TextProperty, bindingPath)
-                .BackgroundColor(Colors.Transparent)
-                .TextColor(CardStyles.Colors.TextPrimary)
+            Content = new Entry
+            {
+                Placeholder = placeholder,
+                BackgroundColor = Colors.Transparent,
+                TextColor = CardStyles.Colors.TextPrimary,
+                PlaceholderColor = CardStyles.Colors.TextSecondary
+            }
+            .Bind(Entry.TextProperty, bindingPath)
         };
 
     private HorizontalStackLayout CreateAddressRow(RegisterViewModel vm) =>
@@ -195,10 +198,14 @@ public sealed class RegisterPage : BasePage<RegisterViewModel>
                     HasShadow = false,
                     Padding = new Thickness(12, 8),
                     HorizontalOptions = LayoutOptions.FillAndExpand,
-                    Content = new Entry()
-                        .Placeholder("e.g. Melbourne")
-                        .Bind(Entry.TextProperty, nameof(vm.BusinessCity))
-                        .BackgroundColor(Colors.Transparent)
+                    Content = new Entry
+                    {
+                        Placeholder = "e.g. Melbourne",
+                        BackgroundColor = Colors.Transparent,
+                        TextColor = CardStyles.Colors.TextPrimary,
+                        PlaceholderColor = CardStyles.Colors.TextSecondary
+                    }
+                    .Bind(Entry.TextProperty, nameof(vm.BusinessCity))
                 },
                 new Frame
                 {
@@ -208,10 +215,14 @@ public sealed class RegisterPage : BasePage<RegisterViewModel>
                     HasShadow = false,
                     Padding = new Thickness(12, 8),
                     HorizontalOptions = LayoutOptions.FillAndExpand,
-                    Content = new Entry()
-                        .Placeholder("e.g. Victoria")
-                        .Bind(Entry.TextProperty, nameof(vm.BusinessState))
-                        .BackgroundColor(Colors.Transparent)
+                    Content = new Entry
+                    {
+                        Placeholder = "e.g. Victoria",
+                        BackgroundColor = Colors.Transparent,
+                        TextColor = CardStyles.Colors.TextPrimary,
+                        PlaceholderColor = CardStyles.Colors.TextSecondary
+                    }
+                    .Bind(Entry.TextProperty, nameof(vm.BusinessState))
                 }
             }
         };
@@ -237,6 +248,7 @@ public sealed class RegisterPage : BasePage<RegisterViewModel>
                         .Bind(Entry.IsPasswordProperty, visibilityBinding,
                             converter: new InvertedBoolConverter())
                         .BackgroundColor(Colors.Transparent)
+                        .TextColor(CardStyles.Colors.TextPrimary)
                         .Column(0),
                     new Button()
                         .Text("👁")
@@ -268,7 +280,12 @@ public sealed class RegisterPage : BasePage<RegisterViewModel>
                     TextColor = CardStyles.Colors.Primary,
                     FontSize = 14,
                     FontAttributes = FontAttributes.Bold,
-                    TextDecorations = TextDecorations.Underline
+                    TextDecorations = TextDecorations.Underline,
+                    GestureRecognizers =
+                    {
+                        new TapGestureRecognizer()
+                            .Bind(TapGestureRecognizer.CommandProperty, nameof(vm.LoginCommand))
+                    }
                 }
             }
         };

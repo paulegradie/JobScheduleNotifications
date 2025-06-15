@@ -1,16 +1,16 @@
 using System.ComponentModel.DataAnnotations;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Mobile.UI.Pages.Base;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts;
 using Server.Contracts.Endpoints.Auth.Contracts;
 
 namespace Mobile.UI.Pages;
 
-public partial class LoginViewModel : ObservableValidator
+public partial class LoginViewModel : BaseViewModel
 {
     private readonly IServerClient _serverClient;
-    private readonly INavigationRepository _navigationRepository;
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(ErrorMessage))] [Required(ErrorMessage = "Email is required")] [EmailAddress(ErrorMessage = "Invalid email format")]
     private string _email = string.Empty;
@@ -22,58 +22,37 @@ public partial class LoginViewModel : ObservableValidator
 
     [ObservableProperty] private bool _isPasswordVisible;
 
-    [ObservableProperty] private bool _isBusy;
 
     [ObservableProperty] private string _title = "Login";
 
-    public LoginViewModel(IServerClient serverClient, INavigationRepository navigationRepository)
+    public LoginViewModel(IServerClient serverClient)
     {
         _serverClient = serverClient;
-        _navigationRepository = navigationRepository;
     }
 
     [RelayCommand]
     private async Task LoginAsync()
     {
-        if (IsBusy) return;
-
-        try
+        if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
         {
-            IsBusy = true;
-            ErrorMessage = string.Empty;
+            ErrorMessage = "Please enter both email and password";
+            return;
+        }
 
-            if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
-            {
-                ErrorMessage = "Please enter both email and password";
-                return;
-            }
-
+        await RunWithSpinner(async () =>
+        {
             var success = await _serverClient.Auth.LoginAsync(new SignInRequest(Email, Password), CancellationToken.None);
             if (true)
             {
-                // The IServerClient will internally handle storing the TokenInfo and managing refreshes
-                await _navigationRepository.GoToAsync(nameof(LandingPage));
+                await Navigation.NavigateToLandingPageAsync();
             }
-            else
-            {
-                ErrorMessage = "Invalid email or password";
-            }
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = "An error occurred during login. Please try again.";
-            System.Diagnostics.Debug.WriteLine($"Login Error: {ex.Message}");
-        }
-        finally
-        {
-            IsBusy = false;
-        }
+        }, "An error occurred during login. Please try again.");
     }
 
     [RelayCommand]
     private async Task NavigateToRegister()
     {
-        await _navigationRepository.GoToAsync(nameof(RegisterPage));
+        await Navigation.NavigateToRegisterAsync();
     }
 
     [RelayCommand]
@@ -85,6 +64,6 @@ public partial class LoginViewModel : ObservableValidator
     [RelayCommand]
     private async Task NavigateBack()
     {
-        await _navigationRepository.GoBackAsync();
+        await Navigation.NavigateToLandingPageAsync();
     }
 }

@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿using Api.ValueTypes.Enums;
+﻿using Api.ValueTypes.Enums;
 using CommunityToolkit.Maui.Markup;
 using Microsoft.Maui.Layouts;
 using Mobile.UI.Pages.Base;

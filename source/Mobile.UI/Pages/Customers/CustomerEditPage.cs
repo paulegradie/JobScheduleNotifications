@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿using CommunityToolkit.Maui.Markup;
+﻿using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Pages.Base.QueryParamAttributes;
 using Mobile.UI.Styles;

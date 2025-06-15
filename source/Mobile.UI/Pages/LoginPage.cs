@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿using CommunityToolkit.Maui.Converters;
+﻿using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Styles;
@@ -64,7 +64,7 @@ public sealed class LoginPage : BasePage<LoginViewModel>
                 },
 
                 new Label()
-                    .Text("ServicePro")
+                    .Text("MowPro")
                     .Font(size: 28, bold: true)
                     .TextColor(CardStyles.Colors.Primary)
                     .CenterHorizontal(),
@@ -90,7 +90,7 @@ public sealed class LoginPage : BasePage<LoginViewModel>
             Children =
             {
                 // Email input
-                CardStyles.CreateStyledEntry("Email", nameof(vm.Email)),
+                CreateStyledEntryWithPlaceholder("Email", "e.g. john@smithscleaning.com.au", nameof(vm.Email)),
 
                 // Password input with toggle
                 CreatePasswordEntry(vm),
@@ -123,6 +123,24 @@ public sealed class LoginPage : BasePage<LoginViewModel>
         }
         .CenterVertical();
 
+    private Frame CreateStyledEntryWithPlaceholder(string label, string placeholder, string bindingPath) =>
+        new Frame
+        {
+            BackgroundColor = Colors.White,
+            BorderColor = CardStyles.Colors.CardBorder,
+            CornerRadius = 8,
+            HasShadow = false,
+            Padding = new Thickness(12, 8),
+            Content = new Entry
+            {
+                Placeholder = placeholder,
+                BackgroundColor = Colors.Transparent,
+                TextColor = CardStyles.Colors.TextPrimary,
+                PlaceholderColor = CardStyles.Colors.TextSecondary
+            }
+            .Bind(Entry.TextProperty, bindingPath)
+        };
+
     private Frame CreatePasswordEntry(LoginViewModel vm) =>
         new Frame
         {
@@ -136,13 +154,17 @@ public sealed class LoginPage : BasePage<LoginViewModel>
                 ColumnDefinitions = Columns.Define(Star, Auto),
                 Children =
                 {
-                    new Entry()
-                        .Placeholder("Password")
-                        .Bind(Entry.TextProperty, nameof(vm.Password))
-                        .Bind(Entry.IsPasswordProperty, nameof(vm.IsPasswordVisible),
-                            converter: new InvertedBoolConverter())
-                        .BackgroundColor(Colors.Transparent)
-                        .Column(0),
+                    new Entry
+                    {
+                        Placeholder = "e.g. Your secure password",
+                        BackgroundColor = Colors.Transparent,
+                        TextColor = CardStyles.Colors.TextPrimary,
+                        PlaceholderColor = CardStyles.Colors.TextSecondary
+                    }
+                    .Bind(Entry.TextProperty, nameof(vm.Password))
+                    .Bind(Entry.IsPasswordProperty, nameof(vm.IsPasswordVisible),
+                        converter: new InvertedBoolConverter())
+                    .Column(0),
                     new Button()
                         .Text("👁")
                         .BindCommand(nameof(vm.TogglePasswordVisibilityCommand))

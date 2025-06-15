@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿using CommunityToolkit.Maui.Markup;
+﻿using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Styles;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;

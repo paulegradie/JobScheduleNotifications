@@ -1,4 +1,4 @@
-﻿﻿using System.Globalization;
+﻿using System.Globalization;
 
 namespace Mobile.UI.Pages.Base;
 

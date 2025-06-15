@@ -29,6 +29,8 @@ public interface ITypeSafeNavigationRepository
     Task NavigateToCustomerCreateAsync();
     // Landing page navigation
     Task NavigateToLandingPageAsync();
+
+    Task NavigateToRegisterAsync();
 }
 
 /// <summary>

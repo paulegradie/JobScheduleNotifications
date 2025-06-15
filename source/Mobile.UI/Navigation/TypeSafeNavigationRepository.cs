@@ -29,6 +29,7 @@ public class TypeSafeNavigationRepository : ITypeSafeNavigationRepository
         { typeof(ViewJobOccurrencePage), nameof(ViewJobOccurrencePage) },
         { typeof(JobReminderPage), nameof(JobReminderPage) },
         { typeof(InvoiceCreatePage), nameof(InvoiceCreatePage) },
+        { typeof(RegisterPage), nameof(RegisterPage) },
     };
 
     public TypeSafeNavigationRepository(INavigationRepository navigationRepository)
@@ -61,6 +62,9 @@ public class TypeSafeNavigationRepository : ITypeSafeNavigationRepository
 
     public Task NavigateToLandingPageAsync() =>
         NavigateToAsync<LandingPage, CustomerListParameters>(new CustomerListParameters());
+
+    public Task NavigateToRegisterAsync()
+        => NavigateToAsync<RegisterPage, CustomerListParameters>(new CustomerListParameters());
 
     public Task NavigateToCustomerListAsync() =>
         NavigateToAsync<CustomerListPage, CustomerListParameters>(new CustomerListParameters());
