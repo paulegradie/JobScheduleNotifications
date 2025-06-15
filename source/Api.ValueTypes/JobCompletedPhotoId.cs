@@ -1,7 +1,14 @@
 ﻿namespace Api.ValueTypes;
 
-public readonly record struct JobCompletedPhotoId(Guid Value) : IComparable
+public readonly record struct JobCompletedPhotoId(Guid Value) : IComparable, IParseString<JobCompletedPhotoId>
 {
+    public static JobCompletedPhotoId Parse(string s)
+    {
+        if (Guid.TryParse(s, out var g))
+            return new JobCompletedPhotoId(g);
+        throw new FormatException($"Cannot convert '{s}' to JobCompletedPhotoId");
+    }
+
     public override string ToString() => Value.ToString();
 
     public static JobCompletedPhotoId New() => new(Guid.NewGuid());

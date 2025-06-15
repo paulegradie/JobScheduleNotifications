@@ -1,7 +1,4 @@
 ﻿using CommunityToolkit.Maui.Markup;
-using Microsoft.Maui;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Styles;
 using Server.Contracts.Dtos;
@@ -145,7 +142,7 @@ public sealed class CustomerListPage : BasePage<CustomerListModel>
                         Children =
                         {
                             // Primary action: View Jobs
-                            CardStyles.CreatePrimaryButton("View Jobs")
+                            CardStyles.CreatePrimaryButton("View")
                                 .Bind(Button.CommandProperty, nameof(viewModel.ViewJobsCommand), source: viewModel)
                                 .Bind(Button.CommandParameterProperty, "."),
 

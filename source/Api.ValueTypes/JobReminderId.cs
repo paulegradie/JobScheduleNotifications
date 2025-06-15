@@ -1,7 +1,14 @@
 ﻿namespace Api.ValueTypes;
 
-public readonly record struct JobReminderId(Guid Value) : IComparable
+public readonly record struct JobReminderId(Guid Value) : IComparable, IParseString<JobReminderId>
 {
+    public static JobReminderId Parse(string s)
+    {
+        if (!Guid.TryParse(s, out var g))
+            throw new FormatException($"Cannot convert '{s}' to JobReminderId");
+        return new JobReminderId(g);
+    }
+
     public override string ToString() => Value.ToString();
 
     public static JobReminderId New() => new(Guid.NewGuid());

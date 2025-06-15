@@ -1,15 +1,16 @@
-﻿﻿﻿﻿﻿﻿using Api.ValueTypes;
+﻿using Api.ValueTypes;
 using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
+using Mobile.UI.Pages.Base.QueryParamAttributes;
 using Mobile.UI.Styles;
 using Server.Contracts.Dtos;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
 
-[QueryProperty(nameof(JobOccurrenceId), "JobOccurrenceId")]
-[QueryProperty(nameof(ScheduledJobDefinitionId), "ScheduledJobDefinitionId")]
-[QueryProperty(nameof(CustomerId), "CustomerId")]
+[CustomerIdQueryParam]
+[JobOccurrenceIdQueryParam]
+[ScheduledJobDefinitionIdQueryParam]
 public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
 {
     public string JobOccurrenceId { get; set; }
@@ -48,27 +49,27 @@ public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
                             fallbackValue: "Completed: null")
                         .FontSize(16)
                         .Bind(IsVisibleProperty, nameof(vm.MarkedAsComplete)),
-
-                    // Mark as Completed
-                    new Button()
-                        .Text("Mark as Completed")
-                        .Bind(IsVisibleProperty, nameof(ViewModel.CanMarkComplete))
-                        .Bind(Button.CommandProperty, nameof(ViewModel.MarkCompletedCommand)),
-
-                    // Upload Photo
-                    new Button()
-                        .Text("Upload Photo")
-                        .IsEnabled(true)
-                        .Bind(Button.CommandProperty, nameof(ViewModel.UploadPhotoCommand)),
-
-                    // Create Invoice
-                    new Button()
-                        .Text("Create Invoice")
-                        .Bind(Button.CommandProperty, nameof(ViewModel.CreateInvoiceCommand)),
-                    new Button()
-                        .Text("Go Back")
-                        .IsEnabled(true)
-                        .Bind(Button.CommandProperty, nameof(ViewModel.GoBackCommand)),
+                    //
+                    // // Mark as Completed
+                    // new Button()
+                    //     .Text("Mark as Completed")
+                    //     .Bind(IsVisibleProperty, nameof(ViewModel.CanMarkComplete))
+                    //     .Bind(Button.CommandProperty, nameof(ViewModel.MarkCompletedCommand)),
+                    //
+                    // // Upload Photo
+                    // new Button()
+                    //     .Text("Upload Photo")
+                    //     .IsEnabled(true)
+                    //     .Bind(Button.CommandProperty, nameof(ViewModel.UploadPhotoCommand)),
+                    //
+                    // // Create Invoice
+                    // new Button()
+                    //     .Text("Create Invoice")
+                    //     .Bind(Button.CommandProperty, nameof(ViewModel.CreateInvoiceCommand)),
+                    // new Button()
+                    //     .Text("Go Back")
+                    //     .IsEnabled(true)
+                    //     .Bind(Button.CommandProperty, nameof(ViewModel.GoBackCommand)),
                     new CollectionView
                         {
                             ItemTemplate = new(() =>
@@ -136,10 +137,10 @@ public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
 
                 // Completed date (when completed)
                 CardStyles.CreateIconTextStack("✅",
-                    CardStyles.CreateSubtitleLabel()
-                        .Bind(Label.TextProperty, nameof(ViewModel.CompletedDate),
-                            stringFormat: "Completed: {0:MMM d, yyyy h:mm tt}",
-                            fallbackValue: "Not completed yet"))
+                        CardStyles.CreateSubtitleLabel()
+                            .Bind(Label.TextProperty, nameof(ViewModel.CompletedDate),
+                                stringFormat: "Completed: {0:MMM d, yyyy h:mm tt}",
+                                fallbackValue: "Not completed yet"))
                     .Bind(IsVisibleProperty, nameof(ViewModel.MarkedAsComplete)),
 
                 // Mark as completed button
@@ -214,16 +215,16 @@ public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
 
                 // Photos collection
                 new CollectionView
-                {
-                    ItemsLayout = new LinearItemsLayout(ItemsLayoutOrientation.Vertical)
                     {
-                        ItemSpacing = 12
-                    },
-                    SelectionMode = SelectionMode.None,
-                    EmptyView = CreateEmptyPhotosView(),
-                    ItemTemplate = new DataTemplate(() => CreatePhotoCard())
-                }
-                .Bind(ItemsView.ItemsSourceProperty, nameof(ViewModel.PhotoPaths))
+                        ItemsLayout = new LinearItemsLayout(ItemsLayoutOrientation.Vertical)
+                        {
+                            ItemSpacing = 12
+                        },
+                        SelectionMode = SelectionMode.None,
+                        EmptyView = CreateEmptyPhotosView(),
+                        ItemTemplate = new DataTemplate(CreatePhotoCard)
+                    }
+                    .Bind(ItemsView.ItemsSourceProperty, nameof(ViewModel.PhotoPaths))
             }
         };
     }
@@ -240,13 +241,13 @@ public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
             {
                 // Photo image
                 new Image
-                {
-                    HeightRequest = 200,
-                    Aspect = Aspect.AspectFill,
-                    BackgroundColor = CardStyles.Colors.Background
-                }
-                .Bind(Image.SourceProperty, nameof(PhotoDisplayItem.Path))
-                .Column(Column.Content),
+                    {
+                        HeightRequest = 200,
+                        Aspect = Aspect.AspectFill,
+                        BackgroundColor = CardStyles.Colors.Background
+                    }
+                    .Bind(Image.SourceProperty, nameof(PhotoDisplayItem.Path))
+                    .Column(Column.Content),
 
                 // Remove button
                 CardStyles.CreateSecondaryButton("🗑️ Remove", CardStyles.Colors.Error)

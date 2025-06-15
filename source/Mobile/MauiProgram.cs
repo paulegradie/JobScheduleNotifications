@@ -1,8 +1,9 @@
-﻿using CommunityToolkit.Maui;
+﻿﻿﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Markup;
 using Mobile.Resources.Fonts;
 using Microsoft.Extensions.Logging;
 using Mobile.Composition;
+using Mobile.UI.Pages.Base;
 using Syncfusion.Maui.Toolkit.Hosting;
 
 // for AppWindow APIs
@@ -36,6 +37,9 @@ public static class MauiProgram
         builder.Services.ComposeServices();
 
         var app = builder.Build();
+
+        // Set up service provider for BaseViewModel
+        BaseViewModel.SetServiceProvider(app.Services);
         //  ─── catch WinUI (Windows) XAML exceptions ─────────────────────────────────────────────────
 #if WINDOWS
         Microsoft.UI.Xaml.Application.Current.UnhandledException += (winSender, winArgs) =>

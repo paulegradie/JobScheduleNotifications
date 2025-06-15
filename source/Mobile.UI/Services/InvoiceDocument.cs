@@ -1,7 +1,9 @@
-﻿﻿using Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
+﻿using Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 using IContainer = QuestPDF.Infrastructure.IContainer;
+
+namespace Mobile.UI.Services;
 
 public class InvoiceDocument : IDocument
 {

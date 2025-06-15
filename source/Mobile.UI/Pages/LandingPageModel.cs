@@ -1,10 +1,6 @@
-using System;
 using System.Net.Http.Headers;
-using System.Threading;
-using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.Controls;
 using Mobile.UI.Pages.Customers;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts;

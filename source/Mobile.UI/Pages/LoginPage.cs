@@ -1,9 +1,5 @@
 ﻿using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
-using Microsoft.Maui;
-using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
 using Mobile.UI.Pages.Base;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 

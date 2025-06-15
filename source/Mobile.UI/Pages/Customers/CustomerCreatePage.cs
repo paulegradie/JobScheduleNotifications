@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Maui.Markup;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
 using Mobile.UI.Pages.Base;
+using Mobile.UI.Styles;
+using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace Mobile.UI.Pages.Customers;
 
@@ -10,58 +10,193 @@ public sealed class CustomerCreatePage : BasePage<CustomerCreateModel>
     public CustomerCreatePage(CustomerCreateModel vm) : base(vm)
     {
         Title = "Add Customer";
+        BackgroundColor = CardStyles.Colors.Background;
 
         Content = new ScrollView
         {
             Content = new VerticalStackLayout
             {
-                Padding = 20,
-                Spacing = 15,
+                Padding = new Thickness(16),
+                Spacing = 16,
                 Children =
                 {
-                    new Label().Text("First Name").Font(size:14, bold:true),
-                    new Entry()
-                        .Placeholder("First Name")
-                        .Bind(Entry.TextProperty, nameof(vm.FirstName)),
+                    // Personal Information Card
+                    CreatePersonalInfoCard(vm),
 
-                    new Label().Text("Last Name").Font(size:14, bold:true),
-                    new Entry()
-                        .Placeholder("Last Name")
-                        .Bind(Entry.TextProperty, nameof(vm.LastName)),
+                    // Contact Information Card
+                    CreateContactInfoCard(vm),
 
-                    new Label().Text("Email").Font(size:14, bold:true),
-                    new Entry()
-                        .Placeholder("Email")
-                        .Bind(Entry.TextProperty, nameof(vm.Email)),
+                    // Additional Information Card
+                    CreateAdditionalInfoCard(vm),
 
-                    new Label().Text("Phone").Font(size:14, bold:true),
-                    new Entry()
-                        .Placeholder("Phone")
-                        .Bind(Entry.TextProperty, nameof(vm.PhoneNumber)),
+                    // Actions Card
+                    CreateActionsCard(vm)
+                }
+            }
+        };
+    }
 
-                    new Label().Text("Notes").Font(size:14, bold:true),
-                    new Editor { HeightRequest = 100 }
-                        .Bind(Editor.TextProperty, nameof(vm.Notes)),
+    private Frame CreatePersonalInfoCard(CustomerCreateModel vm)
+    {
+        var content = new VerticalStackLayout
+        {
+            Spacing = CardStyles.Spacing.ItemSpacing,
+            Children =
+            {
+                // Section title
+                CardStyles.CreateTitleLabel()
+                    .Text("👤 Personal Information"),
 
-                    new Label()
-                        .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
-                        .TextColor(Colors.Red)
-                        .Bind(IsVisibleProperty, nameof(vm.ErrorMessage)),
+                // First name field
+                CreateFormField("First Name", "Enter first name...",
+                    nameof(vm.FirstName), vm),
 
-                    new HorizontalStackLayout
+                // Last name field
+                CreateFormField("Last Name", "Enter last name...",
+                    nameof(vm.LastName), vm)
+            }
+        };
+
+        return CardStyles.CreateCard(content, CardStyles.Colors.Primary);
+    }
+
+    private Frame CreateContactInfoCard(CustomerCreateModel vm)
+    {
+        var content = new VerticalStackLayout
+        {
+            Spacing = CardStyles.Spacing.ItemSpacing,
+            Children =
+            {
+                // Section title
+                CardStyles.CreateTitleLabel()
+                    .Text("📞 Contact Information"),
+
+                // Email field
+                CreateFormField("Email", "Enter email address...",
+                    nameof(vm.Email), vm, Keyboard.Email),
+
+                // Phone field
+                CreateFormField("Phone", "Enter phone number...",
+                    nameof(vm.PhoneNumber), vm, Keyboard.Telephone)
+            }
+        };
+
+        return CardStyles.CreateCard(content, CardStyles.Colors.Success);
+    }
+
+    private Frame CreateAdditionalInfoCard(CustomerCreateModel vm)
+    {
+        var content = new VerticalStackLayout
+        {
+            Spacing = CardStyles.Spacing.ItemSpacing,
+            Children =
+            {
+                // Section title
+                CardStyles.CreateTitleLabel()
+                    .Text("📝 Additional Information"),
+
+                // Notes field
+                new VerticalStackLayout
+                {
+                    Spacing = 4,
+                    Children =
                     {
-                        Spacing = 10,
-                        Children =
+                        new Label
                         {
-                            new Button { Text = "Save" }
-                                .BindCommand(nameof(vm.SaveCommand))
-                                .Bind(IsEnabledProperty, nameof(vm.CanSave)),
-                            new Button { Text = "Cancel" }
-                                .BindCommand(nameof(vm.CancelCommand))
-                        }
+                            Text = "Notes:",
+                            FontSize = CardStyles.Typography.CaptionSize,
+                            TextColor = CardStyles.Colors.TextSecondary
+                        },
+                        new Editor
+                            {
+                                HeightRequest = 120,
+                                Placeholder = "Enter any additional notes...",
+                                BackgroundColor = Colors.White,
+                                TextColor = CardStyles.Colors.TextPrimary
+                            }
+                            .Bind(Editor.TextProperty, nameof(vm.Notes))
                     }
                 }
             }
         };
+
+        return CardStyles.CreateCard(content, CardStyles.Colors.Warning);
+    }
+
+    private Frame CreateActionsCard(CustomerCreateModel vm)
+    {
+        var content = new VerticalStackLayout
+        {
+            Spacing = CardStyles.Spacing.ItemSpacing,
+            Children =
+            {
+                // Error message
+                new Label
+                    {
+                        TextColor = CardStyles.Colors.Error,
+                        FontSize = CardStyles.Typography.SubtitleSize,
+                        HorizontalTextAlignment = TextAlignment.Center
+                    }
+                    .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
+                    .Bind(IsVisibleProperty, nameof(vm.ErrorMessage)),
+
+                // Action buttons
+                new Grid
+                {
+                    ColumnDefinitions = Columns.Define(
+                        (Column.Save, Star),
+                        (Column.Cancel, Star)
+                    ),
+                    ColumnSpacing = 12,
+                    Children =
+                    {
+                        // Save button
+                        CardStyles.CreatePrimaryButton("💾 Save Customer")
+                            .BindCommand(nameof(vm.SaveCommand))
+                            .Bind(IsEnabledProperty, nameof(vm.CanSave))
+                            .Column(Column.Save),
+
+                        // Cancel button
+                        CardStyles.CreateSecondaryButton("❌ Cancel")
+                            .BindCommand(nameof(vm.CancelCommand))
+                            .Column(Column.Cancel)
+                    }
+                }
+            }
+        };
+
+        return CardStyles.CreateCard(content, CardStyles.Colors.Primary);
+    }
+
+    private VerticalStackLayout CreateFormField(string label, string placeholder,
+        string bindingPath, CustomerCreateModel vm, Keyboard? keyboard = null)
+    {
+        return new VerticalStackLayout
+        {
+            Spacing = 4,
+            Children =
+            {
+                new Label
+                {
+                    Text = $"{label}:",
+                    FontSize = CardStyles.Typography.CaptionSize,
+                    TextColor = CardStyles.Colors.TextSecondary
+                },
+                new Entry
+                    {
+                        Placeholder = placeholder,
+                        BackgroundColor = Colors.White,
+                        TextColor = CardStyles.Colors.TextPrimary,
+                        Keyboard = keyboard ?? Keyboard.Default
+                    }
+                    .Bind(Entry.TextProperty, bindingPath)
+            }
+        };
+    }
+
+    private enum Column
+    {
+        Save,
+        Cancel
     }
 }

@@ -3,9 +3,15 @@ using System.Globalization;
 
 namespace Api.ValueTypes;
 
-// [TypeConverter(typeof(CustomerIdTypeConverter))]
-public readonly record struct CustomerId(Guid Value) : IComparable
+public readonly record struct CustomerId(Guid Value) : IComparable, IParseString<CustomerId>
 {
+    public static CustomerId Parse(string s)
+    {
+        if (Guid.TryParse(s, out var g))
+            return new CustomerId(g);
+        throw new FormatException($"Cannot convert '{s}' to CustomerId");
+    }
+
     public override string ToString() => Value.ToString();
 
     public static CustomerId New() => new(Guid.NewGuid());

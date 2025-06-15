@@ -1,39 +1,32 @@
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.ApplicationModel;
 using Mobile.UI.Pages.Customers.ScheduledJobs;
 using Mobile.UI.RepositoryAbstractions;
+using Mobile.UI.Navigation;
+using Mobile.UI.Pages.Base;
 using Server.Contracts.Dtos;
 
 namespace Mobile.UI.Pages.Customers;
 
-public partial class CustomerListModel : ObservableObject
+public partial class CustomerListModel : BaseViewModel
 {
     private readonly ICustomerRepository _customerRepository;
-    private readonly INavigationRepository _navigation;
 
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private string _searchText = string.Empty;
     [ObservableProperty] private ObservableCollection<CustomerDto> _customers = new();
 
-    public CustomerListModel(
-        ICustomerRepository customerRepository,
-        INavigationRepository navigation)
+    public CustomerListModel(ICustomerRepository customerRepository)
     {
         _customerRepository = customerRepository;
-        _navigation = navigation;
     }
 
     [RelayCommand(AllowConcurrentExecutions = false)]
     private async Task LoadCustomersAsync()
     {
-        if (IsLoading) return;
-        IsLoading = true;
-        try
+        await RunWithSpinner(async () =>
         {
             var result = await _customerRepository.GetCustomersAsync();
             MainThread.BeginInvokeOnMainThread(() =>
@@ -42,31 +35,25 @@ public partial class CustomerListModel : ObservableObject
                 foreach (var c in result.Value)
                     Customers.Add(c);
             });
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        });
     }
 
     [RelayCommand]
     private async Task AddCustomerAsync()
-        => await _navigation.GoToAsync(nameof(CustomerCreatePage));
+        => await Navigation.NavigateToCustomerCreateAsync();
 
     [RelayCommand]
     private async Task EditCustomerAsync(CustomerDto? customer)
     {
         if (customer == null) return;
-        await _navigation.GoToAsync(
-            nameof(CustomerEditPage),
-            new Dictionary<string, object> { { "CustomerId", customer.Id.ToString() } });
+        await Navigation.NavigateToCustomerEditAsync(new CustomerParameters(customer.Id));
     }
 
     [RelayCommand]
     private async Task DeleteCustomerAsync(CustomerDto? customer)
     {
         if (customer == null) return;
-        var confirm = await _navigation.ShowConfirmationAsync(
+        var confirm = await ShowConfirmationAsync(
             "Delete Customer",
             $"Delete {customer.FirstName} {customer.LastName}?"
         );
@@ -82,7 +69,7 @@ public partial class CustomerListModel : ObservableObject
     private async Task CreateJobAsync(CustomerDto? customer)
     {
         if (customer == null) return;
-        await _navigation.GoToAsync(
+        await NavigateToAsync(
             nameof(ScheduledJobCreatePage),
             new Dictionary<string, object> { { nameof(CustomerId), customer.Id.ToString() } });
     }
@@ -91,12 +78,32 @@ public partial class CustomerListModel : ObservableObject
     private async Task ViewJobsAsync(CustomerDto? customer)
     {
         if (customer == null) return;
-        await _navigation.GoToAsync(
-            nameof(ScheduledJobListPage),
-            new Dictionary<string, object> { { "CustomerId", customer.Id.ToString() } });
+        await Navigation.NavigateToCustomerJobsAsync(customer.Id);
     }
 
+    /// <summary>
+    /// Demonstration of type-safe navigation with validation
+    /// </summary>
+    [RelayCommand]
+    private async Task ViewJobsTypeSafeAsync(CustomerDto? customer)
+    {
+        if (customer == null) return;
+
+        try
+        {
+            // This method ensures all required parameters are provided at compile time
+            // and validates them at runtime before navigation
+            await Navigation.NavigateToScheduledJobListAsync(
+                new ScheduledJobListParameters(customer.Id));
+        }
+        catch (ArgumentException ex)
+        {
+            // Handle validation errors gracefully
+            await ShowErrorAsync(ex.Message);
+        }
+    }
+ 
     [RelayCommand]
     private async Task NavigateHomeAsync()
-        => await _navigation.GoToAsync(nameof(LandingPage));
+        => await Navigation.NavigateToLandingPageAsync();
 }

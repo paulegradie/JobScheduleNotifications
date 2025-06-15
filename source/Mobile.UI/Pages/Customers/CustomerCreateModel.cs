@@ -1,12 +1,12 @@
-﻿using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Mobile.UI.Pages.Base;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Endpoints.Customers.Contracts;
 
 namespace Mobile.UI.Pages.Customers;
 
-public partial class CustomerCreateModel : ObservableObject
+public partial class CustomerCreateModel : BaseViewModel
 {
     private readonly ICustomerRepository _repository;
     private readonly INavigationRepository _navigation;
@@ -82,18 +82,7 @@ public partial class CustomerCreateModel : ObservableObject
     [RelayCommand]
     private async Task Cancel()
     {
-        var cancelled = await _navigation.ShowConfirmationAsync(
-            "You cancelled!",
-            $"Cancelling that shiz"
-        );
-
-        if (cancelled)
-        {
-            await _navigation.GoBackAsync();
-        }
-        else
-        {
-            await _navigation.ShowAlertAsync("You cancelled!", "Thats good!");
-        }
+        await ShowConfirmationAsync("You Cancelled", "Returning to previous page");
+        await GoBackAsync();
     }
 }

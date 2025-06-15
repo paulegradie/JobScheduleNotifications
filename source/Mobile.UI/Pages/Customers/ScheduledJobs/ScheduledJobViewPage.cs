@@ -1,21 +1,15 @@
-﻿﻿﻿using System;
-using Api.ValueTypes;
+﻿using Api.ValueTypes;
 using CommunityToolkit.Maui.Markup;
-using Microsoft.Maui;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
 using Mobile.UI.Pages.Base;
+using Mobile.UI.Pages.Base.QueryParamAttributes;
 using Mobile.UI.Styles;
 using Server.Contracts.Dtos;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
-/// <summary>
-/// Page for viewing a scheduled job, its occurrences, and reminders, with paging support.
-/// </summary>
-[QueryProperty(nameof(ScheduledJobDefinitionId), "ScheduledJobDefinitionId")]
-[QueryProperty(nameof(CustomerId), "CustomerId")]
+[ScheduledJobDefinitionIdQueryParam]
+[CustomerIdQueryParam]
 public sealed class ScheduledJobViewPage : BasePage<ScheduledJobViewModel>
 {
     public string ScheduledJobDefinitionId { get; set; }
@@ -52,7 +46,7 @@ public sealed class ScheduledJobViewPage : BasePage<ScheduledJobViewModel>
     {
         base.OnAppearing();
         ViewModel.LoadScheduledJobCommand.Execute(
-            new Details(
+            new LoadParametersCustomerIdAndScheduleJobDefId(
                 new CustomerId(Guid.Parse(CustomerId)),
                 new ScheduledJobDefinitionId(Guid.Parse(ScheduledJobDefinitionId))
             ));
@@ -108,16 +102,16 @@ public sealed class ScheduledJobViewPage : BasePage<ScheduledJobViewModel>
 
                 // Collection view
                 new CollectionView
-                {
-                    ItemsLayout = new LinearItemsLayout(ItemsLayoutOrientation.Vertical)
                     {
-                        ItemSpacing = 12
-                    },
-                    SelectionMode = SelectionMode.None,
-                    EmptyView = CreateEmptyOccurrencesView(),
-                    ItemTemplate = new DataTemplate(() => CreateOccurrenceCard(vm))
-                }
-                .Bind(ItemsView.ItemsSourceProperty, nameof(ScheduledJobViewModel.JobOccurrences)),
+                        ItemsLayout = new LinearItemsLayout(ItemsLayoutOrientation.Vertical)
+                        {
+                            ItemSpacing = 12
+                        },
+                        SelectionMode = SelectionMode.None,
+                        EmptyView = CreateEmptyOccurrencesView(),
+                        ItemTemplate = new DataTemplate(() => CreateOccurrenceCard(vm))
+                    }
+                    .Bind(ItemsView.ItemsSourceProperty, nameof(ScheduledJobViewModel.JobOccurrences)),
 
                 // Load more button
                 CardStyles.CreateSecondaryButton("Load More Occurrences")
@@ -139,30 +133,30 @@ public sealed class ScheduledJobViewPage : BasePage<ScheduledJobViewModel>
             {
                 // Left side: Occurrence info
                 new VerticalStackLayout
-                {
-                    Spacing = 6,
-                    VerticalOptions = LayoutOptions.Center,
-                    Children =
                     {
-                        // Occurrence date
-                        CardStyles.CreateIconTextStack("📅",
-                            CardStyles.CreateSubtitleLabel()
-                                .Bind(Label.TextProperty, nameof(JobOccurrenceDto.OccurrenceDate),
-                                    stringFormat: "{0:MMM d, yyyy h:mm tt}")),
+                        Spacing = 6,
+                        VerticalOptions = LayoutOptions.Center,
+                        Children =
+                        {
+                            // Occurrence date
+                            CardStyles.CreateIconTextStack("📅",
+                                CardStyles.CreateSubtitleLabel()
+                                    .Bind(Label.TextProperty, nameof(JobOccurrenceDto.OccurrenceDate),
+                                        stringFormat: "{0:MMM d, yyyy h:mm tt}")),
 
-                        // Job title
-                        CardStyles.CreateIconTextStack("📋",
-                            CardStyles.CreateCaptionLabel()
-                                .Bind(Label.TextProperty, nameof(JobOccurrenceDto.JobTitle))),
+                            // Job title
+                            CardStyles.CreateIconTextStack("📋",
+                                CardStyles.CreateCaptionLabel()
+                                    .Bind(Label.TextProperty, nameof(JobOccurrenceDto.JobTitle))),
 
-                        // Completion status
-                        CardStyles.CreateIconTextStack("✅",
-                            CardStyles.CreateCaptionLabel()
-                                .Bind(Label.TextProperty, nameof(JobOccurrenceDto.MarkedAsCompleted),
-                                    stringFormat: "Completed: {0}"))
+                            // Completion status
+                            CardStyles.CreateIconTextStack("✅",
+                                CardStyles.CreateCaptionLabel()
+                                    .Bind(Label.TextProperty, nameof(JobOccurrenceDto.MarkedAsCompleted),
+                                        stringFormat: "Completed: {0}"))
+                        }
                     }
-                }
-                .Column(Column.Content),
+                    .Column(Column.Content),
 
                 // Right side: View button
                 CardStyles.CreateSecondaryButton("View")

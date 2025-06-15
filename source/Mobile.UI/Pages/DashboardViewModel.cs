@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿﻿﻿﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Pages.Customers;
@@ -13,6 +13,7 @@ public partial class DashboardViewModel : BaseViewModel
 {
     private readonly IServerClient _serverClient;
     private readonly INavigationRepository _navigationUtility;
+    private readonly IAlertRepository _alertRepository;
     private readonly ITokenRepository _tokenRepository;
 
     [ObservableProperty] private string _title = "Dashboard";
@@ -36,10 +37,12 @@ public partial class DashboardViewModel : BaseViewModel
     public DashboardViewModel(
         IServerClient serverClient,
         INavigationRepository navigationUtility,
+        IAlertRepository alertRepository,
         ITokenRepository tokenRepository)
     {
         _serverClient = serverClient;
         _navigationUtility = navigationUtility;
+        _alertRepository = alertRepository;
         _tokenRepository = tokenRepository;
     }
 
@@ -66,7 +69,7 @@ public partial class DashboardViewModel : BaseViewModel
                 return;
             }
 
-            await _navigationUtility.ShowAlertAsync("Error", "Failed to load dashboard data");
+            await _alertRepository.ShowAlertAsync("Error", "Failed to load dashboard data");
             System.Diagnostics.Debug.WriteLine($"Dashboard Error");
         });
     }

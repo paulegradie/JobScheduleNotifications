@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using Api.ValueTypes;
 using Api.ValueTypes.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.Controls;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Cron;
@@ -27,8 +23,8 @@ public partial class ScheduledJobEditModel : BaseViewModel
     [ObservableProperty] private DateTime _anchorDate = DateTime.Now;
     [ObservableProperty] private TimeSpan _anchorTime; // bound by TimePicker
     public DateTime AnchorDateTime => AnchorDate.Date + AnchorTime;
-    
-    
+
+
     [ObservableProperty] private Frequency _frequency = Frequency.Daily;
     [ObservableProperty] private int _interval = 1;
     [ObservableProperty] private int? _dayOfMonth;
@@ -56,6 +52,7 @@ public partial class ScheduledJobEditModel : BaseViewModel
 
         return $"Every {Interval} {freqString}{(Interval > 1 ? "s" : "")}";
     }
+
     public bool CanSave =>
         !IsBusy &&
         !string.IsNullOrWhiteSpace(Title) &&
@@ -73,11 +70,11 @@ public partial class ScheduledJobEditModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task LoadForEditAsync(Details details)
+    private async Task LoadForEditAsync(LoadParametersCustomerIdAndScheduleJobDefId loadParametersCustomerIdAndScheduleJobDefId)
     {
         await RunWithSpinner(async () =>
         {
-            var result = await _jobRepository.GetJobByIdAsync(details.CustomerId, details.ScheduledJobDefinitionId);
+            var result = await _jobRepository.GetJobByIdAsync(loadParametersCustomerIdAndScheduleJobDefId.CustomerId, loadParametersCustomerIdAndScheduleJobDefId.ScheduledJobDefinitionId);
             if (result.IsSuccess)
             {
                 var dto = result.Value;
@@ -119,8 +116,8 @@ public partial class ScheduledJobEditModel : BaseViewModel
             );
 
             await _jobRepository.UpdateJobAsync(CustomerId, ScheduledJobDefinitionId, updatedDto, CancellationToken.None);
-            await _navigation.ShowAlertAsync("Success", "Job Updated!");
-            await _navigation.GoBackAsync();
+            await ShowConfirmationAsync("Job Updated!");
+            await GoBackAsync();
         });
     }
 

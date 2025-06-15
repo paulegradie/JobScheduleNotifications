@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using Api.ValueTypes.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -77,7 +74,7 @@ public partial class ScheduledJobCreateModel : BaseViewModel
     partial void OnDayOfMonthChanged(int? value) => UpdateCronPreview();
 
     partial void OnAnchorDateChanged(DateTime value) => UpdateCronPreview();
-    
+
     [RelayCommand]
     private async Task LoadAsync(string customerId)
     {
@@ -158,7 +155,11 @@ public partial class ScheduledJobCreateModel : BaseViewModel
             };
 
             await _jobService.CreateJobAsync(dto);
-            await _navigation.ShowAlertAsync("Success", "Job scheduled!");
+
+            await ShowSuccessAsync("Job scheduled!");
+
+            await Navigation.NavigateToCustomerListAsync();
+
             await _navigation.GoToAsync(nameof(CustomerListPage));
         });
     }

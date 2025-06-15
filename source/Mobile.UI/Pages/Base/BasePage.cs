@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
-using System.Linq;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Maui.Controls;
 
 namespace Mobile.UI.Pages.Base;
 
@@ -11,6 +9,9 @@ namespace Mobile.UI.Pages.Base;
 /// •Optionally auto‑registers Toolkit messenger recipients
 public abstract class BasePage : ContentPage
 {
+    
+    
+    
     protected BasePage(object? viewModel = null)
     {
         Padding = 5;

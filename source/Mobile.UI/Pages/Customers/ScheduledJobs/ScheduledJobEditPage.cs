@@ -1,20 +1,17 @@
-﻿﻿﻿﻿using System;
-using Api.ValueTypes;
+﻿using Api.ValueTypes;
 using Api.ValueTypes.Enums;
 using CommunityToolkit.Maui.Markup;
-using Microsoft.Maui;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Layouts;
 using Mobile.UI.Pages.Base;
+using Mobile.UI.Pages.Base.QueryParamAttributes;
 using Mobile.UI.Styles;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
-public record Details(CustomerId CustomerId, ScheduledJobDefinitionId ScheduledJobDefinitionId);
+public record LoadParametersCustomerIdAndScheduleJobDefId(CustomerId CustomerId, ScheduledJobDefinitionId ScheduledJobDefinitionId);
 
-[QueryProperty(nameof(CustomerId), nameof(CustomerId))]
-[QueryProperty(nameof(ScheduledJobDefinitionId), nameof(ScheduledJobDefinitionId))]
+[ScheduledJobDefinitionIdQueryParam]
+[CustomerIdQueryParam]
 public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
 {
     public string CustomerId { get; set; }
@@ -49,7 +46,7 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
     protected override async void OnAppearing()
     {
         await ViewModel.LoadForEditCommand.ExecuteAsync(
-            new Details(
+            new LoadParametersCustomerIdAndScheduleJobDefId(
                 new CustomerId(Guid.Parse(CustomerId)),
                 new ScheduledJobDefinitionId(Guid.Parse(ScheduledJobDefinitionId))
             )
@@ -70,24 +67,24 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                 // Title entry
                 Section("Job Title",
                     new Entry
-                    {
-                        Placeholder = "Enter job title...",
-                        BackgroundColor = Colors.White,
-                        TextColor = CardStyles.Colors.TextPrimary
-                    }
-                    .Bind(Entry.TextProperty, nameof(vm.Title))
+                        {
+                            Placeholder = "Enter job title...",
+                            BackgroundColor = Colors.White,
+                            TextColor = CardStyles.Colors.TextPrimary
+                        }
+                        .Bind(Entry.TextProperty, nameof(vm.Title))
                 ),
 
                 // Description editor
                 Section("Description",
                     new Editor
-                    {
-                        HeightRequest = 100,
-                        Placeholder = "Enter job description...",
-                        BackgroundColor = Colors.White,
-                        TextColor = CardStyles.Colors.TextPrimary
-                    }
-                    .Bind(Editor.TextProperty, nameof(vm.Description))
+                        {
+                            HeightRequest = 100,
+                            Placeholder = "Enter job description...",
+                            BackgroundColor = Colors.White,
+                            TextColor = CardStyles.Colors.TextPrimary
+                        }
+                        .Bind(Editor.TextProperty, nameof(vm.Description))
                 )
             }
         };
@@ -109,11 +106,11 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                 // Start date
                 Section("Start Date",
                     new DatePicker
-                    {
-                        BackgroundColor = Colors.White,
-                        TextColor = CardStyles.Colors.TextPrimary
-                    }
-                    .Bind(DatePicker.DateProperty, nameof(vm.AnchorDate))
+                        {
+                            BackgroundColor = Colors.White,
+                            TextColor = CardStyles.Colors.TextPrimary
+                        }
+                        .Bind(DatePicker.DateProperty, nameof(vm.AnchorDate))
                 ),
 
                 // Frequency chips
@@ -142,17 +139,17 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                         Children =
                         {
                             new Slider(1, 52, 1)
-                            {
-                                ThumbColor = CardStyles.Colors.Primary,
-                                MinimumTrackColor = CardStyles.Colors.Primary
-                            }
-                            .Bind(Slider.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay),
+                                {
+                                    ThumbColor = CardStyles.Colors.Primary,
+                                    MinimumTrackColor = CardStyles.Colors.Primary
+                                }
+                                .Bind(Slider.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay),
 
                             new Stepper(1, 100, 1, 1)
-                            {
-                                BackgroundColor = Colors.White
-                            }
-                            .Bind(Stepper.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay)
+                                {
+                                    BackgroundColor = Colors.White
+                                }
+                                .Bind(Stepper.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay)
                         }
                     }
                 ),
@@ -160,12 +157,12 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                 // Cron preview
                 Section("Cron Preview",
                     new Label
-                    {
-                        FontSize = CardStyles.Typography.CaptionSize,
-                        TextColor = CardStyles.Colors.TextSecondary,
-                        FontFamily = "Courier"
-                    }
-                    .Bind(Label.TextProperty, nameof(vm.CronPreview))
+                        {
+                            FontSize = CardStyles.Typography.CaptionSize,
+                            TextColor = CardStyles.Colors.TextSecondary,
+                            FontFamily = "Courier"
+                        }
+                        .Bind(Label.TextProperty, nameof(vm.CronPreview))
                 )
             }
         };
@@ -182,12 +179,12 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
             {
                 // Error message
                 new Label
-                {
-                    TextColor = CardStyles.Colors.Error,
-                    FontSize = CardStyles.Typography.SubtitleSize
-                }
-                .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
-                .Bind(IsVisibleProperty, nameof(vm.HasError)),
+                    {
+                        TextColor = CardStyles.Colors.Error,
+                        FontSize = CardStyles.Typography.SubtitleSize
+                    }
+                    .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
+                    .Bind(IsVisibleProperty, nameof(vm.HasError)),
 
                 // Save button
                 CardStyles.CreatePrimaryButton("💾 Update Job")
@@ -196,11 +193,11 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
 
                 // Loading indicator
                 new ActivityIndicator
-                {
-                    Color = CardStyles.Colors.Primary
-                }
-                .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
-                .Bind(IsVisibleProperty, nameof(vm.IsBusy))
+                    {
+                        Color = CardStyles.Colors.Primary
+                    }
+                    .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
+                    .Bind(IsVisibleProperty, nameof(vm.IsBusy))
             }
         };
 

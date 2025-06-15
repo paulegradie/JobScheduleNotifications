@@ -1,7 +1,14 @@
 ﻿namespace Api.ValueTypes;
 
-public readonly record struct OrganizationId(Guid Value) : IComparable
+public readonly record struct OrganizationId(Guid Value) : IComparable, IParseString<OrganizationId>
 {
+    public static OrganizationId Parse(string s)
+    {
+        if (Guid.TryParse(s, out var g))
+            return new OrganizationId(g);
+        throw new FormatException($"Cannot convert '{s}' to OrganizationId");
+    }
+
     public override string ToString() => Value.ToString();
 
     public static OrganizationId New() => new(Guid.NewGuid());

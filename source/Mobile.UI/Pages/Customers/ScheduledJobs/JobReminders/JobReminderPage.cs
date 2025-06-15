@@ -1,8 +1,7 @@
-﻿using System;
-using Api.ValueTypes;
+﻿using Api.ValueTypes;
 using CommunityToolkit.Maui.Markup;
-using Microsoft.Maui.Controls;
 using Mobile.UI.Pages.Base;
+using Mobile.UI.Pages.Base.QueryParamAttributes;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs.JobReminders;
 
@@ -15,8 +14,10 @@ public record CustomerJobAndOccurrenceReminderIds(
     JobOccurrenceId JobOccurrenceId,
     JobReminderId JobReminderId);
 
-[QueryProperty(nameof(ScheduledJobDefinitionId), "ScheduledJobDefinitionId")]
-[QueryProperty(nameof(CustomerId), "CustomerId")]
+[CustomerIdQueryParam]
+[ScheduledJobDefinitionIdQueryParam]
+[JobOccurrenceIdQueryParam]
+[JobReminderIdQueryParamQueryParam]
 public sealed class JobReminderPage : BasePage<JobReminderModel>
 {
     public string JobReminderId { get; set; }

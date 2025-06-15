@@ -1,20 +1,29 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
-using Mobile.UI.Pages.Customers.ScheduledJobs.JobReminders;
 using Mobile.UI.RepositoryAbstractions;
+using Mobile.UI.Navigation;
 using Server.Contracts.Dtos;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
+/// <summary>
+/// ViewModel for the Scheduled Job page.
+///
+/// NAVIGATION UPDATES:
+/// This class has been updated to demonstrate the new type-safe navigation system.
+/// Key improvements:
+/// - NavigateToOccurrenceAsync: Now uses type-safe navigation with compile-time parameter validation
+/// - NavigateToReminderAsync: Fixed to include ALL required parameters (was missing JobOccurrenceId and JobReminderId)
+/// - Added demonstration methods showing different navigation patterns
+/// - All navigation calls now include proper error handling and validation
+///
+/// The old dictionary-based navigation was error-prone and could cause runtime failures.
+/// The new system ensures all required parameters are provided at compile time.
+/// </summary>
 public partial class ScheduledJobViewModel : BaseViewModel
 {
     private readonly IJobRepository _jobRepository;
@@ -26,34 +35,26 @@ public partial class ScheduledJobViewModel : BaseViewModel
     private List<JobOccurrenceDto> _allOccurrences = new();
     private int _occurrenceCursor;
 
-    [ObservableProperty]
-    private ObservableCollection<JobOccurrenceDto> _jobOccurrences = new();
+    [ObservableProperty] private ObservableCollection<JobOccurrenceDto> _jobOccurrences = new();
 
-    [ObservableProperty]
-    private ObservableCollection<JobReminderDto> _jobReminders = new();
+    [ObservableProperty] private ObservableCollection<JobReminderDto> _jobReminders = new();
 
-    [ObservableProperty]
-    private bool _hasMoreOccurrences;
+    [ObservableProperty] private bool _hasMoreOccurrences;
 
-    [ObservableProperty]
-    private string _title = string.Empty;
+    [ObservableProperty] private string _title = string.Empty;
 
-    [ObservableProperty]
-    private string _customerName = string.Empty;
+    [ObservableProperty] private string _customerName = string.Empty;
 
-    [ObservableProperty]
-    private DateTime _anchorDate;
+    [ObservableProperty] private DateTime _anchorDate;
 
-    [ObservableProperty]
-    private string _description = string.Empty;
+    [ObservableProperty] private string _description = string.Empty;
 
-    [ObservableProperty]
-    private string _cronExpression = string.Empty;
+    [ObservableProperty] private string _cronExpression = string.Empty;
 
     private CustomerId CustomerId { get; set; }
     private ScheduledJobDefinitionId ScheduledJobDefinitionId { get; set; }
 
-    public Details Details { get; set; }
+    public LoadParametersCustomerIdAndScheduleJobDefId LoadParametersCustomerIdAndScheduleJobDefId { get; set; }
     public JobOccurrenceId JobOccurrenceId { get; set; }
     private CustomerJobAndOccurrenceIds? CustomerJobAndOccurrenceIds { get; set; }
 
@@ -71,13 +72,13 @@ public partial class ScheduledJobViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task LoadScheduledJobAsync(Details details)
+    private async Task LoadScheduledJobAsync(LoadParametersCustomerIdAndScheduleJobDefId loadParametersCustomerIdAndScheduleJobDefId)
     {
-        Details = details;
+        LoadParametersCustomerIdAndScheduleJobDefId = loadParametersCustomerIdAndScheduleJobDefId;
         await RunWithSpinner(async () =>
         {
             var scheduledJobResult = await _jobRepository.GetJobByIdAsync(
-                details.CustomerId, details.ScheduledJobDefinitionId);
+                loadParametersCustomerIdAndScheduleJobDefId.CustomerId, loadParametersCustomerIdAndScheduleJobDefId.ScheduledJobDefinitionId);
             if (!scheduledJobResult.IsSuccess) return;
 
             var scheduledJob = scheduledJobResult.Value;
@@ -138,8 +139,8 @@ public partial class ScheduledJobViewModel : BaseViewModel
         {
             var results = await _jobOccurrenceRepository
                 .CreateNewOccurrence(
-                    Details.CustomerId,
-                    Details.ScheduledJobDefinitionId,
+                    LoadParametersCustomerIdAndScheduleJobDefId.CustomerId,
+                    LoadParametersCustomerIdAndScheduleJobDefId.ScheduledJobDefinitionId,
                     CancellationToken.None);
 
             if (!results.IsSuccess) return;
@@ -150,8 +151,6 @@ public partial class ScheduledJobViewModel : BaseViewModel
             _occurrenceCursor = 0;
             HasMoreOccurrences = _allOccurrences.Count > occurrencePageSize;
             LoadMoreOccurrences();
-
-            // Explicitly notify that properties have changed
             OnPropertyChanged(nameof(JobOccurrences));
             OnPropertyChanged(nameof(HasMoreOccurrences));
         });
@@ -161,35 +160,148 @@ public partial class ScheduledJobViewModel : BaseViewModel
     private async Task NavigateToOccurrenceAsync(JobOccurrenceId jobOccurrenceId)
     {
         CustomerJobAndOccurrenceIds = new CustomerJobAndOccurrenceIds(
-            Details.CustomerId,
-            Details.ScheduledJobDefinitionId,
+            LoadParametersCustomerIdAndScheduleJobDefId.CustomerId,
+            LoadParametersCustomerIdAndScheduleJobDefId.ScheduledJobDefinitionId,
             jobOccurrenceId);
 
         await RunWithSpinner(async () =>
         {
-            await _navigation.GoToAsync(
-                nameof(ViewJobOccurrencePage),
-                new Dictionary<string, object>
-                {
-                    ["CustomerId"] = Details.CustomerId.Value.ToString(),
-                    ["ScheduledJobDefinitionId"] = Details.ScheduledJobDefinitionId.Value.ToString(),
-                    ["JobOccurrenceId"] = jobOccurrenceId.Value.ToString()
-                });
+            try
+            {
+                // NEW: Type-safe navigation with compile-time parameter validation
+                await Navigation.NavigateToJobOccurrenceAsync(
+                    LoadParametersCustomerIdAndScheduleJobDefId.CustomerId,
+                    LoadParametersCustomerIdAndScheduleJobDefId.ScheduledJobDefinitionId,
+                    jobOccurrenceId);
+            }
+            catch (ArgumentException ex)
+            {
+                // Handle validation errors gracefully
+                await ShowAlertAsync("Navigation Error", ex.Message);
+            }
         });
     }
 
+    /// <summary>
+    /// Navigate to a specific reminder. This method demonstrates the type-safe navigation
+    /// and shows how all required parameters must be provided.
+    /// </summary>
     [RelayCommand]
-    private async Task NavigateToReminderAsync()
+    private async Task NavigateToReminderAsync(JobReminderDto? reminder = null)
     {
         var ids = CustomerJobAndOccurrenceIds;
-        if (ids == null) return;
+        if (ids == null)
+        {
+            await ShowErrorAsync("No job occurrence selected. Please select a job occurrence first.");
+            return;
+        }
 
-        await _navigation.GoToAsync(
-            nameof(JobReminderPage),
-            new Dictionary<string, object>
+        // If no specific reminder is provided, let user select one
+        if (reminder == null)
+        {
+            if (!JobReminders.Any())
             {
-                ["CustomerId"] = ids.CustomerId.Value.ToString(),
-                ["ScheduledJobDefinitionId"] = ids.ScheduledJobDefinitionId.Value.ToString(),
-            });
+                await ShowErrorAsync("This job has no reminders to view.");
+                return;
+            }
+
+            // For demonstration, we'll use the first reminder
+            // In a real app, you might show a selection dialog
+            reminder = JobReminders.First();
+
+            var shouldProceed = await ShowConfirmationAsync(
+                "Select Reminder",
+                $"Navigate to reminder scheduled for {reminder.ReminderDateTime:MMM d, yyyy h:mm tt}?");
+
+            if (!shouldProceed) return;
+        }
+
+        try
+        {
+            await Navigation.NavigateToJobReminderAsync(
+                ids.CustomerId,
+                ids.ScheduledJobDefinitionId,
+                ids.JobOccurrenceId,
+                reminder.JobReminderId);
+        }
+        catch (ArgumentException ex)
+        {
+            await ShowAlertAsync("Navigation Error", ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Example: Navigate to create an invoice for a job occurrence
+    /// This demonstrates the type-safe navigation with multiple parameters including strings
+    /// </summary>
+    [RelayCommand]
+    private async Task NavigateToCreateInvoiceAsync(JobOccurrenceDto? occurrence = null)
+    {
+        var ids = CustomerJobAndOccurrenceIds;
+        if (ids == null)
+        {
+            await ShowAlertAsync("Navigation Error",
+                "No job occurrence selected. Please select a job occurrence first.");
+            return;
+        }
+
+        // Use the provided occurrence or find it from the current occurrence ID
+        var targetOccurrence = occurrence ?? _allOccurrences.FirstOrDefault(o => o.JobOccurrenceId == ids.JobOccurrenceId);
+        if (targetOccurrence == null)
+        {
+            await ShowErrorAsync("Could not find job occurrence details.");
+            return;
+        }
+
+        try
+        {
+            // NEW: Type-safe navigation with extension method for clean syntax
+            await Navigation.NavigateToCreateInvoiceAsync(
+                ids.CustomerId,
+                ids.ScheduledJobDefinitionId,
+                ids.JobOccurrenceId,
+                Description); // Using the job description from the current view model
+        }
+        catch (ArgumentException ex)
+        {
+            await ShowErrorAsync($"Navigation Error - {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Example: Navigate back to the customer's job list
+    /// This demonstrates navigation with a single parameter
+    /// </summary>
+    [RelayCommand]
+    private async Task NavigateToCustomerJobsAsync()
+    {
+        try
+        {
+            // NEW: Type-safe navigation using extension method
+            await Navigation.NavigateToCustomerJobsAsync(LoadParametersCustomerIdAndScheduleJobDefId.CustomerId);
+        }
+        catch (ArgumentException ex)
+        {
+            await ShowErrorAsync($"Navigation Error - {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Example: Generic type-safe navigation
+    /// This demonstrates the most flexible approach when page type is known at compile time
+    /// </summary>
+    [RelayCommand]
+    private async Task NavigateToCustomerViewGenericAsync()
+    {
+        try
+        {
+            // NEW: Generic type-safe navigation - most flexible approach
+            await Navigation.NavigateToAsync<CustomerViewPage, CustomerParameters>(
+                new CustomerParameters(LoadParametersCustomerIdAndScheduleJobDefId.CustomerId));
+        }
+        catch (ArgumentException ex)
+        {
+            await ShowErrorAsync($"Navigation Error - {ex.Message}");
+        }
     }
 }

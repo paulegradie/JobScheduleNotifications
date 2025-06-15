@@ -2,6 +2,9 @@ using Mobile.UI.RepositoryAbstractions;
 
 namespace Mobile.Infrastructure.Repositories;
 
+/// <summary>
+/// Implementation of navigation repository using MAUI Shell navigation
+/// </summary>
 public class NavigationRepository : INavigationRepository
 {
     public async Task GoToAsync(string route, Dictionary<string, object>? parameters = null)
@@ -19,24 +22,5 @@ public class NavigationRepository : INavigationRepository
     public async Task GoBackAsync()
     {
         await Shell.Current.GoToAsync("..");
-    }
-
-    public async Task ShowAlertAsync(string title, string message)
-    {
-        var window = Application.Current?.Windows[0];
-        if (window?.Page != null)
-        {
-            await window.Page.DisplayAlert(title, message, "OK");
-        }
-    }
-
-    public async Task<bool> ShowConfirmationAsync(string title, string message)
-    {
-        var window = Application.Current?.Windows[0];
-        if (window?.Page != null)
-        {
-            return await window.Page.DisplayAlert(title, message, "Yes", "No");
-        }
-        return false;
     }
 }

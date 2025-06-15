@@ -116,6 +116,9 @@
       <Compile Update="Pages\Customers\ScheduledJobs\JobOccurrences\InvoiceCreateModel.cs">
         <DependentUpon>InvoiceCreatePage.cs</DependentUpon>
       </Compile>
+      <Compile Update="Pages\Customers\ScheduledJobs\JobReminders\JobReminderModel.cs">
+        <DependentUpon>JobReminderPage.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

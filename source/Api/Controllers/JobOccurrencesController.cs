@@ -4,7 +4,6 @@ using Api.Business.Repositories;
 using Api.Business.Entities;
 using Api.Infrastructure.Data;
 using Api.ValueTypes;
-using Server.Contracts.Dtos;
 using Server.Contracts.Endpoints.JobOccurence.Contracts;
 
 namespace Api.Controllers
@@ -24,7 +23,6 @@ namespace Api.Controllers
             _uow = uow;
         }
 
-        // GET: …/occurrences
         [HttpGet(ListJobOccurrencesRequest.Route)]
         public async Task<ActionResult<ListJobOccurrencesResponse>> List(
             [FromRoute] CustomerId customerId,

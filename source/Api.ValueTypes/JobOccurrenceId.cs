@@ -1,7 +1,14 @@
 ﻿namespace Api.ValueTypes;
 
-public readonly record struct JobOccurrenceId(Guid Value) : IComparable
+public readonly record struct JobOccurrenceId(Guid Value) : IComparable, IParseString<JobOccurrenceId>
 {
+    public static JobOccurrenceId Parse(string s)
+    {
+        if (!Guid.TryParse(s, out var g))
+            throw new FormatException($"Cannot convert '{s}' to JobOccurrenceId");
+        return new JobOccurrenceId(g);
+    }
+
     public override string ToString() => Value.ToString();
 
     public static JobOccurrenceId New() => new(Guid.NewGuid());

@@ -1,16 +1,17 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Mobile.UI.Navigation;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts.Dtos;
+using Type = Android.Renderscripts.Type;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
 
 public partial class ViewJobOccurrenceModel : BaseViewModel
 {
-    private readonly IJobOccurrenceRepository _repo;
-    private readonly INavigationRepository _navigationRepository;
+    private readonly IJobOccurrenceRepository _jobOccurrenceRepository;
     private readonly IJobCompletedPhotoRepository _completedPhotoRepository;
 
     [ObservableProperty] private string _jobTitle;
@@ -24,10 +25,11 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
 
     [ObservableProperty] private ObservableCollection<PhotoDisplayItem> _photoPaths = new();
 
-    public ViewJobOccurrenceModel(IJobOccurrenceRepository repo, INavigationRepository navigationRepository, IJobCompletedPhotoRepository completedPhotoRepository)
+    public ViewJobOccurrenceModel(
+        IJobOccurrenceRepository jobOccurrenceRepository,
+        IJobCompletedPhotoRepository completedPhotoRepository)
     {
-        _repo = repo;
-        _navigationRepository = navigationRepository;
+        _jobOccurrenceRepository = jobOccurrenceRepository;
         _completedPhotoRepository = completedPhotoRepository;
     }
 
@@ -39,7 +41,7 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
         CustomerJobAndOccurrenceIds = ids;
         await RunWithSpinner(async () =>
         {
-            var resp = await _repo
+            var resp = await _jobOccurrenceRepository
                 .GetOccurrenceByIdAsync(ids.CustomerId, ids.ScheduledJobDefinitionId, ids.JobOccurrenceId, CancellationToken.None);
             if (!resp.IsSuccess) return;
 
@@ -66,7 +68,7 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
         if (ids == null) return;
         await RunWithSpinner(async () =>
         {
-            var success = await _repo
+            var success = await _jobOccurrenceRepository
                 .MarkOccurrenceAsCompletedAsync(ids.CustomerId, ids.ScheduledJobDefinitionId, ids.JobOccurrenceId, CancellationToken.None);
 
             if (!success.IsSuccess) return;
@@ -79,30 +81,20 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
             OnPropertyChanged(nameof(CanMarkComplete));
             OnPropertyChanged(nameof(MarkedAsComplete));
 
-            await _navigationRepository.ShowAlertAsync("Job Done!", "The job has been marked as complete.");
+            await ShowSuccessAsync("The job has been marked as complete.");
         });
     }
 
-    [RelayCommand]
-    private async Task GoBackAsync()
-    {
-        await _navigationRepository.GoBackAsync();
-    }
 
     [RelayCommand]
     private async Task CreateInvoiceAsync()
     {
         if (CustomerJobAndOccurrenceIds == null) return;
 
-        await _navigationRepository.GoToAsync(
-            "InvoiceCreatePage",
-            new Dictionary<string, object?>
-            {
-                { "CustomerId", CustomerJobAndOccurrenceIds.CustomerId.ToString() },
-                { "ScheduledJobDefinitionId", CustomerJobAndOccurrenceIds.ScheduledJobDefinitionId.ToString() },
-                { "JobOccurrenceId", CustomerJobAndOccurrenceIds.JobOccurrenceId.ToString() },
-                { "JobDescription", JobDescription }
-            });
+        await Navigation.NavigateToInvoiceCreateAsync(new InvoiceCreateParameters(
+            CustomerJobAndOccurrenceIds.CustomerId,
+            CustomerJobAndOccurrenceIds.ScheduledJobDefinitionId,
+            CustomerJobAndOccurrenceIds.JobOccurrenceId));
     }
 
     [RelayCommand]
@@ -130,7 +122,7 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
                 }
                 else
                 {
-                    await _navigationRepository.ShowAlertAsync("Camera Unavailable", "Camera is not supported on this device.");
+                    await ShowErrorAsync("Camera is not supported on this device.");
                     return;
                 }
             }
@@ -151,7 +143,7 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            await _navigationRepository.ShowAlertAsync("Error", $"An error occurred: {ex.Message}");
+            await ShowErrorAsync($"An error occurred: {ex.Message}");
             return;
         }
 
@@ -177,12 +169,12 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
             if (itemDto.IsSuccess)
             {
                 var photoDetails = itemDto.Value.CompletedPhotoUploadDto;
-                await _navigationRepository.ShowAlertAsync("Photo Uploaded", "The photo has been successfully uploaded.");
+                await ShowSuccessAsync("Photo Uploaded", "The photo has been successfully uploaded.");
                 PhotoPaths.Add(new PhotoDisplayItem(photoDetails.JobCompletedPhotoId, photoDetails.FilePath));
             }
             else
             {
-                await _navigationRepository.ShowAlertAsync("Upload Failed", "Something went wrong uploading the photo.");
+                await ShowErrorAsync("Upload Failed - Something went wrong uploading the photo.");
             }
         });
     }
@@ -204,7 +196,7 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
 
             if (!response.IsSuccess)
             {
-                await _navigationRepository.ShowAlertAsync("Warning", "Failed to delete photo from server.");
+                await ShowErrorAsync("Warning - Failed to delete photo from server.");
                 return;
             }
 

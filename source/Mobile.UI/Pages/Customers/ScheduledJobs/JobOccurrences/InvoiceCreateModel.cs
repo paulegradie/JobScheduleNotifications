@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.RepositoryAbstractions;
+using Mobile.UI.Services;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 
@@ -13,7 +14,6 @@ public record InvoiceItem(string ItemNumber, string Description, decimal Price);
 
 public partial class InvoiceCreateModel : BaseViewModel
 {
-    private readonly INavigationRepository _navigationRepository;
     private readonly IInvoiceRepository _invoiceRepository;
     private readonly IJobCompletedPhotoRepository _photoRepository;
     [ObservableProperty] private string _currentItemDescription = string.Empty;
@@ -29,19 +29,20 @@ public partial class InvoiceCreateModel : BaseViewModel
 
     private CustomerJobAndOccurrenceIds CusterCustomerJobAndOccurrenceIds { get; set; }
 
-    public InvoiceCreateModel(INavigationRepository navigationRepository, IInvoiceRepository invoiceRepository, IJobCompletedPhotoRepository photoRepository)
+    public InvoiceCreateModel(
+        IInvoiceRepository invoiceRepository,
+        IJobCompletedPhotoRepository photoRepository)
     {
-        _navigationRepository = navigationRepository;
         _invoiceRepository = invoiceRepository;
         _photoRepository = photoRepository;
     }
 
-    public void Initialize(string customerId, string scheduledJobDefinitionId, string jobOccurrenceId, string jobDescription)
+    public void Initialize(string customerId, string scheduledJobDefinitionId, string jobOccurrenceId)
     {
-        _jobDescription = jobDescription;
+        _jobDescription = string.Empty;
         Total = InvoiceItems.Sum(x => x.Price).ToString("C");
         CusterCustomerJobAndOccurrenceIds = new CustomerJobAndOccurrenceIds(
-            new CustomerId(Guid.Parse(customerId)),
+            CustomerId.Parse(customerId),
             new ScheduledJobDefinitionId(Guid.Parse(scheduledJobDefinitionId)),
             new JobOccurrenceId(Guid.Parse(jobOccurrenceId)));
         OnPropertyChanged(nameof(InvoiceItems));
@@ -106,6 +107,7 @@ public partial class InvoiceCreateModel : BaseViewModel
             CusterCustomerJobAndOccurrenceIds.CustomerId,
             CusterCustomerJobAndOccurrenceIds.ScheduledJobDefinitionId,
             CusterCustomerJobAndOccurrenceIds.JobOccurrenceId);
-        await _navigationRepository.ShowAlertAsync("Success", $"Invoice saved to:\n{outputPath}");
+        
+        await ShowSuccessAsync($"Invoice saved to:\n{outputPath}");
     }
 }

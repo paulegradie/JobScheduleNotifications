@@ -3,9 +3,15 @@ using System.Globalization;
 
 namespace Api.ValueTypes;
 
-// [TypeConverter(typeof(ScheduledJobDefinitionIdTypeConverter))]
-public readonly record struct ScheduledJobDefinitionId(Guid Value) : IComparable
+public readonly record struct ScheduledJobDefinitionId(Guid Value) : IComparable ,IParseString<ScheduledJobDefinitionId>
 {
+    public static ScheduledJobDefinitionId Parse(string s)
+    {
+        if (!Guid.TryParse(s, out var g))
+            throw new FormatException($"Cannot parse '{s}' as a Guid");
+        return new ScheduledJobDefinitionId(g);
+    }
+
     public override string ToString() => Value.ToString();
 
     public static ScheduledJobDefinitionId New() => new(Guid.NewGuid());

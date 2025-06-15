@@ -1,17 +1,14 @@
-﻿﻿﻿﻿﻿using System;
-using Api.ValueTypes.Enums;
+﻿using Api.ValueTypes.Enums;
 using CommunityToolkit.Maui.Markup;
-using Microsoft.Maui;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Layouts;
 using Mobile.UI.Pages.Base;
+using Mobile.UI.Pages.Base.QueryParamAttributes;
 using Mobile.UI.Styles;
 using Server.Contracts.Dtos;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
-[QueryProperty(nameof(CustomerId), nameof(CustomerId))]
+[CustomerIdQueryParam]
 public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
 {
     public string CustomerId { get; set; }
@@ -62,37 +59,37 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
                 // Customer picker
                 Section("Customer",
                     new Picker
-                    {
-                        Title = "Select Customer",
-                        ItemDisplayBinding = new Binding(nameof(CustomerDto.FullName)),
-                        BackgroundColor = Colors.White,
-                        TextColor = CardStyles.Colors.TextPrimary
-                    }
-                    .Bind(Picker.ItemsSourceProperty, nameof(vm.Customers))
-                    .Bind(Picker.SelectedItemProperty, nameof(vm.SelectedCustomer))
+                        {
+                            Title = "Select Customer",
+                            ItemDisplayBinding = new Binding(nameof(CustomerDto.FullName)),
+                            BackgroundColor = Colors.White,
+                            TextColor = CardStyles.Colors.TextPrimary
+                        }
+                        .Bind(Picker.ItemsSourceProperty, nameof(vm.Customers))
+                        .Bind(Picker.SelectedItemProperty, nameof(vm.SelectedCustomer))
                 ),
 
                 // Title entry
                 Section("Job Title",
                     new Entry
-                    {
-                        Placeholder = "Enter job title...",
-                        BackgroundColor = Colors.White,
-                        TextColor = CardStyles.Colors.TextPrimary
-                    }
-                    .Bind(Entry.TextProperty, nameof(vm.Title))
+                        {
+                            Placeholder = "Enter job title...",
+                            BackgroundColor = Colors.White,
+                            TextColor = CardStyles.Colors.TextPrimary
+                        }
+                        .Bind(Entry.TextProperty, nameof(vm.Title))
                 ),
 
                 // Description editor
                 Section("Description",
                     new Editor
-                    {
-                        HeightRequest = 100,
-                        Placeholder = "Enter job description...",
-                        BackgroundColor = Colors.White,
-                        TextColor = CardStyles.Colors.TextPrimary
-                    }
-                    .Bind(Editor.TextProperty, nameof(vm.Description))
+                        {
+                            HeightRequest = 100,
+                            Placeholder = "Enter job description...",
+                            BackgroundColor = Colors.White,
+                            TextColor = CardStyles.Colors.TextPrimary
+                        }
+                        .Bind(Editor.TextProperty, nameof(vm.Description))
                 )
             }
         };
@@ -119,32 +116,32 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
                         Children =
                         {
                             new DatePicker
-                            {
-                                BackgroundColor = Colors.White,
-                                TextColor = CardStyles.Colors.TextPrimary,
-                                HorizontalOptions = LayoutOptions.FillAndExpand
-                            }
-                            .Bind(DatePicker.DateProperty, nameof(vm.AnchorDate)),
+                                {
+                                    BackgroundColor = Colors.White,
+                                    TextColor = CardStyles.Colors.TextPrimary,
+                                    HorizontalOptions = LayoutOptions.FillAndExpand
+                                }
+                                .Bind(DatePicker.DateProperty, nameof(vm.AnchorDate)),
 
                             new TimePicker
-                            {
-                                BackgroundColor = Colors.White,
-                                TextColor = CardStyles.Colors.TextPrimary,
-                                HorizontalOptions = LayoutOptions.FillAndExpand
-                            }
-                            .Bind(TimePicker.TimeProperty, nameof(vm.AnchorTime))
-                            .Invoke(tp =>
-                            {
-                                tp.TimeSelected += (s, e) =>
                                 {
-                                    var min = new TimeSpan(6, 0, 0);
-                                    var max = new TimeSpan(18, 0, 0);
-                                    if (e.NewTime < min)
-                                        tp.Time = min;
-                                    else if (e.NewTime > max)
-                                        tp.Time = max;
-                                };
-                            })
+                                    BackgroundColor = Colors.White,
+                                    TextColor = CardStyles.Colors.TextPrimary,
+                                    HorizontalOptions = LayoutOptions.FillAndExpand
+                                }
+                                .Bind(TimePicker.TimeProperty, nameof(vm.AnchorTime))
+                                .Invoke(tp =>
+                                {
+                                    tp.TimeSelected += (s, e) =>
+                                    {
+                                        var min = new TimeSpan(6, 0, 0);
+                                        var max = new TimeSpan(18, 0, 0);
+                                        if (e.NewTime < min)
+                                            tp.Time = min;
+                                        else if (e.NewTime > max)
+                                            tp.Time = max;
+                                    };
+                                })
                         }
                     }
                 ),
@@ -175,17 +172,17 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
                         Children =
                         {
                             new Slider(1, 52, 1)
-                            {
-                                ThumbColor = CardStyles.Colors.Primary,
-                                MinimumTrackColor = CardStyles.Colors.Primary
-                            }
-                            .Bind(Slider.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay),
+                                {
+                                    ThumbColor = CardStyles.Colors.Primary,
+                                    MinimumTrackColor = CardStyles.Colors.Primary
+                                }
+                                .Bind(Slider.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay),
 
                             new Stepper(1, 100, 1, 1)
-                            {
-                                BackgroundColor = Colors.White
-                            }
-                            .Bind(Stepper.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay)
+                                {
+                                    BackgroundColor = Colors.White
+                                }
+                                .Bind(Stepper.ValueProperty, nameof(vm.Interval), BindingMode.TwoWay)
                         }
                     }
                 ),
@@ -193,24 +190,24 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
                 // Day of month (conditional)
                 Section("Day of Month",
                     new Entry
-                    {
-                        Keyboard = Keyboard.Numeric,
-                        Placeholder = "Enter day (1-31)",
-                        BackgroundColor = Colors.White,
-                        TextColor = CardStyles.Colors.TextPrimary
-                    }
-                    .Bind(Entry.TextProperty, nameof(vm.DayOfMonth))
+                        {
+                            Keyboard = Keyboard.Numeric,
+                            Placeholder = "Enter day (1-31)",
+                            BackgroundColor = Colors.White,
+                            TextColor = CardStyles.Colors.TextPrimary
+                        }
+                        .Bind(Entry.TextProperty, nameof(vm.DayOfMonth))
                 ).Bind(IsVisibleProperty, nameof(vm.ShowDayOfMonth)),
 
                 // Cron preview
                 Section("Cron Preview",
                     new Label
-                    {
-                        FontSize = CardStyles.Typography.CaptionSize,
-                        TextColor = CardStyles.Colors.TextSecondary,
-                        FontFamily = "Courier"
-                    }
-                    .Bind(Label.TextProperty, nameof(vm.CronPreview))
+                        {
+                            FontSize = CardStyles.Typography.CaptionSize,
+                            TextColor = CardStyles.Colors.TextSecondary,
+                            FontFamily = "Courier"
+                        }
+                        .Bind(Label.TextProperty, nameof(vm.CronPreview))
                 )
             }
         };
@@ -227,12 +224,12 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
             {
                 // Error message
                 new Label
-                {
-                    TextColor = CardStyles.Colors.Error,
-                    FontSize = CardStyles.Typography.SubtitleSize
-                }
-                .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
-                .Bind(IsVisibleProperty, nameof(vm.HasError)),
+                    {
+                        TextColor = CardStyles.Colors.Error,
+                        FontSize = CardStyles.Typography.SubtitleSize
+                    }
+                    .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
+                    .Bind(IsVisibleProperty, nameof(vm.HasError)),
 
                 // Save button
                 CardStyles.CreatePrimaryButton("💾 Save Job")
@@ -241,11 +238,11 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
 
                 // Loading indicator
                 new ActivityIndicator
-                {
-                    Color = CardStyles.Colors.Primary
-                }
-                .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
-                .Bind(IsVisibleProperty, nameof(vm.IsBusy))
+                    {
+                        Color = CardStyles.Colors.Primary
+                    }
+                    .Bind(ActivityIndicator.IsRunningProperty, nameof(vm.IsBusy))
+                    .Bind(IsVisibleProperty, nameof(vm.IsBusy))
             }
         };
 
