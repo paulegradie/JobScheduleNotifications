@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using Amazon.SimpleEmail;
+﻿using Amazon.SimpleEmail;
 using Amazon.SimpleEmail.Model;
 using Api.Business.Services;
 using Api.Infrastructure.Configuration;

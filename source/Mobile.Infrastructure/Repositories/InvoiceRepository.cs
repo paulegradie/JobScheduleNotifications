@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using System.Net;
+﻿using System.Net;
 using Api.ValueTypes;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts;

@@ -1,4 +1,4 @@
-﻿﻿using Api.ValueTypes;
+﻿using Api.ValueTypes;
 using Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
 using Server.Contracts.Endpoints;
 using Server.Contracts.Endpoints.Invoices.Contracts;

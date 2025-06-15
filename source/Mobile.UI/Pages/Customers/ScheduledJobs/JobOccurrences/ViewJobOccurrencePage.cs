@@ -1,4 +1,4 @@
-﻿﻿﻿using Api.ValueTypes;
+﻿using Api.ValueTypes;
 using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Pages.Base.QueryParamAttributes;

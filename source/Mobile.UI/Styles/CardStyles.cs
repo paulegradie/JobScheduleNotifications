@@ -1,4 +1,4 @@
-﻿﻿namespace Mobile.UI.Styles;
+﻿namespace Mobile.UI.Styles;
 
 /// <summary>
 /// Shared styling system for consistent card designs across the application

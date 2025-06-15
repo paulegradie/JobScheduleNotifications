@@ -1,4 +1,4 @@
-﻿﻿using Server.Contracts.Dtos;
+﻿using Server.Contracts.Dtos;
 
 namespace Server.Contracts.Endpoints.Invoices.Contracts;
 

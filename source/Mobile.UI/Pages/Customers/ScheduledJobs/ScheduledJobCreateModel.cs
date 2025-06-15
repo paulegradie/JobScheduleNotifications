@@ -15,7 +15,7 @@ public partial class ScheduledJobCreateModel : BaseViewModel
     private readonly ICustomerRepository _customerRepository;
 
     [ObservableProperty] private ObservableCollection<CustomerDto> _customers = new();
-    [ObservableProperty] private CustomerDto _selectedCustomer;
+    [ObservableProperty] private CustomerDto? _selectedCustomer;
     [ObservableProperty] private string _title = string.Empty;
     [ObservableProperty] private string _description = string.Empty;
     [ObservableProperty] private DateTime _anchorDate = DateTime.Now;
@@ -51,9 +51,11 @@ public partial class ScheduledJobCreateModel : BaseViewModel
 
     public bool CanSave =>
         !IsBusy &&
+        SelectedCustomer != null &&
         !string.IsNullOrWhiteSpace(Title) &&
         !string.IsNullOrWhiteSpace(Description) &&
-        !string.IsNullOrWhiteSpace(CronPreview);
+        !string.IsNullOrWhiteSpace(CronPreview) &&
+        CronPreview != "Invalid parameters";
 
     public ScheduledJobCreateModel(
         IJobRepository jobRepository,
@@ -116,8 +118,8 @@ public partial class ScheduledJobCreateModel : BaseViewModel
                     builder.EveryWeeks(Interval);
                     break;
                 case Frequency.Monthly:
-                    if (DayOfMonth.HasValue)
-                        builder.OnDayOfMonth(DayOfMonth.Value).EveryMonths(Interval);
+                    var dayOfMonth = DayOfMonth ?? 1; // Default to 1st of month if not specified
+                    builder.OnDayOfMonth(dayOfMonth).EveryMonths(Interval);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -140,24 +142,36 @@ public partial class ScheduledJobCreateModel : BaseViewModel
     [RelayCommand(CanExecute = nameof(CanSave))]
     private async Task SaveAsync()
     {
-        await RunWithSpinner(async () =>
+        try
         {
-            var dto = new CreateScheduledJobDefinitionDto
+            await RunWithSpinner(async () =>
             {
-                CustomerId = SelectedCustomer.Id,
-                Title = Title,
-                Description = Description,
-                AnchorDate = AnchorDateTime,
-                CronExpression = CronPreview
-            };
+                var dto = new CreateScheduledJobDefinitionDto
+                {
+                    CustomerId = SelectedCustomer!.Id,
+                    Title = Title,
+                    Description = Description,
+                    AnchorDate = AnchorDateTime,
+                    CronExpression = CronPreview
+                };
 
-            await _jobRepository.CreateJobAsync(dto);
+                var result = await _jobRepository.CreateJobAsync(dto);
 
-            await ShowSuccessAsync("Job scheduled!");
-
-            await Navigation.NavigateToCustomerListAsync();
-
-        });
+                if (result.IsSuccess)
+                {
+                    await ShowSuccessAsync("Job scheduled!");
+                    await Navigation.NavigateToCustomerListAsync();
+                }
+                else
+                {
+                    ErrorMessage = result.ErrorMessage ?? "Failed to create job";
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error saving job: {ex.Message}";
+        }
     }
 
     partial void OnTitleChanged(string oldValue, string newValue)
@@ -173,6 +187,9 @@ public partial class ScheduledJobCreateModel : BaseViewModel
         => SaveCommand.NotifyCanExecuteChanged();
 
     partial void OnCronExpressionChanged(string oldValue, string newValue)
+        => SaveCommand.NotifyCanExecuteChanged();
+
+    partial void OnSelectedCustomerChanged(CustomerDto? oldValue, CustomerDto? newValue)
         => SaveCommand.NotifyCanExecuteChanged();
 
     public Style ChipStyle(object value, object parameter)

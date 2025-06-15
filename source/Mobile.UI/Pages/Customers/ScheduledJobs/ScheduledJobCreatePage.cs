@@ -233,8 +233,8 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
 
                 // Save button
                 CardStyles.CreatePrimaryButton("💾 Save Job")
-                    .BindCommand(nameof(vm.SaveCommand)),
-                    // .Bind(IsEnabledProperty, nameof(vm.CanSave)),
+                    .BindCommand(nameof(vm.SaveCommand))
+                    .Bind(IsEnabledProperty, nameof(vm.CanSave)),
 
                 // Loading indicator
                 new ActivityIndicator
