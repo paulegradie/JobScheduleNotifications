@@ -5,6 +5,7 @@ using Api.Business.Services;
 using Api.Infrastructure.Data;
 using Api.Infrastructure.DbTables.Jobs;
 using Api.Infrastructure.DbTables.OrganizationModels;
+using Api.Infrastructure.DependencyInjection;
 using Api.Infrastructure.Repositories;
 using Api.Infrastructure.Repositories.Mapping;
 using Api.Infrastructure.Services;
@@ -21,6 +22,7 @@ public static class CompositionRoot
         AddCrudRepositories(services);
         AddMappers(services);
         AddBusinessServices(services);
+        services.AddInvoiceServices(configuration);
     }
 
     private static void AddBusinessServices(IServiceCollection services)

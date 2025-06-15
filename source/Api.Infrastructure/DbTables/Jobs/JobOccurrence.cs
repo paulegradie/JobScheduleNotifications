@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿﻿using System.ComponentModel.DataAnnotations.Schema;
 using Api.Infrastructure.DbTables.OrganizationModels;
 using Api.ValueTypes;
 
@@ -25,6 +25,7 @@ public class JobOccurrence
     public JobOccurrenceStatus JobOccurrenceStatus { get; set; }
     public JobOccurenceInvoiceStatus JobOccurenceInvoiceStatus { get; set; }
     public virtual ICollection<JobCompletedPhoto> JobCompletedPhotos { get; set; }
+    public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
 
 }
 

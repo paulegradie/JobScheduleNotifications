@@ -1,5 +1,6 @@
-﻿using Server.Contracts.Dtos;
+﻿﻿using Server.Contracts.Dtos;
 
 namespace Server.Contracts.Endpoints.Invoices.Contracts;
 
-public sealed record InvoiceSavedResponse(InvoiceDto InvoiceDto);
+public sealed record InvoiceSavedResponse(InvoiceDto Invoice);
+public sealed record InvoiceSavedLegacyResponse(InvoiceLegacyDto InvoiceDto);

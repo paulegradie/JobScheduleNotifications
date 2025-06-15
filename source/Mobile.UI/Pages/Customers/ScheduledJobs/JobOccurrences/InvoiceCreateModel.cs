@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+﻿﻿using System.Collections.ObjectModel;
 using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -141,13 +141,13 @@ public partial class InvoiceCreateModel : BaseViewModel
                 CusterCustomerJobAndOccurrenceIds.JobOccurrenceId
             );
 
-            if (result)
+            if (result.IsSuccess)
             {
                 await ShowSuccessAsync("Invoice sent!");
             }
             else
             {
-                await ShowErrorAsync("Failed to send invoice.");
+                await ShowErrorAsync($"Failed to send invoice: {result.ErrorMessage}");
             }
         });
     }

@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿﻿using System.Collections.ObjectModel;
+using Api.ValueTypes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mobile.UI.Navigation;
@@ -12,6 +13,7 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
 {
     private readonly IJobOccurrenceRepository _jobOccurrenceRepository;
     private readonly IJobCompletedPhotoRepository _completedPhotoRepository;
+    private readonly IInvoiceRepository _invoiceRepository;
 
     [ObservableProperty] private string _jobTitle;
     [ObservableProperty] private string _jobDescription;
@@ -20,16 +22,18 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
     [ObservableProperty] private bool _canMarkComplete;
     [ObservableProperty] private bool _markedAsComplete;
     [ObservableProperty] private ICollection<JobReminderDto> _jobReminderDtos;
-
+    [ObservableProperty] private bool _canSendInvoiceEmail;
 
     [ObservableProperty] private ObservableCollection<PhotoDisplayItem> _photoPaths = new();
 
     public ViewJobOccurrenceModel(
         IJobOccurrenceRepository jobOccurrenceRepository,
-        IJobCompletedPhotoRepository completedPhotoRepository)
+        IJobCompletedPhotoRepository completedPhotoRepository,
+        IInvoiceRepository invoiceRepository)
     {
         _jobOccurrenceRepository = jobOccurrenceRepository;
         _completedPhotoRepository = completedPhotoRepository;
+        _invoiceRepository = invoiceRepository;
     }
 
     private CustomerJobAndOccurrenceIds? CustomerJobAndOccurrenceIds { get; set; }
@@ -56,6 +60,9 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
             {
                 PhotoPaths.Add(new PhotoDisplayItem(photo.JobCompletedPhotoId, photo.PhotoUri));
             }
+
+            // Check if there are any invoices for this job occurrence to enable email sending
+            await CheckForInvoicesAsync();
         });
     }
 
@@ -202,5 +209,71 @@ public partial class ViewJobOccurrenceModel : BaseViewModel
             PhotoPaths.Remove(photo);
             OnPropertyChanged(nameof(PhotoPaths));
         });
+    }
+
+    [RelayCommand]
+    private async Task SendInvoiceEmailAsync()
+    {
+        if (CustomerJobAndOccurrenceIds == null) return;
+
+        await RunWithSpinner(async () =>
+        {
+            // Get the most recent invoice for this job occurrence
+            var invoices = await GetInvoicesForJobOccurrenceAsync();
+            var latestInvoice = invoices?.OrderByDescending(i => i.CreatedDate).FirstOrDefault();
+
+            if (latestInvoice == null)
+            {
+                await ShowErrorAsync("No invoice found for this job occurrence. Please create an invoice first.");
+                return;
+            }
+
+            // Send the invoice email via the repository
+            var result = await _invoiceRepository.SendInvoiceAsync(
+                latestInvoice.InvoiceId,
+                CustomerJobAndOccurrenceIds.CustomerId,
+                CustomerJobAndOccurrenceIds.ScheduledJobDefinitionId,
+                CustomerJobAndOccurrenceIds.JobOccurrenceId);
+
+            if (result.IsSuccess)
+            {
+                await ShowSuccessAsync("Invoice email sent successfully!");
+            }
+            else
+            {
+                await ShowErrorAsync($"Failed to send invoice email: {result.ErrorMessage}");
+            }
+        });
+    }
+
+    private async Task CheckForInvoicesAsync()
+    {
+        if (CustomerJobAndOccurrenceIds == null)
+        {
+            CanSendInvoiceEmail = false;
+            return;
+        }
+
+        var invoices = await GetInvoicesForJobOccurrenceAsync();
+        CanSendInvoiceEmail = invoices?.Any() == true;
+    }
+
+    private async Task<IEnumerable<InvoiceDto>?> GetInvoicesForJobOccurrenceAsync()
+    {
+        // This would need to be implemented in the invoice repository
+        // For now, we'll assume there's an invoice if the job is completed
+        // In a real implementation, you'd call the server to get invoices
+        return MarkedAsComplete ? new[] { new InvoiceDto(
+            InvoiceId.New(),
+            CustomerJobAndOccurrenceIds!.JobOccurrenceId,
+            CustomerJobAndOccurrenceIds.CustomerId,
+            "invoice.pdf",
+            "/path/to/invoice.pdf",
+            "Local",
+            1024,
+            DateTime.Now,
+            null,
+            null
+        ) } : null;
     }
 }

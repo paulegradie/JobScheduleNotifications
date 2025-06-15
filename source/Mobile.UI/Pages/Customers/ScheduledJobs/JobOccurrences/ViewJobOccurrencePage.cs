@@ -1,4 +1,4 @@
-﻿using Api.ValueTypes;
+﻿﻿﻿using Api.ValueTypes;
 using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Pages.Base.QueryParamAttributes;
@@ -173,6 +173,7 @@ public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
                     ),
                     RowDefinitions = Rows.Define(
                         (Row.Top, Auto),
+                        (Row.Middle, Auto),
                         (Row.Bottom, Auto)
                     ),
                     ColumnSpacing = 8,
@@ -188,6 +189,13 @@ public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
                         CardStyles.CreateSecondaryButton("📄 Create Invoice", CardStyles.Colors.Warning)
                             .Bind(Button.CommandProperty, nameof(ViewModel.CreateInvoiceCommand))
                             .Column(Column.Right).Row(Row.Top),
+
+                        // Send Invoice Email
+                        CardStyles.CreateSecondaryButton("📧 Send Invoice Email", CardStyles.Colors.Success)
+                            .Bind(Button.CommandProperty, nameof(ViewModel.SendInvoiceEmailCommand))
+                            .Bind(IsVisibleProperty, nameof(ViewModel.CanSendInvoiceEmail))
+                            .Column(Column.Left).Row(Row.Middle)
+                            .ColumnSpan(2),
 
                         // Go Back
                         CardStyles.CreateSecondaryButton("⬅️ Go Back")
@@ -305,6 +313,7 @@ public class ViewJobOccurrencePage : BasePage<ViewJobOccurrenceModel>
     private enum Row
     {
         Top,
+        Middle,
         Bottom
     }
 }

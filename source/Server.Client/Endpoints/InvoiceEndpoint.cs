@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+﻿﻿﻿﻿using System.Text.Json;
 using Server.Client.Base;
 using Server.Client.Exceptions;
 using Server.Contracts.Endpoints;
@@ -13,15 +13,10 @@ internal sealed class InvoiceEndpoint : EndpointBase, IInvoiceEndpoint
     {
     }
 
-    public async Task<OperationResult<InvoiceSentResponse>> SendInvoice(SendInvoiceRequest request, CancellationToken cancellationToken)
-    {
-        return await PostAsync<SendInvoiceRequest, InvoiceSentResponse>(request, cancellationToken);
-    }
-
     public async Task<OperationResult<InvoiceSavedResponse>> SaveInvoice(SaveInvoiceRequest request, CancellationToken ct)
     {
         using var form = new MultipartFormDataContent();
-        using var fileContent = new StreamContent(request.PdfStream);
+        using var fileContent = new StreamContent(request.InvoiceStream);
 
         fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
         form.Add(fileContent, "file", request.FileName);
@@ -79,5 +74,10 @@ internal sealed class InvoiceEndpoint : EndpointBase, IInvoiceEndpoint
         }
 
         return OperationResult<InvoiceSavedResponse>.Success(value!, response.StatusCode);
+    }
+
+    public async Task<OperationResult<InvoiceSentResponse>> SendInvoice(SendInvoiceRequest request, CancellationToken cancellationToken)
+    {
+        return await PostAsync<SendInvoiceRequest, InvoiceSentResponse>(request, cancellationToken);
     }
 }

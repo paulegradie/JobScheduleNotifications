@@ -1,4 +1,7 @@
-﻿using Api.Infrastructure.Data;
+﻿﻿﻿﻿﻿using Api.Business.Entities;
+using Api.Business.Repositories;
+using Api.Business.Services;
+using Api.ValueTypes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Server.Contracts.Dtos;
@@ -10,13 +13,21 @@ namespace Api.Controllers;
 [ApiController]
 public class InvoicesController : ControllerBase
 {
-    private readonly IWebHostEnvironment _env;
-    private readonly AppDbContext _dbContext;
+    private readonly IFileStorageService _fileStorageService;
+    private readonly IInvoiceRepository _invoiceRepository;
+    private readonly IEmailService _emailService;
+    private readonly ICustomerRepository _customerRepository;
 
-    public InvoicesController(IWebHostEnvironment env, AppDbContext dbContext, IInvoicePdfSaver invoicePdfSaver)
+    public InvoicesController(
+        IFileStorageService fileStorageService,
+        IInvoiceRepository invoiceRepository,
+        IEmailService emailService,
+        ICustomerRepository customerRepository)
     {
-        _env = env;
-        _dbContext = dbContext;
+        _fileStorageService = fileStorageService;
+        _invoiceRepository = invoiceRepository;
+        _emailService = emailService;
+        _customerRepository = customerRepository;
     }
 
     [HttpPost(SaveInvoiceRequest.Route)]
@@ -26,19 +37,36 @@ public class InvoicesController : ControllerBase
         [FromRoute] string jobOccurenceId,
         [FromForm(Name = "file")] IFormFile file)
     {
+        if (file is null || file.Length == 0)
+            return BadRequest("No file provided.");
 
-        // if (file is null || file.Length == 0)
-        //     return BadRequest("No file provided.");
-        //
-        // var savePath = Path.Combine(_env.ContentRootPath, "UploadedInvoices", file.FileName);
-        // Directory.CreateDirectory(Path.GetDirectoryName(savePath)!);
-        //
-        // await using var stream = new FileStream(savePath, FileMode.Create);
-        // await file.CopyToAsync(stream);
+        try
+        {
+            // Parse IDs
+            var customerIdParsed = CustomerId.Parse(customerId);
+            var jobOccurrenceIdParsed = JobOccurrenceId.Parse(jobOccurenceId);
 
-        
-        
-        return Ok(new InvoiceSavedResponse(new InvoiceDto(true, savePath, file.Length)));
+            // Save file to storage
+            await using var stream = file.OpenReadStream();
+            var filePath = await _fileStorageService.SaveFileAsync(stream, file.FileName, file.ContentType);
+
+            // Create and save invoice domain model
+            var invoice = InvoiceDomainModel.Create(
+                jobOccurrenceIdParsed,
+                customerIdParsed,
+                file.FileName,
+                filePath,
+                _fileStorageService.StorageLocation,
+                file.Length);
+
+            var savedInvoice = await _invoiceRepository.SaveInvoiceAsync(invoice);
+
+            return Ok(new InvoiceSavedResponse(savedInvoice.ToDto()));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error saving invoice: {ex.Message}");
+        }
     }
 
     [HttpPost(SendInvoiceRequest.Route)]
@@ -46,17 +74,51 @@ public class InvoicesController : ControllerBase
         [FromRoute] string customerId,
         [FromRoute] string jobDefinitionId,
         [FromRoute] string jobOccurenceId,
-        [FromForm(Name = "file")] IFormFile file)
+        [FromRoute] string invoiceId)
     {
-        if (file is null || file.Length == 0)
-            return BadRequest("No file provided.");
+        try
+        {
+            // Parse IDs
+            var customerIdParsed = CustomerId.Parse(customerId);
+            var invoiceIdParsed = InvoiceId.Parse(invoiceId);
 
-        var savePath = Path.Combine(_env.ContentRootPath, "UploadedInvoices", file.FileName);
-        Directory.CreateDirectory(Path.GetDirectoryName(savePath)!);
+            // Get the invoice
+            var invoice = await _invoiceRepository.GetByIdAsync(invoiceIdParsed);
+            if (invoice == null)
+                return NotFound("Invoice not found.");
 
-        await using var stream = new FileStream(savePath, FileMode.Create);
-        await file.CopyToAsync(stream);
+            // Get customer details for email
+            var customer = await _customerRepository.GetByIdAsync(customerIdParsed);
+            if (customer == null)
+                return NotFound("Customer not found.");
 
-        return Ok(new InvoiceSentResponse(new InvoiceDto(true, savePath, file.Length)));
+            if (string.IsNullOrEmpty(customer.Email))
+                return BadRequest("Customer email address is not set.");
+
+            // Send email
+            var emailSent = await _emailService.SendInvoiceEmailAsync(
+                customer.Email,
+                $"{customer.FirstName} {customer.LastName}",
+                "Job Invoice", // You might want to get the actual job title
+                invoice.FilePath,
+                invoice.FileName);
+
+            if (emailSent)
+            {
+                // Mark invoice as sent
+                invoice.MarkEmailSent(customer.Email);
+                await _invoiceRepository.UpdateAsync(invoice);
+
+                return Ok(new InvoiceSentResponse(invoice.ToDto()));
+            }
+            else
+            {
+                return StatusCode(500, "Failed to send email.");
+            }
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error sending invoice: {ex.Message}");
+        }
     }
 }

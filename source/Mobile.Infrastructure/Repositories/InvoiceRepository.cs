@@ -1,4 +1,4 @@
-﻿using System.Net;
+﻿﻿﻿﻿using System.Net;
 using Api.ValueTypes;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Contracts;
@@ -29,7 +29,7 @@ public class InvoiceRepository : IInvoiceRepository
             InvoiceId: invoiceId
         );
 
-        var result = await _serverClient.Invoices.SaveInvoice(request, CancellationToken.None);
+        var result = await _serverClient.Invoices.SendInvoice(request, CancellationToken.None);
         return result;
     }
 
@@ -50,10 +50,21 @@ public class InvoiceRepository : IInvoiceRepository
             customerId,
             jobDefinitionId,
             jobOccurrenceId,
-            invoiceItems,
+            invoiceItems.ToArray(),
             stream,
             Path.GetFileName(outputPath));
         var result = await _serverClient.Invoices.SaveInvoice(request, CancellationToken.None);
         return result;
+    }
+
+    public async Task<OperationResult<InvoiceSentResponse>> SendInvoiceAsync(
+        string outputPath,
+        CustomerId currentCustomerId,
+        ScheduledJobDefinitionId currentJobDefinitionId,
+        JobOccurrenceId currentJobOccurrenceId)
+    {
+        // This method is for backward compatibility - it uploads and sends in one step
+        // For now, we'll just return a not implemented error
+        return OperationResult<InvoiceSentResponse>.Failure("This method is deprecated. Use SendInvoiceAsync with InvoiceId instead.", HttpStatusCode.NotImplemented);
     }
 }

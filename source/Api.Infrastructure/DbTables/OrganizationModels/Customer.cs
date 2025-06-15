@@ -26,7 +26,7 @@ public class Customer
 
 
     public DateTime CreatedAt { get; init; }
-    public DateTime? UpdatedAt { get; init; }
+    public DateTime? UpdatedAt { get; set; }
 
     public Customer DefineNewJob(
         ScheduledJobDefinitionId id,

@@ -22,6 +22,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
     public DbSet<ScheduledJobDefinition> ScheduledJobDefinitions { get; set; }
     public DbSet<JobOccurrence> JobOccurrences { get; set; }
     public DbSet<JobReminder> JobReminders { get; set; }
+    public DbSet<Invoice> Invoices { get; set; }
 
     // Link Tables
     public DbSet<CustomerUser> CustomerUsers { get; set; }
@@ -164,6 +165,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
                     .WithOne(p => p.JobOccurrence)
                     .HasForeignKey(p => p.JobOccurrenceId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                oc.HasMany(o => o.Invoices)
+                    .WithOne(i => i.JobOccurrence)
+                    .HasForeignKey(i => i.JobOccurrenceId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
         modelBuilder
@@ -194,6 +200,29 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
                 .WithMany(e => e.JobReminders)
                 .HasForeignKey(e => e.ScheduledJobDefinitionId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Invoice>(invoice =>
+        {
+            invoice.HasKey(i => i.InvoiceId);
+            invoice.Property(i => i.InvoiceId)
+                .HasConversion<InvoiceIdConverter>()
+                .HasValueGenerator<InvoiceIdValueGenerator>()
+                .ValueGeneratedOnAdd();
+
+            invoice.Property(i => i.JobOccurrenceId).HasConversion<JobOccurrenceIdConverter>();
+            invoice.Property(i => i.CustomerId).HasConversion<CustomerIdConverter>();
+            invoice.Property(i => i.FileName).IsRequired().HasMaxLength(255);
+            invoice.Property(i => i.FilePath).IsRequired().HasMaxLength(500);
+            invoice.Property(i => i.StorageLocation).HasConversion<int>();
+            invoice.Property(i => i.CreatedDate).IsRequired();
+
+
+
+            invoice.HasOne(i => i.Customer)
+                .WithMany()
+                .HasForeignKey(i => i.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

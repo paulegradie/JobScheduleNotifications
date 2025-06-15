@@ -11,4 +11,12 @@
     <ProjectReference Include="..\Server.Contracts\Server.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\ScheduledJobs\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Features\ScheduledJobs\InvoicePdfSaver.cs" />
+  </ItemGroup>
+
 </Project>
