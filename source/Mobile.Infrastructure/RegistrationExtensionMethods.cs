@@ -16,6 +16,7 @@ public static class RegistrationExtensionMethods
         services.AddScoped<IJobOccurrenceRepository, JobOccurrenceRepository>();
         services.AddScoped<IInvoiceRepository, InvoiceRepository>();
         services.AddScoped<IJobCompletedPhotoRepository, JobCompletedPhotoRepository>();
+        services.AddScoped<IOrganizationSettingsRepository, OrganizationSettingsRepository>();
         return services;
     }
 }

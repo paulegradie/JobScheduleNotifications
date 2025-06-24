@@ -15,6 +15,7 @@ public partial class InvoiceCreateModel : BaseViewModel
 {
     private readonly IInvoiceRepository _invoiceRepository;
     private readonly IJobCompletedPhotoRepository _photoRepository;
+    private readonly IOrganizationSettingsRepository _settingsRepository;
     [ObservableProperty] private string _currentItemDescription = string.Empty;
     [ObservableProperty] private string _currentItemPrice = string.Empty;
     [ObservableProperty] private string _today = DateTime.Now.ToString("yyyy-MM-dd");
@@ -30,10 +31,12 @@ public partial class InvoiceCreateModel : BaseViewModel
 
     public InvoiceCreateModel(
         IInvoiceRepository invoiceRepository,
-        IJobCompletedPhotoRepository photoRepository)
+        IJobCompletedPhotoRepository photoRepository,
+        IOrganizationSettingsRepository settingsRepository)
     {
         _invoiceRepository = invoiceRepository;
         _photoRepository = photoRepository;
+        _settingsRepository = settingsRepository;
     }
 
     public async Task Initialize(string customerId, string scheduledJobDefinitionId, string jobOccurrenceId)
@@ -93,10 +96,20 @@ public partial class InvoiceCreateModel : BaseViewModel
             photoUris.AddRange(photoPathsResult.Value.JobCompletedPhotoListDto.JobCompletedPhotos.Select(details => details.Uri));
         }
 
-        var location = new InvoiceDocument.CustomerBusinessLocation("123 Main Street", "Melbourne", "Victoria", "Australia");
-        var businessDetails = new InvoiceDocument.CustomerBusinessDetails("Your Business Name", "1234567890", "info@yourbusiness.com", location, "1234567890");
+        // Get organization settings for business details
+        var settingsResult = await _settingsRepository.GetOrganizationSettingsAsync();
+        var settings = settingsResult.IsSuccess ? settingsResult.Value : null;
 
-        var document = new InvoiceDocument(businessDetails, invoiceNumber, customerName, invoiceDate, InvoiceItems, "bank-details-123", photoUris);
+        var location = settings != null
+            ? new InvoiceDocument.CustomerBusinessLocation(settings.StreetAddress, settings.City, settings.State, settings.Country)
+            : new InvoiceDocument.CustomerBusinessLocation("123 Main Street", "Melbourne", "Victoria", "Australia");
+
+        var businessDetails = settings != null
+            ? new InvoiceDocument.CustomerBusinessDetails(settings.BusinessName, settings.PhoneNumber, settings.Email, location, settings.BusinessIdNumber)
+            : new InvoiceDocument.CustomerBusinessDetails("Your Business Name", "1234567890", "info@yourbusiness.com", location, "1234567890");
+
+        var bankDetails = settings?.FormattedBankDetails ?? "bank-details-123";
+        var document = new InvoiceDocument(businessDetails, invoiceNumber, customerName, invoiceDate, InvoiceItems, bankDetails, photoUris);
 
         try
         {
@@ -118,7 +131,7 @@ public partial class InvoiceCreateModel : BaseViewModel
             }
             else
             {
-                await ShowErrorAsync("Failed to save invoice.", result.ErrorMessage);
+                await ShowErrorAsync("Failed to save invoice.", result.ErrorMessage ?? "Unknown error occurred");
             }
         }
         catch (Exception ex)
@@ -147,7 +160,7 @@ public partial class InvoiceCreateModel : BaseViewModel
             }
             else
             {
-                await ShowErrorAsync($"Failed to send invoice: {result.ErrorMessage}");
+                await ShowErrorAsync($"Failed to send invoice: {result.ErrorMessage ?? "Unknown error occurred"}");
             }
         });
     }

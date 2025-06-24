@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Maui.Markup;
+﻿﻿using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Styles;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
@@ -133,6 +133,7 @@ public sealed class DashboardPage : BasePage<DashboardViewModel>
             Children =
             {
                 CreateActionButton("👥 Manage Customers", nameof(ViewModel.NavigateToCustomersCommand), CardStyles.Colors.Primary),
+                CreateActionButton("⚙️ Organization Settings", nameof(ViewModel.NavigateToSettingsCommand), CardStyles.Colors.Warning),
                 CreateActionButton("🚪 Logout", nameof(ViewModel.LogoutCommand), CardStyles.Colors.Error)
             }
         };

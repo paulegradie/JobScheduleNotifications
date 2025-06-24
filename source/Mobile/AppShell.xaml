@@ -6,6 +6,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:sf="clr-namespace:Syncfusion.Maui.Toolkit.SegmentedControl;assembly=Syncfusion.Maui.Toolkit"
     xmlns:pages1="clr-namespace:Mobile.UI.Pages;assembly=Mobile.UI"
+    xmlns:settings="clr-namespace:Mobile.UI.Pages.Settings;assembly=Mobile.UI"
     Shell.FlyoutBehavior="Flyout"
     Title="Mobile">
     <Shell.FlyoutIcon>
@@ -17,6 +18,13 @@
         Icon="{StaticResource IconDashboard}"
         ContentTemplate="{DataTemplate pages1:LandingPage}"
         Route="main" />
+
+    <FlyoutItem Title="Settings" Icon="settings.png">
+        <ShellContent
+            Title="Organization Settings"
+            ContentTemplate="{DataTemplate settings:OrganizationSettingsPage}"
+            Route="settings" />
+    </FlyoutItem>
 
     <Shell.FlyoutFooter>
         <Grid Padding="15">

@@ -30,6 +30,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
 
     // Org
     public DbSet<Organization> Organizations { get; set; }
+    public DbSet<OrganizationSettings> OrganizationSettings { get; set; }
     public DbSet<ApplicationUserRecord> ApplicationUsers => Set<ApplicationUserRecord>();
 
 
@@ -89,6 +90,33 @@ public class AppDbContext : IdentityDbContext<ApplicationUserRecord, IdentityRol
             b.Property(x => x.OrganizationId).HasConversion<OrganizationIdValueConverter>().IsRequired();
 
             b.Property(x => x.Role).HasConversion<OrganizationRoleConverter>().IsRequired();
+        });
+
+        modelBuilder.Entity<OrganizationSettings>(settings =>
+        {
+            settings.HasKey(s => s.OrganizationId);
+            settings.Property(s => s.OrganizationId).HasConversion<OrganizationIdValueConverter>().IsRequired();
+
+            settings.Property(s => s.BusinessName).HasMaxLength(200);
+            settings.Property(s => s.BusinessDescription).HasMaxLength(1000);
+            settings.Property(s => s.BusinessIdNumber).HasMaxLength(50);
+            settings.Property(s => s.Email).HasMaxLength(255);
+            settings.Property(s => s.PhoneNumber).HasMaxLength(50);
+            settings.Property(s => s.StreetAddress).HasMaxLength(500);
+            settings.Property(s => s.City).HasMaxLength(100);
+            settings.Property(s => s.State).HasMaxLength(100);
+            settings.Property(s => s.PostalCode).HasMaxLength(20);
+            settings.Property(s => s.Country).HasMaxLength(100);
+            settings.Property(s => s.BankName).HasMaxLength(200);
+            settings.Property(s => s.BankBsb).HasMaxLength(20);
+            settings.Property(s => s.BankAccountNumber).HasMaxLength(50);
+            settings.Property(s => s.BankAccountName).HasMaxLength(200);
+            settings.Property(s => s.CreatedAt).IsRequired();
+
+            settings.HasOne(s => s.Organization)
+                .WithOne()
+                .HasForeignKey<OrganizationSettings>(s => s.OrganizationId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder

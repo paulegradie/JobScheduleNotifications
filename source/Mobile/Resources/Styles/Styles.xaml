@@ -14,7 +14,7 @@
 
     <!-- Implicit Label style -->
     <Style TargetType="Label">
-        <Setter Property="TextColor" Value="{StaticResource TextPrimaryBrush}" />
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
     </Style>
 
     <!-- Heading style -->

@@ -12,8 +12,6 @@ namespace Mobile.UI.Pages;
 public partial class DashboardViewModel : BaseViewModel
 {
     private readonly IServerClient _serverClient;
-    private readonly INavigationRepository _navigationUtility;
-    private readonly IAlertRepository _alertRepository;
     private readonly ITokenRepository _tokenRepository;
 
     [ObservableProperty] private string _title = "Dashboard";
@@ -36,13 +34,9 @@ public partial class DashboardViewModel : BaseViewModel
 
     public DashboardViewModel(
         IServerClient serverClient,
-        INavigationRepository navigationUtility,
-        IAlertRepository alertRepository,
         ITokenRepository tokenRepository)
     {
         _serverClient = serverClient;
-        _navigationUtility = navigationUtility;
-        _alertRepository = alertRepository;
         _tokenRepository = tokenRepository;
     }
 
@@ -69,7 +63,7 @@ public partial class DashboardViewModel : BaseViewModel
                 return;
             }
 
-            await _alertRepository.ShowAlertAsync("Error", "Failed to load dashboard data");
+            await ShowErrorAsync("Error", "Failed to load dashboard data");
             System.Diagnostics.Debug.WriteLine($"Dashboard Error");
         });
     }
@@ -77,7 +71,13 @@ public partial class DashboardViewModel : BaseViewModel
     [RelayCommand]
     private async Task NavigateToCustomers()
     {
-        await _navigationUtility.GoToAsync(nameof(CustomerListPage));
+        await Navigation.NavigateToCustomerListAsync();
+    }
+
+    [RelayCommand]
+    private async Task NavigateToSettings()
+    {
+        await Navigation.NavigateToOrganizationSettingsAsync();
     }
 
     [RelayCommand]
@@ -89,7 +89,7 @@ public partial class DashboardViewModel : BaseViewModel
             if (token == null) throw new Exception("No token found");
             await _serverClient.Auth.LogoutAsync(new SignOutRequest(token.Email), CancellationToken.None);
 
-            await _navigationUtility.GoToAsync(nameof(LoginPage));
+            await Navigation.NavigateToLandingPageAsync();
         });
     }
 }

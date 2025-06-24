@@ -44,7 +44,8 @@ public static class CompositionRoot
             .AddScoped<IScheduledJobDefinitionRepository, ScheduledJobDefinitionRepository>()
             .AddScoped<IJobOccurrenceRepository, JobOccurrenceRepository>()
             .AddScoped<IJobReminderRepository, JobReminderRepository>()
-            .AddScoped<IUserSettingsRepository, UserSettingsRepository>();
+            .AddScoped<IUserSettingsRepository, UserSettingsRepository>()
+            .AddScoped<IOrganizationSettingsRepository, OrganizationSettingsRepository>();
     }
 
     private static void AddMappers(IServiceCollection services)

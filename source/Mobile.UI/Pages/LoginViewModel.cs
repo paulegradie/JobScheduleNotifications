@@ -8,7 +8,7 @@ using Server.Contracts.Endpoints.Auth.Contracts;
 
 namespace Mobile.UI.Pages;
 
-public partial class LoginViewModel : BaseViewModel
+public partial class LoginViewModel : BaseValidatorModel
 {
     private readonly IServerClient _serverClient;
 

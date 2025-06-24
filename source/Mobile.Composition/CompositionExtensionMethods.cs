@@ -6,6 +6,7 @@ using Mobile.UI.Pages;
 using Mobile.UI.Pages.Customers;
 using Mobile.UI.Pages.Customers.ScheduledJobs;
 using Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
+using Mobile.UI.Pages.Settings;
 using Mobile.UI.RepositoryAbstractions;
 using Server.Client;
 using Server.Client.Base;
@@ -44,6 +45,7 @@ public static class CompositionExtensionMethods
 
         services.RegisterPageAndModel<ViewJobOccurrencePage, ViewJobOccurrenceModel>();
         services.RegisterPageAndModel<InvoiceCreatePage, InvoiceCreateModel>();
+        services.RegisterPageAndModel<OrganizationSettingsPage, OrganizationSettingsViewModel>();
 
         // Service
         services.AddRepositories();

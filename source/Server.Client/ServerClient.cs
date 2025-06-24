@@ -7,6 +7,7 @@ using Server.Contracts.Endpoints.Home;
 using Server.Contracts.Endpoints.Invoices;
 using Server.Contracts.Endpoints.JobOccurence;
 using Server.Contracts.Endpoints.JobPhotos;
+using Server.Contracts.Endpoints.OrganizationSettings;
 using Server.Contracts.Endpoints.Reminders;
 using Server.Contracts.Endpoints.ScheduledJobs;
 
@@ -29,6 +30,7 @@ internal class ServerClient : IServerClient
         Invoices = new InvoiceEndpoint(client);
         JobCompletedPhotos = new JobCompletedPhotosEndpoint(client);
         DashboardEndpoint = new DashboardEndpoint(client);
+        OrganizationSettings = new OrganizationSettingsEndpoint(client);
     }
 
     public IJobOccurrencesEndpoint JobOccurrences { get; init; }
@@ -42,6 +44,7 @@ internal class ServerClient : IServerClient
     public IAuthenticationEndpoint Auth { get; init; }
     public IScheduledJobsEndpoint ScheduledJobs { get; init; }
     public IInvoiceEndpoint Invoices { get; init; }
+    public IOrganizationSettingsEndpoint OrganizationSettings { get; init; }
 }
 
 internal class AuthClient : IAuthClient

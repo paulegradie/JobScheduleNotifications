@@ -4,6 +4,7 @@ using Mobile.UI.Pages;
 using Mobile.UI.Pages.Customers;
 using Mobile.UI.Pages.Customers.ScheduledJobs;
 using Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
+using Mobile.UI.Pages.Settings;
 using Font = Microsoft.Maui.Font;
 
 namespace Mobile;
@@ -30,6 +31,7 @@ public partial class AppShell : Shell
         AddPageToApp<ScheduledJobCreatePage>();
         AddPageToApp<ViewJobOccurrencePage>();
         AddPageToApp<InvoiceCreatePage>();
+        AddPageToApp<OrganizationSettingsPage>();
 
         var currentTheme = Application.Current!.UserAppTheme;
         ThemeSegmentedControl.SelectedIndex = currentTheme == AppTheme.Light ? 0 : 1;

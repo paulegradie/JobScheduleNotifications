@@ -2,8 +2,10 @@
 using Mobile.UI.Pages.Customers;
 using Mobile.UI.Pages.Customers.ScheduledJobs;
 using Mobile.UI.Pages.Customers.ScheduledJobs.JobOccurrences;
+using Mobile.UI.Pages.Settings;
 using Mobile.UI.Pages.Customers.ScheduledJobs.JobReminders;
 using Mobile.UI.RepositoryAbstractions;
+using Mobile.UI.Navigation.Parameters;
 
 namespace Mobile.UI.Navigation;
 
@@ -30,6 +32,7 @@ public class TypeSafeNavigationRepository : ITypeSafeNavigationRepository
         { typeof(JobReminderPage), nameof(JobReminderPage) },
         { typeof(InvoiceCreatePage), nameof(InvoiceCreatePage) },
         { typeof(RegisterPage), nameof(RegisterPage) },
+        { typeof(OrganizationSettingsPage), nameof(OrganizationSettingsPage) },
     };
 
     public TypeSafeNavigationRepository(INavigationRepository navigationRepository)
@@ -95,4 +98,7 @@ public class TypeSafeNavigationRepository : ITypeSafeNavigationRepository
 
     public Task NavigateToInvoiceCreateAsync(InvoiceCreateParameters parameters) =>
         NavigateToAsync<InvoiceCreatePage, InvoiceCreateParameters>(parameters);
+
+    public Task NavigateToOrganizationSettingsAsync() =>
+        NavigateToAsync<OrganizationSettingsPage, OrganizationSettingsParameters>(new OrganizationSettingsParameters());
 }

@@ -142,8 +142,14 @@ public class Authenticator : IAuthenticator
 
         var roles = await _userManager.GetRolesAsync(user);
 
+        // Get organization ID for the user
+        var orgId = await _context.OrganizationUsers
+            .Where(ou => ou.IdentityUserId == user.Id)
+            .Select(ou => ou.OrganizationId)
+            .SingleOrDefaultAsync();
+
         // refresh tokens
-        var newAccessToken = _jwt.GenerateJwtToken(user.Id, user.UserName!, roles, null);
+        var newAccessToken = _jwt.GenerateJwtToken(user.Id, user.UserName!, roles, customerId: null, organizationId: orgId);
         var newRefreshToken = _jwt.GenerateRefreshToken();
 
         user.RefreshToken = newRefreshToken.Token;
