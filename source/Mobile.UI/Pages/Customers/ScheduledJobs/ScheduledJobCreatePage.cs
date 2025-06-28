@@ -1,11 +1,14 @@
-﻿using Api.ValueTypes.Enums;
+﻿
+using System;
+using Api.ValueTypes.Enums;
 using CommunityToolkit.Maui.Markup;
+using Microsoft.Maui;
+using Microsoft.Maui.Controls;
 using Microsoft.Maui.Layouts;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Pages.Base.QueryParamAttributes;
 using Mobile.UI.Styles;
 using Server.Contracts.Dtos;
-using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace Mobile.UI.Pages.Customers.ScheduledJobs;
 
@@ -157,9 +160,9 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
                         JustifyContent = FlexJustify.SpaceBetween,
                         Children =
                         {
-                            CreateFrequencyChip(Frequency.Daily),
-                            CreateFrequencyChip(Frequency.Weekly),
-                            CreateFrequencyChip(Frequency.Monthly),
+                            CreateFrequencyChip(ScheduleFrequency.Daily),
+                            CreateFrequencyChip(ScheduleFrequency.Weekly),
+                            CreateFrequencyChip(ScheduleFrequency.Monthly),
                         }
                     }
                 ),
@@ -238,9 +241,9 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
                 // Button container
                 new Grid
                 {
-                    ColumnDefinitions = Columns.Define(
-                        (Column.Save, Star),
-                        (Column.Cancel, Star)
+                    ColumnDefinitions = GridRowsColumns.Columns.Define(
+                        (Column.Save, GridLength.Star),
+                        (Column.Cancel, GridLength.Star)
                     ),
                     ColumnSpacing = 12,
                     Children =
@@ -271,7 +274,7 @@ public class ScheduledJobCreatePage : BasePage<ScheduledJobCreateModel>
         return CardStyles.CreateCard(content, CardStyles.Colors.Success);
     }
 
-    private Button CreateFrequencyChip(Frequency freq) =>
+    private Button CreateFrequencyChip(ScheduleFrequency freq) =>
         new Button
             {
                 Text = freq.ToString(),

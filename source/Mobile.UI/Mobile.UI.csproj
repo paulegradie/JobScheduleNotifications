@@ -1,39 +1,19 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
         <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
-        <!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
-        <!-- <TargetFrameworks>$(TargetFrameworks);net9.0-tizen</TargetFrameworks> -->
-
-        <!-- Note for MacCatalyst:
-        The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.
-        When specifying both architectures, use the plural <RuntimeIdentifiers> instead of the singular <RuntimeIdentifier>.
-        The Mac App Store will NOT accept apps with ONLY maccatalyst-arm64 indicated;
-        either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
-        <!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
-
         <SingleProject>true</SingleProject>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <!-- https://github.com/CommunityToolkit/Maui/issues/2205 -->
         <NoWarn>XC0103</NoWarn>
         <MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
         <EnablePreviewFeatures>true</EnablePreviewFeatures>
-
-        <!-- Display name -->
         <ApplicationTitle>MobileApp</ApplicationTitle>
-
-        <!-- App Identifier -->
         <ApplicationId>com.companyname.poc</ApplicationId>
-
-        <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
-
-        <!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
         <WindowsPackageType>None</WindowsPackageType>
-
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
@@ -43,19 +23,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CommunityToolkit.Maui.Markup" Version="5.1.0"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4"/>
-        <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.4"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0"/>
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-        <PackageReference Include="CommunityToolkit.Maui" Version="9.1.0"/>
-        <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.8"/>
-<!--        <PackageReference Include="Plugin.Maui.Calendar" Version="2.0.6" />-->
-        <PackageReference Include="QuestPDF" Version="2025.5.0" />
-        <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.10"/>
-        <PackageReference Include="Syncfusion.Maui.Toolkit" Version="1.0.2"/>
+        <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.70" />
+        <PackageReference Include="CommunityToolkit.Maui.Markup" Version="6.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0-preview.5.25277.114" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0-preview.5.25277.114" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0"/>
+        <PackageReference Include="CommunityToolkit.Maui" Version="12.0.0" />
+        <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.0-preview.5.25277.114" />
+        <PackageReference Include="QuestPDF" Version="2025.5.0"/>
+        <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.11"/>
+        <PackageReference Include="Syncfusion.Maui.Toolkit" Version="1.0.5"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0-preview.5.25277.114"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.0-preview.5.25277.114" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0-preview.5.25277.114"/>
     </ItemGroup>
-
+   
     <ItemGroup>
         <ProjectReference Include="..\Server.Contracts\Server.Contracts.csproj"/>
     </ItemGroup>
@@ -67,58 +49,58 @@
     </ItemGroup>
 
     <ItemGroup>
-      <AdditionalFiles Include="Pages\Base\Controls\AddButton.xaml" />
+        <AdditionalFiles Include="Pages\Base\Controls\AddButton.xaml"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Pages\Customers\ScheduledJobs\ScheduledJobListModel.cs">
-        <DependentUpon>ScheduledJobListPage.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Pages\DashboardViewModel.cs">
-        <DependentUpon>DashboardPage.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Pages\Customers\ScheduledJobs\ScheduledJobCreateModel.cs">
-        <DependentUpon>ScheduledJobCreatePage.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Pages\Customers\ScheduledJobs\ScheduledJobViewModel.cs">
-        <DependentUpon>ScheduledJobViewPage.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Pages\Customers\ScheduledJobs\ScheduledJobEditModel.cs">
-        <DependentUpon>ScheduledJobEditPage.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Pages\Customers\CustomerCreateModel.cs">
-        <DependentUpon>CustomerCreatePage.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Pages\Customers\CustomerEditModel.cs">
-        <DependentUpon>CustomerEditPage.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Pages\Customers\CustomerListModel.cs">
-        <DependentUpon>CustomerListPage.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Pages\Customers\CustomerViewModel.cs">
-        <DependentUpon>CustomerViewPage.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Pages\LandingPageModel.cs">
-        <DependentUpon>LandingPage.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Pages\LoginViewModel.cs">
-        <DependentUpon>LoginPage.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Pages\RegisterViewModel.cs">
-        <DependentUpon>RegisterPage.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Pages\Customers\ScheduledJobs\JobOccurrences\ViewJobOccurrenceModel.cs">
-        <DependentUpon>ViewJobOccurrencePage.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Pages\Customers\ScheduledJobs\JobOccurrences\JobReminders\JobReminderModel.cs">
-        <DependentUpon>JobReminderPage.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Pages\Customers\ScheduledJobs\JobOccurrences\InvoiceCreateModel.cs">
-        <DependentUpon>InvoiceCreatePage.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Pages\Customers\ScheduledJobs\JobReminders\JobReminderModel.cs">
-        <DependentUpon>JobReminderPage.cs</DependentUpon>
-      </Compile>
+        <Compile Update="Pages\Customers\ScheduledJobs\ScheduledJobListModel.cs">
+            <DependentUpon>ScheduledJobListPage.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\DashboardViewModel.cs">
+            <DependentUpon>DashboardPage.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\Customers\ScheduledJobs\ScheduledJobCreateModel.cs">
+            <DependentUpon>ScheduledJobCreatePage.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\Customers\ScheduledJobs\ScheduledJobViewModel.cs">
+            <DependentUpon>ScheduledJobViewPage.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\Customers\ScheduledJobs\ScheduledJobEditModel.cs">
+            <DependentUpon>ScheduledJobEditPage.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\Customers\CustomerCreateModel.cs">
+            <DependentUpon>CustomerCreatePage.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\Customers\CustomerEditModel.cs">
+            <DependentUpon>CustomerEditPage.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\Customers\CustomerListModel.cs">
+            <DependentUpon>CustomerListPage.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\Customers\CustomerViewModel.cs">
+            <DependentUpon>CustomerViewPage.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\LandingPageModel.cs">
+            <DependentUpon>LandingPage.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\LoginViewModel.cs">
+            <DependentUpon>LoginPage.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\RegisterViewModel.cs">
+            <DependentUpon>RegisterPage.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\Customers\ScheduledJobs\JobOccurrences\ViewJobOccurrenceModel.cs">
+            <DependentUpon>ViewJobOccurrencePage.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\Customers\ScheduledJobs\JobOccurrences\JobReminders\JobReminderModel.cs">
+            <DependentUpon>JobReminderPage.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\Customers\ScheduledJobs\JobOccurrences\InvoiceCreateModel.cs">
+            <DependentUpon>InvoiceCreatePage.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\Customers\ScheduledJobs\JobReminders\JobReminderModel.cs">
+            <DependentUpon>JobReminderPage.cs</DependentUpon>
+        </Compile>
     </ItemGroup>
 
 </Project>

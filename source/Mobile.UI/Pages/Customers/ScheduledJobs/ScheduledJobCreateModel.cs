@@ -24,7 +24,7 @@ public partial class ScheduledJobCreateModel : BaseViewModel
     // and when you read it out:
     public DateTime AnchorDateTime => AnchorDate.Date + AnchorTime;
 
-    [ObservableProperty] private Frequency _frequency = Frequency.Daily;
+    [ObservableProperty] private ScheduleFrequency _scheduleFrequency = ScheduleFrequency.Daily;
     [ObservableProperty] private int _interval = 1;
     [ObservableProperty] private int? _dayOfMonth;
     [ObservableProperty] private string _cronExpression = string.Empty;
@@ -35,11 +35,11 @@ public partial class ScheduledJobCreateModel : BaseViewModel
 
     private string FormatIntervalDisplay()
     {
-        var freqString = Frequency switch
+        var freqString = ScheduleFrequency switch
         {
-            Frequency.Daily => "day",
-            Frequency.Weekly => "week",
-            Frequency.Monthly => "month",
+            ScheduleFrequency.Daily => "day",
+            ScheduleFrequency.Weekly => "week",
+            ScheduleFrequency.Monthly => "month",
             _ => ""
         };
 
@@ -107,7 +107,7 @@ public partial class ScheduledJobCreateModel : BaseViewModel
         Description = string.Empty;
         AnchorDate = DateTime.Now;
         AnchorTime = TimeSpan.Zero;
-        Frequency = Frequency.Daily;
+        ScheduleFrequency = ScheduleFrequency.Daily;
         Interval = 1;
         DayOfMonth = null;
         ErrorMessage = string.Empty;
@@ -116,7 +116,7 @@ public partial class ScheduledJobCreateModel : BaseViewModel
         UpdateCronPreview();
     }
 
-    partial void OnFrequencyChanged(Frequency value) => UpdateCronPreview();
+    partial void OnScheduleFrequencyChanged(ScheduleFrequency value) => UpdateCronPreview();
 
     partial void OnIntervalChanged(int value) => UpdateCronPreview();
 
@@ -141,13 +141,13 @@ public partial class ScheduledJobCreateModel : BaseViewModel
         });
     }
 
-    public bool ShowDayOfMonth => Frequency == Frequency.Monthly;
+    public bool ShowDayOfMonth => ScheduleFrequency == ScheduleFrequency.Monthly;
 
     [RelayCommand]
-    private void SelectFrequency(Frequency freq)
+    private void SelectFrequency(ScheduleFrequency freq)
     {
-        Frequency = freq;
-        OnPropertyChanged(nameof(Frequency));
+        ScheduleFrequency = freq;
+        OnPropertyChanged(nameof(ScheduleFrequency));
         OnPropertyChanged(nameof(ShowDayOfMonth));
     }
 
@@ -159,15 +159,15 @@ public partial class ScheduledJobCreateModel : BaseViewModel
                 .AtMinute(0)
                 .AtHour(0);
 
-            switch (Frequency)
+            switch (ScheduleFrequency)
             {
-                case Frequency.Daily:
+                case ScheduleFrequency.Daily:
                     builder.EveryDays(Interval);
                     break;
-                case Frequency.Weekly:
+                case ScheduleFrequency.Weekly:
                     builder.EveryWeeks(Interval);
                     break;
-                case Frequency.Monthly:
+                case ScheduleFrequency.Monthly:
                     var dayOfMonth = DayOfMonth ?? 1; // Default to 1st of month if not specified
                     builder.OnDayOfMonth(dayOfMonth).EveryMonths(Interval);
                     break;
@@ -244,7 +244,7 @@ public partial class ScheduledJobCreateModel : BaseViewModel
     partial void OnDescriptionChanged(string oldValue, string newValue)
         => SaveCommand.NotifyCanExecuteChanged();
 
-    partial void OnFrequencyChanged(Frequency oldValue, Frequency newValue)
+    partial void OnScheduleFrequencyChanged(ScheduleFrequency oldValue, ScheduleFrequency newValue)
         => SaveCommand.NotifyCanExecuteChanged();
 
     partial void OnIntervalChanged(int oldValue, int newValue)
@@ -261,7 +261,7 @@ public partial class ScheduledJobCreateModel : BaseViewModel
 
     public Style ChipStyle(object value, object parameter)
     {
-        var freq = (Frequency)parameter;
-        return freq == Frequency ? Device.Styles.BodyStyle : Device.Styles.CaptionStyle;
+        var freq = (ScheduleFrequency)parameter;
+        return freq == ScheduleFrequency ? Device.Styles.BodyStyle : Device.Styles.CaptionStyle;
     }
 }

@@ -12,9 +12,9 @@ public class RecurrencePatternDomainModel : DomainModelBase<RecurrencePatternDto
     {
     }
 
-    public RecurrencePatternDomainModel(Frequency frequency, int interval, WeekDay[] weekDays, int? dayOfMonth = null, string? cronExpression = null)
+    public RecurrencePatternDomainModel(ScheduleFrequency scheduleFrequency, int interval, WeekDay[] weekDays, int? dayOfMonth = null, string? cronExpression = null)
     {
-        Frequency = frequency;
+        ScheduleFrequency = scheduleFrequency;
         Interval = interval;
         WeekDays = weekDays;
         DayOfMonth = dayOfMonth;
@@ -30,7 +30,7 @@ public class RecurrencePatternDomainModel : DomainModelBase<RecurrencePatternDto
     // Unique identifier
     public RecurrencePatternId Id { get; set; }
 
-    public Frequency Frequency { get; set; } = Frequency.Weekly;
+    public ScheduleFrequency ScheduleFrequency { get; set; } = ScheduleFrequency.Weekly;
     public int Interval { get; set; } = 1;
     public WeekDay[] WeekDays { get; set; } = [];
     public int? DayOfMonth { get; set; }

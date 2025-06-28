@@ -25,7 +25,7 @@ public partial class ScheduledJobEditModel : BaseViewModel
     public DateTime AnchorDateTime => AnchorDate.Date + AnchorTime;
 
 
-    [ObservableProperty] private Frequency _frequency = Frequency.Daily;
+    [ObservableProperty] private ScheduleFrequency _scheduleFrequency = ScheduleFrequency.Daily;
     [ObservableProperty] private int _interval = 1;
     [ObservableProperty] private int? _dayOfMonth;
     [ObservableProperty] private string _cronExpression = string.Empty;
@@ -41,11 +41,11 @@ public partial class ScheduledJobEditModel : BaseViewModel
 
     private string FormatIntervalDisplay()
     {
-        var freqString = Frequency switch
+        var freqString = ScheduleFrequency switch
         {
-            Frequency.Daily => "daily",
-            Frequency.Weekly => "weekly",
-            Frequency.Monthly => "monthly",
+            ScheduleFrequency.Daily => "daily",
+            ScheduleFrequency.Weekly => "weekly",
+            ScheduleFrequency.Monthly => "monthly",
             _ => ""
         };
 
@@ -120,9 +120,9 @@ public partial class ScheduledJobEditModel : BaseViewModel
     }
 
     [RelayCommand]
-    private void SelectFrequency(Frequency freq)
+    private void SelectFrequency(ScheduleFrequency freq)
     {
-        Frequency = freq;
+        ScheduleFrequency = freq;
     }
 
     [RelayCommand(CanExecute = nameof(CanSave))]
@@ -186,7 +186,7 @@ public partial class ScheduledJobEditModel : BaseViewModel
     }
 
 
-    partial void OnFrequencyChanged(Frequency value)
+    partial void OnScheduleFrequencyChanged(ScheduleFrequency value)
     {
         SaveCommand.NotifyCanExecuteChanged();
         UpdateCronPreview();
@@ -194,8 +194,8 @@ public partial class ScheduledJobEditModel : BaseViewModel
 
     public Style ChipStyle(object value, object parameter)
     {
-        var freq = (Frequency)parameter;
-        return freq == Frequency ? Device.Styles.BodyStyle : Device.Styles.CaptionStyle;
+        var freq = (ScheduleFrequency)parameter;
+        return freq == ScheduleFrequency ? Device.Styles.BodyStyle : Device.Styles.CaptionStyle;
     }
 
     private void UpdateCronPreview()
@@ -206,15 +206,15 @@ public partial class ScheduledJobEditModel : BaseViewModel
                 .AtMinute(0)
                 .AtHour(0);
 
-            switch (Frequency)
+            switch (ScheduleFrequency)
             {
-                case Frequency.Daily:
+                case ScheduleFrequency.Daily:
                     builder.EveryDays(Interval);
                     break;
-                case Frequency.Weekly:
+                case ScheduleFrequency.Weekly:
                     builder.EveryWeeks(Interval);
                     break;
-                case Frequency.Monthly:
+                case ScheduleFrequency.Monthly:
                     if (DayOfMonth.HasValue)
                         builder.OnDayOfMonth(DayOfMonth.Value).EveryMonths(Interval);
                     break;

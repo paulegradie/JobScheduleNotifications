@@ -1,4 +1,4 @@
-﻿using Api.ValueTypes;
+﻿﻿using Api.ValueTypes;
 using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Pages.Base.QueryParamAttributes;
@@ -149,11 +149,28 @@ public sealed class ScheduledJobViewPage : BasePage<ScheduledJobViewModel>
                                 CardStyles.CreateCaptionLabel()
                                     .Bind(Label.TextProperty, nameof(JobOccurrenceDto.JobTitle))),
 
-                            // Completion status
-                            CardStyles.CreateIconTextStack("✅",
-                                CardStyles.CreateCaptionLabel()
+                            // Completion status with conditional icon
+                            new HorizontalStackLayout
+                            {
+                                Spacing = 8,
+                                VerticalOptions = LayoutOptions.Center,
+                                Children =
+                                {
+                                    // Conditional completion icon
+                                    new Label
+                                    {
+                                        FontSize = 16,
+                                        VerticalOptions = LayoutOptions.Center
+                                    }
                                     .Bind(Label.TextProperty, nameof(JobOccurrenceDto.MarkedAsCompleted),
-                                        stringFormat: "Completed: {0}"))
+                                        convert: (bool isCompleted) => isCompleted ? "✅" : "⏳"),
+
+                                    // Completion status text
+                                    CardStyles.CreateCaptionLabel()
+                                        .Bind(Label.TextProperty, nameof(JobOccurrenceDto.MarkedAsCompleted),
+                                            stringFormat: "Completed: {0}")
+                                }
+                            }
                         }
                     }
                     .Column(Column.Content),

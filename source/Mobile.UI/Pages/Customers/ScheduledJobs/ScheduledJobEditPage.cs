@@ -1,4 +1,5 @@
-﻿using Api.ValueTypes;
+﻿
+using Api.ValueTypes;
 using Api.ValueTypes.Enums;
 using CommunityToolkit.Maui.Markup;
 using Microsoft.Maui.Layouts;
@@ -100,9 +101,9 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
                         JustifyContent = FlexJustify.SpaceBetween,
                         Children =
                         {
-                            CreateFrequencyChip(Frequency.Daily),
-                            CreateFrequencyChip(Frequency.Weekly),
-                            CreateFrequencyChip(Frequency.Monthly),
+                            CreateFrequencyChip(ScheduleFrequency.Daily),
+                            CreateFrequencyChip(ScheduleFrequency.Weekly),
+                            CreateFrequencyChip(ScheduleFrequency.Monthly),
                         }
                     }
                 ),
@@ -207,7 +208,7 @@ public sealed class ScheduledJobEditPage : BasePage<ScheduledJobEditModel>
         return CardStyles.CreateCard(content, CardStyles.Colors.Success);
     }
 
-    private Button CreateFrequencyChip(Frequency freq) =>
+    private Button CreateFrequencyChip(ScheduleFrequency freq) =>
         new Button
             {
                 Text = freq.ToString(),
