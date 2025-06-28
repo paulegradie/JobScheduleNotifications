@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Maui.Markup;
+﻿﻿using CommunityToolkit.Maui.Markup;
 using Mobile.UI.Pages.Base;
 using Mobile.UI.Styles;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
@@ -143,30 +143,30 @@ public sealed class LandingPage : BasePage<LandingPageModel>
     private VerticalStackLayout BuildActionButtons() =>
         new VerticalStackLayout
         {
-            Spacing = 16,
-            Margin = new Thickness(0, 0, 0, 32),
+            Spacing = 24,
+            Margin = new Thickness(0, 32, 0, 40),
             Children =
             {
-                CreateActionButton("🚀 Get Started", "Sign In", nameof(_vm.NavigateToLoginCommand), CardStyles.Colors.Primary),
-                CreateActionButton("📝 Create Account", "New to ServicePro?", nameof(_vm.NavigateToRegisterCommand), CardStyles.Colors.Success),
-                CreateActionButton("👀 Quick Demo", "View Sample Data", nameof(_vm.NavigateToCustomersCommand), CardStyles.Colors.Warning)
+                CreateActionButton("🚀 Get Started", nameof(_vm.NavigateToLoginCommand), CardStyles.Colors.Primary),
+                CreateActionButton("📝 Create Account", nameof(_vm.NavigateToRegisterCommand), CardStyles.Colors.Success),
+                CreateActionButton("👀 Quick Demo", nameof(_vm.NavigateToCustomersCommand), CardStyles.Colors.Warning)
             }
         };
 
-    private Frame CreateActionButton(string title, string subtitle, string commandName, Color backgroundColor) =>
-        CardStyles.CreateCard(
-            new Button
-            {
-                BackgroundColor = backgroundColor,
-                TextColor = Colors.White,
-                FontSize = 16,
-                FontAttributes = FontAttributes.Bold,
-                CornerRadius = 12,
-                Padding = new Thickness(20, 16),
-                Text = title,
-                HorizontalOptions = LayoutOptions.FillAndExpand
-            }
-            .BindCommand(commandName));
+    private Button CreateActionButton(string title, string commandName, Color backgroundColor) =>
+        new Button
+        {
+            BackgroundColor = backgroundColor,
+            TextColor = Colors.White,
+            FontSize = 18,
+            FontAttributes = FontAttributes.Bold,
+            CornerRadius = 12,
+            Padding = new Thickness(24, 18),
+            Text = title,
+            HorizontalOptions = LayoutOptions.FillAndExpand,
+            HeightRequest = 56
+        }
+        .BindCommand(commandName);
 
     private VerticalStackLayout BuildFooter() =>
         new VerticalStackLayout
